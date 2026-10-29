@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ -->
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blok-editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/dompdf.js@2.0.7/dist/dompdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <div class="preview" id="preview">
+            <div class="sheet-zoom" id="stage">
+                <div class="guides" id="guides"></div>
+                <article class="sheet" id="sheet">
+                    <aside class="col sidebar" id="col-sidebar"></aside>
+                    <div class="col main" id="col-main"></div>
+                </article>
+            </div>
+        </div>
+        <aside class="tools" id="tools"></aside>
+    </div>
+    <script src="editor.js"></script>
+</body>
+</html>

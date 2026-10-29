@@ -1,0 +1,18 @@
+This project's own code is dedicated to the public domain under CC0 1.0.
+See the LICENSE file.
+
+The editor loads these libraries from a CDN. They stay under their own
+licenses and are not relicensed:
+
+- dompdf.js 2.0.7 — MIT License
+  https://github.com/lmn1919/dompdf.js
+  Draws the selectable PDF from the page on screen.
+
+- pdf-lib 1.17.1 — MIT License
+  https://github.com/Hopding/pdf-lib
+  Attaches document.json to that PDF and reads the attachment back.
+  It does not draw the page.
+
+- Roboto, by Google — Apache License 2.0
+  https://github.com/googlefonts/roboto
+  The typeface for the page and the PDF, latin subset, via Fontsource.
