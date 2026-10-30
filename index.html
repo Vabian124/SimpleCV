@@ -230,7 +230,23 @@
         <div class="crop-card" role="dialog" aria-modal="true" aria-labelledby="crop-title">
             <h2 id="crop-title" data-i18n="photo.title"></h2>
             <p class="setup-lead" data-i18n="photo.hint"></p>
+            <button type="button" class="btn" id="crop-change" data-i18n="photo.replace"></button>
             <div class="crop-stage"><img id="crop-image" alt=""></div>
+            <div class="crop-row">
+                <span id="crop-page-label" data-i18n="photo.onPage"></span>
+                <input id="crop-page-size" type="range" min="36" max="100" step="2" aria-labelledby="crop-page-label">
+                <span id="crop-page-value"></span>
+                <button type="button" class="btn" id="crop-page-max" data-i18n="photo.max"></button>
+                <button type="button" class="btn" id="crop-page-reset" data-i18n="photo.reset"></button>
+            </div>
+            <div class="crop-row">
+                <span id="crop-zoom-label" data-i18n="photo.inFrame"></span>
+                <input id="crop-zoom" type="range" min="10" max="300" step="1" aria-labelledby="crop-zoom-label">
+                <span id="crop-zoom-value"></span>
+                <button type="button" class="btn" id="crop-fit" data-i18n="photo.fit"></button>
+                <button type="button" class="btn" id="crop-fill" data-i18n="photo.max"></button>
+                <button type="button" class="btn" id="crop-reset" data-i18n="photo.reset"></button>
+            </div>
             <div class="crop-aspects">
                 <button type="button" class="btn" data-aspect="0.75" data-i18n="photo.portrait"></button>
                 <button type="button" class="btn" data-aspect="1" data-i18n="photo.square"></button>

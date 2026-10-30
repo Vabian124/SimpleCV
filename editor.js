@@ -317,10 +317,16 @@ const I18N = {
         },
         photo: {
             pick: "Kies een foto",
+            edit: "Kaderen",
             replace: "Andere foto",
             title: "Foto kaderen",
-            hint: "Sleep de foto en kies een vorm. Het kader is wat er op de pagina komt.",
+            hint: "Sleep de foto in het kader. Passend toont de hele foto, max vult het kader. Fotogrootte is hoe groot hij op de pagina staat.",
             size: "Fotogrootte",
+            onPage: "Op de pagina",
+            inFrame: "In het kader",
+            fit: "Passend",
+            max: "Max",
+            reset: "Reset",
             use: "Gebruik dit kader",
             cancel: "Annuleer",
             portrait: "Portret",
@@ -637,10 +643,16 @@ const I18N = {
         },
         photo: {
             pick: "Choose a photo",
+            edit: "Frame",
             replace: "Different photo",
             title: "Frame the photo",
-            hint: "Drag the photo and pick a shape. The frame is what lands on the page.",
+            hint: "Drag the photo inside the frame. Fit shows the whole photo, max fills the frame. Photo size is how large it is on the page.",
             size: "Photo size",
+            onPage: "On the page",
+            inFrame: "Inside the frame",
+            fit: "Fit",
+            max: "Max",
+            reset: "Reset",
             use: "Use this frame",
             cancel: "Cancel",
             portrait: "Portrait",
@@ -1325,9 +1337,56 @@ function focusLine(id, index) {
 function photoWidth(item) {
     const saved = Number(item.fields && item.fields.width);
     if (saved >= 36 && saved <= 100) return saved;
+    return defaultPhotoWidth(item);
+}
+
+function defaultPhotoWidth(item) {
     if (columnOf(item.id) === "main") return 48;
     if (doc && doc.kind === "letter") return 64;
     return 92;
+}
+
+let photoWidthSnapped = false;
+
+function paintPhotoWidth(item) {
+    if (!item) return;
+    const width = photoWidth(item);
+    const sizeInput = document.getElementById("block-size");
+    const sizeLabel = document.getElementById("block-size-value");
+    if (sizeInput && sizeLabel && selectedBlock() === item) {
+        sizeInput.value = String(width);
+        sizeLabel.textContent = width + "%";
+    }
+    const page = document.getElementById("crop-page-size");
+    const pageLabel = document.getElementById("crop-page-value");
+    if (page) page.value = String(width);
+    if (pageLabel) pageLabel.textContent = width + "%";
+}
+
+function applyPhotoFrame(item) {
+    const frame = document.querySelector('.block[data-id="' + item.id + '"] .photo-frame');
+    if (frame) frame.style.width = photoWidth(item) + "%";
+    paintPhotoWidth(item);
+}
+
+function setPhotoWidth(item, width, snap) {
+    if (!item) return;
+    if (snap && !photoWidthSnapped) {
+        snapshot();
+        photoWidthSnapped = true;
+    }
+    item.fields.width = Math.max(36, Math.min(100, Math.round(Number(width))));
+    applyPhotoFrame(item);
+    save();
+}
+
+function resetPhotoWidth(item) {
+    if (!item) return;
+    snapshot();
+    photoWidthSnapped = true;
+    delete item.fields.width;
+    applyPhotoFrame(item);
+    save();
 }
 
 function nudgeScroll(x, y) {
@@ -1723,14 +1782,24 @@ function renderBlock(item) {
         frame.className = "photo-frame";
         frame.style.aspectRatio = fields.aspect || "3 / 4";
         frame.style.width = photoWidth(item) + "%";
-        frame.title = t("photo.title");
+        frame.title = fields.src ? t("photo.edit") : t("photo.pick");
         if (fields.src) {
             const img = document.createElement("img");
             img.alt = "";
             img.src = fields.src;
-            frame.appendChild(img);
+            const badge = document.createElement("span");
+            badge.className = "photo-edit";
+            badge.textContent = t("photo.edit");
+            frame.append(img, badge);
         } else {
-            frame.textContent = t("photo.pick");
+            frame.classList.add("is-empty");
+            const mark = document.createElement("span");
+            mark.className = "photo-mark";
+            mark.textContent = "+";
+            const label = document.createElement("span");
+            label.className = "photo-label";
+            label.textContent = t("photo.pick");
+            frame.append(mark, label);
         }
         frame.addEventListener("click", function (event) {
             event.preventDefault();
@@ -1738,24 +1807,7 @@ function renderBlock(item) {
             if (fields.src || fields.original) openPhotoCrop(item.id);
             else pickPhoto(item.id);
         });
-        const replace = document.createElement("button");
-        replace.type = "button";
-        replace.className = "photo-replace";
-        replace.textContent = t("photo.replace");
-        replace.hidden = !fields.src;
-        replace.addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            pickPhoto(item.id);
-        });
-        node.append(
-            frame,
-            replace,
-            editable("caption", fields.caption || "", function (html) {
-                fields.caption = html;
-                save();
-            }, t("ph.text"))
-        );
+        node.appendChild(frame);
     } else if (item.type === "heading") {
         if (headingStyle(item) === "label") node.classList.add("is-label");
         node.appendChild(editable("", fields.key ? escapeHtml(t(fields.key)) : (fields.html || ""), function (html) {
@@ -3021,6 +3073,7 @@ function applyModelText() {
 let cropper = null;
 let photoTargetId = null;
 let cropRatio = 0.75;
+let cropHome = null;
 
 function findBlock(id) {
     if (!doc) return null;
@@ -3087,6 +3140,57 @@ function closePhotoCrop() {
     return true;
 }
 
+function cropScale() {
+    if (!cropper) return 1;
+    const image = cropper.getImageData();
+    if (!image.naturalWidth) return 1;
+    return image.width / image.naturalWidth;
+}
+
+function syncCropZoom() {
+    const input = document.getElementById("crop-zoom");
+    const label = document.getElementById("crop-zoom-value");
+    if (!input) return;
+    const percent = Math.max(10, Math.min(300, Math.round(cropScale() * 100)));
+    input.value = String(percent);
+    if (label) label.textContent = percent + "%";
+}
+
+function placeCrop(scale) {
+    if (!cropper) return;
+    const box = cropper.getCropBoxData();
+    cropper.zoomTo(scale);
+    const canvas = cropper.getCanvasData();
+    cropper.setCanvasData({
+        left: box.left + (box.width - canvas.width) / 2,
+        top: box.top + (box.height - canvas.height) / 2
+    });
+    syncCropZoom();
+}
+
+function fitCrop() {
+    if (!cropper) return;
+    const box = cropper.getCropBoxData();
+    const image = cropper.getImageData();
+    placeCrop(Math.min(box.width / image.naturalWidth, box.height / image.naturalHeight));
+}
+
+function fillCrop() {
+    if (!cropper) return;
+    const box = cropper.getCropBoxData();
+    const image = cropper.getImageData();
+    placeCrop(Math.max(box.width / image.naturalWidth, box.height / image.naturalHeight));
+}
+
+function resetCrop() {
+    if (!cropper || !cropHome) return;
+    cropper.setAspectRatio(cropHome.ratio);
+    markCropAspect(cropHome.ratio);
+    cropper.setCanvasData(cropHome.canvas);
+    cropper.setCropBoxData(cropHome.crop);
+    syncCropZoom();
+}
+
 function openPhotoCrop(id) {
     const item = findBlock(id);
     if (!item) return;
@@ -3108,19 +3212,32 @@ function openPhotoCrop(id) {
     }
     photoReturnFocus = document.activeElement;
     dialog.hidden = false;
+    paintPhotoWidth(item);
     markCropAspect(aspectNumber(item.fields.aspect));
     const cancel = document.getElementById("crop-cancel");
     if (cancel) cancel.focus();
     img.onload = function () {
         img.onload = null;
+        cropHome = null;
         cropper = new Cropper(img, {
             aspectRatio: cropRatio,
-            viewMode: 1,
+            viewMode: 0,
             dragMode: "move",
             autoCropArea: 1,
             background: false,
             responsive: true,
-            toggleDragModeOnDblclick: false
+            toggleDragModeOnDblclick: false,
+            ready: function () {
+                cropHome = {
+                    ratio: cropRatio,
+                    canvas: cropper.getCanvasData(),
+                    crop: cropper.getCropBoxData()
+                };
+                syncCropZoom();
+            },
+            zoom: function () {
+                syncCropZoom();
+            }
         });
     };
     img.src = src;
@@ -3130,7 +3247,7 @@ function openPhotoCrop(id) {
 function applyPhotoCrop() {
     const item = findBlock(photoTargetId);
     if (!item || !cropper) return;
-    const canvas = cropper.getCroppedCanvas({ maxWidth: 900, maxHeight: 1200, imageSmoothingQuality: "high" });
+    const canvas = cropper.getCroppedCanvas({ maxWidth: 900, maxHeight: 1200, fillColor: "#fff", imageSmoothingQuality: "high" });
     if (!canvas) return;
     snapshot();
     item.fields.src = canvas.toDataURL("image/jpeg", 0.86);
@@ -3866,27 +3983,19 @@ function mountTools() {
     blockBg.addEventListener("change", function () { blockBgSnapped = false; });
 
     const blockSize = document.getElementById("block-size");
-    let photoSnapped = false;
-    blockSize.addEventListener("pointerdown", function () { photoSnapped = false; });
+    blockSize.addEventListener("pointerdown", function () { photoWidthSnapped = false; });
     blockSize.addEventListener("input", function () {
         const item = selectedBlock();
         const label = document.getElementById("block-size-value");
         if (item && item.type === "photo") {
-            if (!photoSnapped) {
-                snapshot();
-                photoSnapped = true;
-            }
-            item.fields.width = Number(blockSize.value);
-            const frame = document.querySelector('.block[data-id="' + item.id + '"] .photo-frame');
-            if (frame) frame.style.width = item.fields.width + "%";
+            setPhotoWidth(item, blockSize.value, true);
             if (label) label.textContent = blockSize.value + "%";
-            save();
             return;
         }
         if (label) label.textContent = blockSize.value + (item && item.type === "spacer" ? " px" : " pt");
     });
     blockSize.addEventListener("change", function () {
-        photoSnapped = false;
+        photoWidthSnapped = false;
         const value = Number(blockSize.value);
         const item = selectedBlock();
         if (item && item.type === "photo") return;
@@ -4950,6 +5059,34 @@ function boot() {
     });
     document.getElementById("crop-cancel").addEventListener("click", closePhotoCrop);
     document.getElementById("crop-apply").addEventListener("click", applyPhotoCrop);
+    document.getElementById("crop-change").addEventListener("click", function () {
+        if (photoTargetId) pickPhoto(photoTargetId);
+    });
+    const pageSize = document.getElementById("crop-page-size");
+    pageSize.addEventListener("pointerdown", function () { photoWidthSnapped = false; });
+    pageSize.addEventListener("input", function () {
+        setPhotoWidth(findBlock(photoTargetId), pageSize.value, true);
+    });
+    pageSize.addEventListener("change", function () { photoWidthSnapped = false; });
+    document.getElementById("crop-page-max").addEventListener("click", function () {
+        photoWidthSnapped = false;
+        setPhotoWidth(findBlock(photoTargetId), 100, true);
+        photoWidthSnapped = false;
+    });
+    document.getElementById("crop-page-reset").addEventListener("click", function () {
+        photoWidthSnapped = false;
+        resetPhotoWidth(findBlock(photoTargetId));
+        photoWidthSnapped = false;
+    });
+    const cropZoom = document.getElementById("crop-zoom");
+    cropZoom.addEventListener("input", function () {
+        if (!cropper) return;
+        cropper.zoomTo(Number(cropZoom.value) / 100);
+        syncCropZoom();
+    });
+    document.getElementById("crop-fit").addEventListener("click", fitCrop);
+    document.getElementById("crop-fill").addEventListener("click", fillCrop);
+    document.getElementById("crop-reset").addEventListener("click", resetCrop);
     const photoFile = document.getElementById("photo-file");
     photoFile.addEventListener("change", function () {
         const picked = photoFile.files && photoFile.files[0];
