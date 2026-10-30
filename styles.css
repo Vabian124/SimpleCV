@@ -376,6 +376,34 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 .library-card:hover { border-color: #cbd5e1; background: #f8fafc; }
+.library-card { cursor: grab; touch-action: none; }
+body.is-dragging .library-card { cursor: grabbing; }
+
+.col.is-drop { box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.85); }
+
+#drop-line {
+    position: fixed;
+    z-index: 35;
+    height: 3px;
+    border-radius: 99px;
+    background: #2563eb;
+    pointer-events: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+#drag-ghost {
+    position: fixed;
+    z-index: 45;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #0f172a;
+    color: #fff;
+    font: 600 13px/1.2 var(--font-ui);
+    pointer-events: none;
+    box-shadow: var(--shadow);
+}
+
+.block.is-dragging { opacity: 0.45; }
 
 .library-name { font-size: 12px; font-weight: 600; color: #334155; }
 
@@ -536,9 +564,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     cursor: pointer;
 }
 
-.floatbar input[type="range"] { width: 72px; accent-color: #fff; }
+.floatbar input[type="range"] { width: 104px; accent-color: #fff; }
 
-.floatbar .size-readout { font-size: 11px; min-width: 28px; opacity: 0.8; }
+.floatbar .size-readout { font-size: 11px; min-width: 46px; opacity: 0.8; }
 
 .sheet-zoom { position: relative; width: 210mm; margin: 0 auto; }
 
@@ -797,8 +825,7 @@ body[data-phase="studio"] .sidebar .block.is-selected {
     align-items: center;
     justify-content: center;
     width: 78%;
-    max-width: 132px;
-    max-height: 168px;
+    max-width: 100%;
     margin: 0 0 6px;
     padding: 0;
     aspect-ratio: 3 / 4;
@@ -825,8 +852,6 @@ body[data-phase="studio"] .sidebar .block.is-selected {
     cursor: pointer;
 }
 .block.photo.is-selected .photo-replace { display: inline-flex; }
-.sheet[data-kind="letter"] .sidebar .photo-frame { width: 52px; max-width: 52px; max-height: 52px; }
-.main .photo-frame { width: 160px; max-width: 180px; max-height: 220px; }
 .library-sample .photo-frame { width: 42px; max-width: 42px; max-height: 56px; margin: 0; aspect-ratio: 3 / 4; pointer-events: none; }
 .photo .caption { margin-top: 2px; }
 
@@ -875,22 +900,28 @@ body.pdf-exporting .block { opacity: 1 !important; outline: none !important; }
 }
 
 .drag-handle {
-    right: 0;
-    top: 0;
-    width: 16px;
-    height: 22px;
+    right: 2px;
+    top: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 28px;
     padding: 0;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 13px;
+    letter-spacing: -0.12em;
     cursor: grab;
-    opacity: 0;
-    background: rgba(255, 255, 255, 0.92);
+    opacity: 0.92;
+    touch-action: none;
+    background: rgba(255, 255, 255, 0.94);
     color: #334155;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
 }
 
-.block:hover .drag-handle,
-.block.is-selected .drag-handle { opacity: 1; }
+body.is-dragging,
+body.is-dragging .drag-handle,
+body.is-dragging .library-card { cursor: grabbing; }
 
 .line { position: relative; }
 

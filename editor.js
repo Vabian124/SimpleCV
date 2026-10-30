@@ -320,6 +320,7 @@ const I18N = {
             replace: "Andere foto",
             title: "Foto kaderen",
             hint: "Sleep de foto en kies een vorm. Het kader is wat er op de pagina komt.",
+            size: "Fotogrootte",
             use: "Gebruik dit kader",
             cancel: "Annuleer",
             portrait: "Portret",
@@ -639,6 +640,7 @@ const I18N = {
             replace: "Different photo",
             title: "Frame the photo",
             hint: "Drag the photo and pick a shape. The frame is what lands on the page.",
+            size: "Photo size",
             use: "Use this frame",
             cancel: "Cancel",
             portrait: "Portrait",
@@ -657,6 +659,7 @@ let dragHome = null;
 let dragCancel = false;
 let dragSortable = null;
 let dragPoint = null;
+let activeDragCancel = null;
 let seq = 1;
 let past = [];
 let future = [];
@@ -1244,10 +1247,13 @@ function editable(className, html, write, placeholder) {
     node.className = "editable" + (className ? " " + className : "");
     node.contentEditable = "true";
     node.lang = spellLocale();
+    node.setAttribute("lang", node.lang);
     node.spellcheck = true;
+    node.setAttribute("spellcheck", "true");
     if (placeholder) node.dataset.placeholder = placeholder;
-    if (className === "date" || placeholder === t("doc.phone") || placeholder === t("doc.email") || placeholder === t("ph.date")) {
+    if (className === "date" || placeholder === t("doc.phone") || placeholder === t("doc.email") || placeholder === t("doc.born") || placeholder === t("ph.date")) {
         node.spellcheck = false;
+        node.setAttribute("spellcheck", "false");
     }
     node.innerHTML = html || "";
     node.classList.toggle("is-blank", fieldIsBlank(node));
@@ -1316,6 +1322,25 @@ function focusLine(id, index) {
     focusEditable(rows[index]);
 }
 
+function photoWidth(item) {
+    const saved = Number(item.fields && item.fields.width);
+    if (saved >= 36 && saved <= 100) return saved;
+    if (columnOf(item.id) === "main") return 48;
+    if (doc && doc.kind === "letter") return 64;
+    return 92;
+}
+
+function nudgeScroll(x, y) {
+    [document.querySelector(".preview"), document.querySelector(".library")].forEach(function (pane) {
+        if (!pane) return;
+        const rect = pane.getBoundingClientRect();
+        if (x < rect.left - 8 || x > rect.right + 8 || y < rect.top || y > rect.bottom) return;
+        const edge = 64;
+        if (y < rect.top + edge) pane.scrollTop -= 22;
+        else if (y > rect.bottom - edge) pane.scrollTop += 22;
+    });
+}
+
 function paint(node, item) {
     if (item.type === "spacer") {
         node.style.height = (Number(item.fields.size) || 12) + "px";
@@ -1337,6 +1362,99 @@ function headingStyle(item) {
     return "bar";
 }
 
+function dropTarget(x, y, ignore) {
+    const stack = document.elementsFromPoint(x, y);
+    let column = null;
+    let block = null;
+    for (let index = 0; index < stack.length; index += 1) {
+        const node = stack[index];
+        if (!node || node.nodeType !== 1) continue;
+        if (ignore && (node === ignore || node.closest && ignore.contains(node))) continue;
+        if (node.closest("#drag-ghost, #drop-line, #floatbar")) continue;
+        if (node.closest("#toast, .crop-dialog, .topbar, .library, .drawer")) return null;
+        const col = node.id === "col-sidebar" || node.id === "col-main" ? node : node.closest("#col-sidebar, #col-main");
+        if (!col) continue;
+        column = col;
+        const hit = node.closest(".block");
+        if (hit && hit !== ignore && hit.parentElement === col) block = hit;
+        break;
+    }
+    if (!column) return null;
+    if (!block) {
+        const blocks = Array.from(column.children).filter(function (node) {
+            return node !== ignore && node.classList.contains("block");
+        });
+        let before = null;
+        blocks.forEach(function (node) {
+            if (before) return;
+            const rect = node.getBoundingClientRect();
+            if (y < rect.top + rect.height / 2) before = node;
+        });
+        return { column: column, before: before };
+    }
+    const rect = block.getBoundingClientRect();
+    const after = y > rect.top + rect.height / 2;
+    let before = after ? block.nextElementSibling : block;
+    if (before && !before.classList.contains("block")) before = null;
+    return { column: column, before: before };
+}
+
+function paintDrop(spot) {
+    document.querySelectorAll(".col.is-drop").forEach(function (node) { node.classList.remove("is-drop"); });
+    const line = document.getElementById("drop-line");
+    if (!spot) {
+        if (line) line.hidden = true;
+        return;
+    }
+    spot.column.classList.add("is-drop");
+    if (!line) return;
+    const columnRect = spot.column.getBoundingClientRect();
+    let top = columnRect.top + 10;
+    if (spot.before) top = spot.before.getBoundingClientRect().top;
+    else {
+        const blocks = spot.column.querySelectorAll(":scope > .block");
+        const last = blocks[blocks.length - 1];
+        if (last) top = last.getBoundingClientRect().bottom + 3;
+    }
+    line.hidden = false;
+    line.style.left = (columnRect.left + 10) + "px";
+    line.style.width = Math.max(24, columnRect.width - 20) + "px";
+    line.style.top = top + "px";
+}
+
+function clearDrop() {
+    document.querySelectorAll(".col.is-drop").forEach(function (node) { node.classList.remove("is-drop"); });
+    const line = document.getElementById("drop-line");
+    if (line) line.hidden = true;
+    const ghost = document.getElementById("drag-ghost");
+    if (ghost) ghost.hidden = true;
+    document.body.classList.remove("is-dragging");
+}
+
+function ensureDragChrome() {
+    if (!document.getElementById("drop-line")) {
+        const line = document.createElement("div");
+        line.id = "drop-line";
+        line.hidden = true;
+        document.body.appendChild(line);
+    }
+    if (!document.getElementById("drag-ghost")) {
+        const ghost = document.createElement("div");
+        ghost.id = "drag-ghost";
+        ghost.hidden = true;
+        document.body.appendChild(ghost);
+    }
+}
+
+function showGhost(text, x, y) {
+    ensureDragChrome();
+    const ghost = document.getElementById("drag-ghost");
+    ghost.hidden = false;
+    ghost.textContent = text;
+    ghost.style.left = (x + 14) + "px";
+    ghost.style.top = (y + 16) + "px";
+}
+
 function bindDrag(handle, blockEl) {
     handle.addEventListener("pointerdown", function (event) {
         if (event.button !== 0) return;
@@ -1344,41 +1462,158 @@ function bindDrag(handle, blockEl) {
         event.stopPropagation();
         const originParent = blockEl.parentElement;
         const originNext = blockEl.nextSibling;
-        let snapped = false;
         let cancelled = false;
-        function move(moveEvent) {
-            const point = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
-            const target = point && point.closest(".block");
-            if (!target || target === blockEl) return;
-            const column = target.parentElement;
-            if (!column || (column.id !== "col-sidebar" && column.id !== "col-main")) return;
-            snapped = true;
-            const rect = target.getBoundingClientRect();
-            const after = moveEvent.clientY > rect.top + rect.height / 2;
-            column.insertBefore(blockEl, after ? target.nextSibling : target);
-        }
-        function onKey(keyEvent) {
-            if (keyEvent.key !== "Escape") return;
-            keyEvent.preventDefault();
-            keyEvent.stopPropagation();
-            cancelled = true;
-            if (originParent) originParent.insertBefore(blockEl, originNext);
-            up();
-        }
-        function up() {
+        blockEl.classList.add("is-dragging");
+        blockEl.style.pointerEvents = "none";
+        document.body.classList.add("is-dragging");
+        const bar = document.getElementById("floatbar");
+        if (bar) bar.hidden = true;
+        ensureDragChrome();
+        function finish(commit) {
+            activeDragCancel = null;
             handle.removeEventListener("pointermove", move);
             handle.removeEventListener("pointerup", up);
-            document.removeEventListener("keydown", onKey, true);
-            if (cancelled || !snapped) return;
-            snapshot();
+            handle.removeEventListener("pointercancel", up);
+            blockEl.classList.remove("is-dragging");
+            blockEl.style.pointerEvents = "";
+            clearDrop();
+            function showBar() {
+                updateInspector();
+                positionFloatbar();
+            }
+            if (!commit || cancelled) {
+                if (originParent) originParent.insertBefore(blockEl, originNext);
+                showBar();
+                return;
+            }
+            const from = columnOf(blockEl.dataset.id);
+            const previous = JSON.stringify(doc);
             syncColumnsFromDom();
+            if (JSON.stringify(doc) === previous) {
+                showBar();
+                return;
+            }
+            past.push(previous);
+            if (past.length > 60) past.shift();
+            future = [];
+            syncHistoryButtons();
             save();
+            if (columnOf(blockEl.dataset.id) !== from) render();
+            else showBar();
         }
-        document.addEventListener("keydown", onKey, true);
+        function move(moveEvent) {
+            nudgeScroll(moveEvent.clientX, moveEvent.clientY);
+            const spot = dropTarget(moveEvent.clientX, moveEvent.clientY, blockEl);
+            paintDrop(spot);
+            if (!spot) return;
+            const before = spot.before && spot.before.parentElement === spot.column ? spot.before : null;
+            if (blockEl.parentElement !== spot.column || blockEl.nextSibling !== before) {
+                spot.column.insertBefore(blockEl, before);
+            }
+        }
+        function up() { finish(true); }
+        activeDragCancel = function () {
+            cancelled = true;
+            finish(false);
+        };
         handle.addEventListener("pointermove", move);
         handle.addEventListener("pointerup", up);
+        handle.addEventListener("pointercancel", up);
         try { handle.setPointerCapture(event.pointerId); } catch (error) { /* synthetic events */ }
     });
+}
+
+function bindLibraryCard(button, type) {
+    let start = null;
+    let dragging = false;
+    let pointerId = null;
+    button.addEventListener("pointerdown", function (event) {
+        if (event.button !== 0) return;
+        start = { x: event.clientX, y: event.clientY };
+        pointerId = event.pointerId;
+        dragging = false;
+    });
+    button.addEventListener("pointermove", function (event) {
+        if (!start || event.pointerId !== pointerId) return;
+        const dx = event.clientX - start.x;
+        const dy = event.clientY - start.y;
+        if (!dragging) {
+            if (dx * dx + dy * dy < 36) return;
+            dragging = true;
+            document.body.classList.add("is-dragging");
+            const bar = document.getElementById("floatbar");
+            if (bar) bar.hidden = true;
+            ensureDragChrome();
+            try { button.setPointerCapture(pointerId); } catch (error) { /* already gone */ }
+            activeDragCancel = function () {
+                dragging = false;
+                start = null;
+                button.dataset.suppressClick = "1";
+                try { button.releasePointerCapture(pointerId); } catch (error) { /* not captured */ }
+                clearDrop();
+                updateInspector();
+                activeDragCancel = null;
+            };
+        }
+        nudgeScroll(event.clientX, event.clientY);
+        showGhost(t("type." + type), event.clientX, event.clientY);
+        paintDrop(dropTarget(event.clientX, event.clientY, null));
+    });
+    function end(event) {
+        if (!start || event.pointerId !== pointerId) return;
+        const dropped = dragging;
+        const spot = dropped ? dropTarget(event.clientX, event.clientY, null) : null;
+        start = null;
+        dragging = false;
+        activeDragCancel = null;
+        clearDrop();
+        if (dropped) button.dataset.suppressClick = "1";
+        if (!dropped || !spot) {
+            updateInspector();
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        insertBlockAt(type, spot);
+    }
+    button.addEventListener("pointerup", end);
+    button.addEventListener("pointercancel", function (event) {
+        start = null;
+        dragging = false;
+        activeDragCancel = null;
+        clearDrop();
+        if (event.pointerId === pointerId) button.dataset.suppressClick = "1";
+    });
+    button.addEventListener("click", function (event) {
+        if (button.dataset.suppressClick) {
+            button.dataset.suppressClick = "";
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+        addBlock(type);
+    });
+}
+
+function insertBlockAt(type, spot) {
+    const columnName = spot.column.id === "col-sidebar" ? "sidebar" : "main";
+    snapshot();
+    const item = createBlock(type);
+    const list = doc[columnName];
+    let index = list.length;
+    if (spot.before && spot.before.dataset && spot.before.dataset.id) {
+        const found = list.findIndex(function (entry) { return entry.id === spot.before.dataset.id; });
+        if (found >= 0) index = found;
+    }
+    list.splice(index, 0, item);
+    selectedId = item.id;
+    setAddTarget(columnName);
+    render();
+    save();
+    const node = document.querySelector('.block[data-id="' + item.id + '"]');
+    const field = node && node.querySelector(".editable");
+    if (field) focusEditable(field);
+    else if (node) node.scrollIntoView({ block: "nearest" });
 }
 
 function syncColumnsFromDom() {
@@ -1471,7 +1706,7 @@ function renderBlock(item) {
     handle.textContent = "\u22ee\u22ee";
     handle.setAttribute("aria-label", t("ui.moveBlock"));
     handle.title = t("ui.moveBlock");
-    if (typeof Sortable === "undefined") bindDrag(handle, node);
+    bindDrag(handle, node);
     node.appendChild(handle);
     node.addEventListener("pointerdown", function (event) {
         if (event.target.closest(".drag-handle") || event.target.closest(".line-x")) return;
@@ -1487,6 +1722,7 @@ function renderBlock(item) {
         frame.type = "button";
         frame.className = "photo-frame";
         frame.style.aspectRatio = fields.aspect || "3 / 4";
+        frame.style.width = photoWidth(item) + "%";
         frame.title = t("photo.title");
         if (fields.src) {
             const img = document.createElement("img");
@@ -1747,7 +1983,7 @@ function fillBlockGrid() {
     types.forEach(function (type) {
         const button = keepSelection(h("button", { class: "library-card", type: "button" }));
         button.append(previewFor(type), h("span", { class: "library-name", text: t("type." + type), i18n: "type." + type }));
-        button.addEventListener("click", function () { addBlock(type); });
+        bindLibraryCard(button, type);
         grid.appendChild(button);
     });
 }
@@ -1838,11 +2074,35 @@ function updateInspector() {
     bar.hidden = false;
     setColorInput("block-color", item.color || defaultTextColor(item));
     setColorInput("block-bg", item.background || "#ffffff");
-    const size = item.type === "spacer" ? (Number(item.fields.size) || 12) : (item.fontSize || doc.theme.baseSize);
     const sizeInput = document.getElementById("block-size");
     const sizeLabel = document.getElementById("block-size-value");
-    if (sizeInput) sizeInput.value = size;
-    if (sizeLabel) sizeLabel.textContent = String(size);
+    if (sizeInput && sizeLabel) {
+        if (item.type === "photo") {
+            const width = photoWidth(item);
+            sizeInput.min = "36";
+            sizeInput.max = "100";
+            sizeInput.step = "2";
+            sizeInput.value = String(width);
+            sizeInput.title = t("photo.size");
+            sizeLabel.textContent = width + "%";
+        } else if (item.type === "spacer") {
+            const size = Number(item.fields.size) || 12;
+            sizeInput.min = "8";
+            sizeInput.max = "80";
+            sizeInput.step = "1";
+            sizeInput.value = String(size);
+            sizeInput.title = t("ui.blockSize");
+            sizeLabel.textContent = size + " px";
+        } else {
+            const size = item.fontSize || doc.theme.baseSize;
+            sizeInput.min = "8";
+            sizeInput.max = "28";
+            sizeInput.step = "0.5";
+            sizeInput.value = String(size);
+            sizeInput.title = t("ui.blockSize");
+            sizeLabel.textContent = size + " pt";
+        }
+    }
     const lines = item.type === "list" || item.type === "timeline" || item.type === "closing";
     const addLine = document.getElementById("add-line");
     if (addLine) addLine.hidden = !lines;
@@ -1924,61 +2184,15 @@ function placeBlockAtPoint(item, point) {
 function bindSortables() {
     sortables.forEach(function (sortable) { sortable.destroy(); });
     sortables = [];
-    if (typeof Sortable === "undefined") return;
-    ["col-sidebar", "col-main"].forEach(function (id) {
-        const column = document.getElementById(id);
-        if (!column) return;
-        sortables.push(Sortable.create(column, {
-            group: { name: "blocks", pull: true, put: true },
-            handle: ".drag-handle",
-            animation: 180,
-            ghostClass: "is-ghost",
-            chosenClass: "is-chosen",
-            forceFallback: true,
-            fallbackOnBody: true,
-            fallbackTolerance: 3,
-            swapThreshold: 0.65,
-            emptyInsertThreshold: 80,
-            draggable: ".block",
-            disabled: document.body.dataset.phase !== "studio",
-            onChoose: function () { dragSortable = this; },
-            onUnchoose: function () {
-                dragSortable = null;
-                document.removeEventListener("pointermove", trackDragPoint, true);
-            },
-            onStart: function (evt) {
-                dragCancel = false;
-                dragPoint = dragPointFrom(evt.originalEvent);
-                dragHome = { parent: evt.from, next: evt.item.nextSibling };
-                document.addEventListener("pointermove", trackDragPoint, true);
-            },
-            onEnd: function (evt) {
-                document.removeEventListener("pointermove", trackDragPoint, true);
-                const point = dragPointFrom(evt.originalEvent) || dragPoint;
-                const from = evt.item && evt.item.dataset ? columnOf(evt.item.dataset.id) : null;
-                dragHome = null;
-                dragPoint = null;
-                if (dragCancel) return;
-                if (point) placeBlockAtPoint(evt.item, point);
-                const previous = JSON.stringify(doc);
-                syncColumnsFromDom();
-                if (JSON.stringify(doc) === previous) {
-                    positionFloatbar();
-                    return;
-                }
-                past.push(previous);
-                if (past.length > 60) past.shift();
-                future = [];
-                save();
-                const moved = evt.item && evt.item.dataset && columnOf(evt.item.dataset.id) !== from;
-                if (moved) requestAnimationFrame(render);
-                else positionFloatbar();
-            }
-        }));
-    });
 }
 
 function cancelDrag() {
+    if (typeof activeDragCancel === "function") {
+        const cancel = activeDragCancel;
+        activeDragCancel = null;
+        cancel();
+        return true;
+    }
     const dragged = typeof Sortable !== "undefined" ? Sortable.dragged : null;
     const active = (typeof Sortable !== "undefined" && Sortable.active) || dragSortable;
     if (!active || !dragged || !active._onDrop) return false;
@@ -3652,12 +3866,30 @@ function mountTools() {
     blockBg.addEventListener("change", function () { blockBgSnapped = false; });
 
     const blockSize = document.getElementById("block-size");
+    let photoSnapped = false;
+    blockSize.addEventListener("pointerdown", function () { photoSnapped = false; });
     blockSize.addEventListener("input", function () {
-        document.getElementById("block-size-value").textContent = blockSize.value + " pt";
+        const item = selectedBlock();
+        const label = document.getElementById("block-size-value");
+        if (item && item.type === "photo") {
+            if (!photoSnapped) {
+                snapshot();
+                photoSnapped = true;
+            }
+            item.fields.width = Number(blockSize.value);
+            const frame = document.querySelector('.block[data-id="' + item.id + '"] .photo-frame');
+            if (frame) frame.style.width = item.fields.width + "%";
+            if (label) label.textContent = blockSize.value + "%";
+            save();
+            return;
+        }
+        if (label) label.textContent = blockSize.value + (item && item.type === "spacer" ? " px" : " pt");
     });
     blockSize.addEventListener("change", function () {
+        photoSnapped = false;
         const value = Number(blockSize.value);
         const item = selectedBlock();
+        if (item && item.type === "photo") return;
         if (item && item.type === "spacer") {
             snapshot();
             item.fields.size = value;
@@ -3678,19 +3910,41 @@ function mountTools() {
 }
 
 function spellLocale() {
-    return lang === "en" ? "en" : "nl-NL";
+    return lang === "en" ? "en-US" : "nl-NL";
+}
+
+function retargetSpell(node, code) {
+    if (!node) return;
+    node.lang = code;
+    node.setAttribute("lang", code);
+    if (node.spellcheck === false) return;
+    const focused = document.activeElement === node;
+    node.spellcheck = false;
+    node.setAttribute("spellcheck", "false");
+    node.spellcheck = true;
+    node.setAttribute("spellcheck", "true");
+    if (focused) {
+        node.blur();
+        node.focus();
+    }
 }
 
 function syncSpellLocale() {
     const code = spellLocale();
     document.documentElement.lang = code;
-    ["sheet", "setup-paste", "loose-text"].forEach(function (id) {
-        const node = document.getElementById(id);
-        if (node) node.lang = code;
+    document.body.lang = code;
+    ["sheet", "setup-paste", "setup-model-text", "loose-text", "llm-input"].forEach(function (id) {
+        retargetSpell(document.getElementById(id), code);
     });
-    document.querySelectorAll(".editable, #setup-guide input, #setup-guide textarea").forEach(function (node) {
-        node.lang = code;
+    document.querySelectorAll(".editable, #setup-guide input, #setup-guide textarea, .drawer textarea").forEach(function (node) {
+        retargetSpell(node, code);
     });
+    const fileName = document.getElementById("pdf-name");
+    if (fileName) {
+        fileName.lang = code;
+        fileName.spellcheck = false;
+        fileName.setAttribute("spellcheck", "false");
+    }
 }
 
 function applyLanguage() {
@@ -4270,7 +4524,9 @@ function guideControl(key, labelKey, value, multiline) {
     input.value = value || "";
     input.placeholder = t(labelKey);
     input.lang = spellLocale();
+    input.setAttribute("lang", input.lang);
     input.spellcheck = key !== "phone" && key !== "email" && key !== "born" && key !== "date";
+    input.setAttribute("spellcheck", input.spellcheck ? "true" : "false");
     input.autocomplete = "off";
     input.enterKeyHint = multiline ? "enter" : "next";
     return h("label", { class: "field" }, [h("span", { text: t(labelKey) }), input]);
