@@ -1,8 +1,8 @@
 This project's own code is dedicated to the public domain under CC0 1.0.
 See the LICENSE file.
 
-The editor loads these libraries from a CDN. They stay under their own
-licenses and are not relicensed:
+These libraries ship in vendor/. They stay under their own licenses and
+are not relicensed:
 
 - dompdf.js 2.0.7 — MIT License
   https://github.com/lmn1919/dompdf.js
@@ -15,4 +15,31 @@ licenses and are not relicensed:
 
 - Roboto, by Google — Apache License 2.0
   https://github.com/googlefonts/roboto
-  The typeface for the page and the PDF, latin subset, via Fontsource.
+  A typeface for the page and the PDF, latin subset, via Fontsource.
+  Screen files are in vendor/fonts. vendor/fonts.js holds the same
+  bytes so the PDF can be built from disk.
+
+- Merriweather, by Sorkin Type — SIL Open Font License 1.1
+  https://github.com/SorkinType/Merriweather
+  An optional typeface for the page and the PDF, latin subset, via Fontsource.
+
+- Lora, by Cyreal — SIL Open Font License 1.1
+  https://github.com/cyrealtype/Lora
+  An optional typeface for the page and the PDF, latin subset, via Fontsource.
+
+- Inter, by Rasmus Andersson — SIL Open Font License 1.1
+  https://github.com/rsms/inter
+  The typeface for the buttons and screens, latin subset, via Fontsource.
+
+- Lucide icon shapes — ISC License
+  https://github.com/lucide-icons/lucide
+  The stroke icons on the setup cards.
+
+- SortableJS 1.15.6 — MIT License
+  https://github.com/SortableJS/Sortable
+  Reorders blocks when you drag a handle.
+
+- Cropper.js 1.5.13 — MIT License
+  https://github.com/fengyuanchen/cropperjs
+  Frames and crops a photo inside the editor. vendor/cropper.min.js
+  and vendor/cropper.min.css.

@@ -3,9 +3,9 @@
 const STORAGE_DOC = "cv-tool-document";
 const STORAGE_LANG = "cv-tool-lang";
 const STORAGE_NAME = "cv-tool-filename";
-const BLOCK_TYPES = [
-    "name", "role", "contact", "heading", "skill", "competence", "project",
-    "timeline", "intro", "paragraph", "list", "letterhead", "closing", "signature"
+const ALL_BLOCKS = [
+    "name", "photo", "role", "contact", "heading", "skill", "competence", "project",
+    "intro", "timeline", "paragraph", "list", "letterhead", "closing", "signature", "spacer"
 ];
 
 const I18N = {
@@ -40,6 +40,8 @@ const I18N = {
             duplicate: "Dupliceer",
             delete: "Verwijder",
             add: "Blok toevoegen",
+            blocks: "Blokken",
+            dragHint: "Klik om toe te voegen. Sleep een blok naar de zijbalk of de pagina; Escape zet het terug.",
             addTo: "Toevoegen aan",
             sidebar: "Zijbalk",
             main: "Pagina",
@@ -49,16 +51,54 @@ const I18N = {
             underline: "Onderstrepen",
             addLine: "Regel toevoegen",
             hint: "Selecteer tekst in een blok om alleen dat stuk een kleur of grootte te geven.",
+            file: "Bestand",
+            thisBlock: "Dit blok",
+            model: "Model op dit apparaat",
+            modelHint: "Kopieer het document met of zonder uitleg. Plak het antwoord hieronder. De bloknamen moeten blijven staan. De tekst gaat niet naar een server.",
+            copy: "Kopieer tekst",
+            copied: "Gekopieerd",
+            applyText: "Zet antwoord in de pagina",
+            applied: "De pagina is bijgewerkt",
+            copyFailed: "Kopiëren lukte niet. De tekst staat in het vak, selecteer hem daar.",
+            parseError: "Het antwoord moet @@@CV of @@@LETTER bevatten, en eindigen met @@@END.",
+            promptCv: "Herschrijf de volledige tekst in het Nederlands. Geef ALLEEN het blok terug, van @@@CV tot en met @@@END. Laat de veldnamen exact zo. Schrijf alle inhoud in het Nederlands. Zet in NAME een <br> waar de naam over een nieuwe regel moet.",
+            promptLetter: "Herschrijf de volledige tekst in het Nederlands. Geef ALLEEN het blok terug, van @@@LETTER tot en met @@@END. Laat de veldnamen exact zo. Schrijf alle inhoud in het Nederlands. Zet in een BODY een lege regel tussen alinea's.",
+            groupPerson: "Persoon",
+            groupCv: "CV",
+            groupLetter: "Brief",
             working: "PDF maken…",
             importFail: "Deze PDF komt niet uit deze editor. Download hem hier eerst, daarna kun je hem weer openen.",
             importBad: "De bijlage in deze PDF is geen geldig document.",
             pdfError: "De PDF lukte niet.",
             libError: "De PDF-bibliotheek is niet geladen.",
             fontError: "Het lettertype lukte niet.",
+            reset: "Reset",
+            resetArmed: "Wis alles?",
             toolName: "Blok-editor",
             pageOne: "1 pagina",
             pageMany: "{n} pagina's",
-            zoom: "Zoom"
+            pageBreak: "Pagina {n}",
+            zoom: "Zoom",
+            fit: "Passend",
+            more: "Meer",
+            langHint: "NL/EN wisselt de knoppen, de vaste koppen en de spelling. Tekst die je zelf schreef blijft staan.",
+            backToDoc: "Terug naar document",
+            replaceNote: "Doorgaan vervangt het open document. Terug naar document laat het staan.",
+            replaceArmed: "Vervangen?",
+            saved: "Opgeslagen",
+            saveFail: "Opslaan lukte niet. Dit apparaat zit vol, of de browser bewaart deze pagina niet. Download de PDF, dat bestand blijft wel.",
+            downloadAnyway: "Toch downloaden",
+            cancel: "Annuleer",
+            downloaded: "De PDF staat in je downloads: {name}. Die kun je later weer openen.",
+            imported: "Het document is geopend.",
+            placeholderWarn: "Er staat nog voorbeeldtekst in de pagina.",
+            nameWarn: "De naam op de pagina is nog leeg.",
+            letterPages: "De brief is {n} pagina's.",
+            contrastWarn: "Tekst en achtergrond lijken te veel op elkaar.",
+            emptyColumn: "Klik een blok links om het hier te zetten.",
+            moveBlock: "Sleep naar de zijbalk of de pagina",
+            removeLine: "Verwijder regel",
+            found: "Gevonden: {list}."
         },
         prefix: { letter: "Motivatiebrief" },
         doc: {
@@ -69,7 +109,7 @@ const I18N = {
             profile: "Profiel",
             work: "Werkervaring",
             education: "Opleiding",
-            letter: "Brief",
+            letter: "Motivatiebrief",
             city: "Woonplaats",
             phone: "Telefoon",
             email: "E-mail",
@@ -88,6 +128,19 @@ const I18N = {
             to: "Aan de ontvanger",
             subject: "Onderwerp"
         },
+        preview: {
+            nameA: "Voornaam",
+            nameB: "Achternaam",
+            role: "Ontwerper",
+            contact: "Voorbeeldstad",
+            skill: "Schrijven",
+            body: "Korte tekst die de vorm van dit blok laat zien.",
+            item: "Eerste punt",
+            item2: "Tweede punt",
+            greeting: "Met vriendelijke groet,",
+            paragraph: "Een korte alinea die links en rechts uitlijnt, zoals op de pagina.",
+            place: "Voorbeeldstad, vandaag"
+        },
         type: {
             name: "Naam",
             role: "Rol",
@@ -102,7 +155,177 @@ const I18N = {
             list: "Lijst",
             letterhead: "Briefkop",
             closing: "Afsluiting",
-            signature: "Handtekening"
+            signature: "Handtekening",
+            spacer: "Ruimte",
+            photo: "Foto"
+        },
+        guide: {
+            open: "Stappenplan",
+            kindTitle: "Wat wil je maken?",
+            kindHint: "Daarna vul je het stap voor stap in, begin je leeg, of plak je een lap tekst.",
+            cv: "CV",
+            letter: "Motivatiebrief",
+            modeTitle: "Hoe wil je beginnen?",
+            modeHint: "Het stappenplan vraagt je naam, contact, een korte tekst en je ervaring. Elke vraag mag je overslaan. Doorgaan vervangt de pagina.",
+            steps: "Stap voor stap",
+            blank: "Lege pagina",
+            paste: "Tekst plakken",
+            showcase: "Voorbeeld bekijken",
+            nameTitle: "Wat is je naam?",
+            nameHint: "Die komt groot in de zijbalk.",
+            roleTitle: "Welke rol zet je erop?",
+            roleHint: "Kort, bijvoorbeeld ontwerper of ontwikkelaar.",
+            contactTitle: "Hoe kunnen mensen je bereiken?",
+            contactHint: "Vul alleen in wat je wilt delen.",
+            introTitle: "In het kort",
+            introHint: "Een paar zinnen over je.",
+            skillsTitle: "Wat kun je?",
+            skillsHint: "Eén vaardigheid per regel.",
+            workTitle: "Werkervaring",
+            workHint: "Functie, periode en organisatie. Punten mogen, één per regel.",
+            studyTitle: "Opleiding",
+            studyHint: "Dezelfde vorm als het werk.",
+            letterheadTitle: "Aan wie is de brief?",
+            letterheadHint: "Datum, aanhef en onderwerp. Alleen wat je wilt invullen.",
+            bodyTitle: "De tekst van de brief",
+            bodyHint: "Een lege regel begint een nieuwe alinea.",
+            closeTitle: "Hoe sluit je af?",
+            closeHint: "De groet, en daaronder je naam.",
+            strengthTitle: "Een competentie",
+            strengthHint: "Een titel en een korte zin. Nog een voegt er een toe.",
+            projectTitle: "Een project",
+            projectHint: "Naam en een zin. Nog een voegt er een toe.",
+            another: "Nog een",
+            next: "Volgende",
+            back: "Terug",
+            skip: "Overslaan",
+            leaveEmpty: "Leeg laten",
+            done: "Klaar",
+            close: "Sluit het stappenplan",
+            step: "Stap {n} van {m}",
+            added: "{n} toegevoegd",
+            pasteTitle: "Plak je tekst",
+            pasteHint: "Plak een lap tekst. Maak blokken deelt hem hier in. Het model in Chrome is optioneel en gaat niet naar een server.",
+            formatLocal: "Maak blokken",
+            formatModel: "Model in Chrome",
+            modelMissing: "Deze browser heeft geen model op het apparaat. De tekst is wel ingedeeld.",
+            modelWorking: "Het model leest de tekst…",
+            modelReady: "Het model heeft de blokken gezet.",
+            points: "Punten, één per regel",
+            jobTitle: "Functie",
+            period: "Periode",
+            greeting: "Groet",
+            copyModel: "Kopieer voor een ander model"
+        },
+        shell: {
+            kicker: "Lokaal. Geen account.",
+            title: "Wat maken we vandaag?",
+            cv: "CV",
+            cvHint: "Een pagina met zijbalk, ervaring en vaardigheden.",
+            letter: "Motivatiebrief",
+            letterHint: "Een brief met aanhef, tekst en afsluiting.",
+            forkTitle: "Hoe wil je beginnen?",
+            guided: "Stap voor stap",
+            guidedHint: "Rustig opbouwen. Het beste als je blanco begint.",
+            studio: "Studio",
+            studioHint: "Meteen de pagina in. Het beste om tekst te plakken of zelf te schuiven.",
+            back: "Terug",
+            identity: "Wie ben je",
+            intro: "In het kort",
+            skills: "Vaardigheden",
+            work: "Ervaring",
+            study: "Opleiding",
+            letterhead: "De briefkop",
+            body: "De tekst",
+            close: "Afsluiting",
+            go: "Naar de studio",
+            new: "Nieuw",
+            fill: "Invullen",
+            settings: "Instellingen",
+            font: "Lettertype van de pagina",
+            addItem: "Enter voegt een regel toe."
+        },
+        setup: {
+            title1: "Wat maken we?",
+            hint1: "Een CV en een motivatiebrief zijn twee aparte documenten.",
+            cv: "CV",
+            cvHint: "Zijbalk, ervaring en vaardigheden. Klaar om in te vullen of als voorbeeld.",
+            letter: "Motivatiebrief",
+            letterHint: "Aanhef, tekst en afsluiting. Het voorbeeld toont ook elk cv-blok.",
+            title2: "Waar beginnen we mee?",
+            hint2: "Stap voor stap is het rustigst. Je kunt ook zelf schrijven, tekst plakken, of met het voorbeeld beginnen.",
+            blank: "Zelf invullen",
+            blankHint: "Een leeg sjabloon van dit document. Jij schrijft de tekst.",
+            demo: "Demodata",
+            demoHint: "Elk blok staat ingevuld, met verzonnen gegevens. Daarna pas je het aan.",
+            guided: "Stap voor stap",
+            guidedHint: "Eén vraag per keer. Overslaan mag. Aan het eind kies je de kleuren.",
+            model: "Laat een AI het invullen",
+            modelHint: "Kopieer een sjabloon, laat een AI je CV of brief schrijven, en plak het antwoord terug.",
+            modelLead: "Kies wat je kopieert. De uitleg noemt elk blok van deze editor, dus een nieuw blok komt vanzelf mee.",
+            modelBox: "Het sjabloon staat hier. Kopieer het naar een AI, en plak het antwoord over deze tekst heen.",
+            fast: "Snelste",
+            copyGuide: "Kopieer met uitleg",
+            copyGuideHint: "Elk blok, met de vorm die de AI moet aanhouden.",
+            copyPlain: "Kopieer alleen het sjabloon",
+            copyPlainHint: "Alleen de velden. Zonder uitleg.",
+            copyAdvanced: "Geavanceerd",
+            copyAdvancedHint: "Uitleg, plus kleuren, koppen en de stijl van de pagina.",
+            paste: "Tekst plakken",
+            pasteHint: "Plak een lap tekst. De browser maakt er blokken van, op deze computer.",
+            pastePlaceholder: "Plak hier je cv of je brief…",
+            title3: "Welk palet?",
+            hint3: "Kies een kant-en-klaar palet, of stel de kleuren zelf in.",
+            zakelijk: "Zakelijk",
+            zakelijkHint: "Leisteen, wit en hemelsblauw.",
+            groen: "Zakelijk groen",
+            groenHint: "Donkergroen, wit en smaragd.",
+            minimal: "Minimaal",
+            minimalHint: "Lichtgrijs, wit en zwart.",
+            custom: "Zelf kleuren",
+            customHint: "Zijbalk, accent, papier en tekst.",
+            sidebar: "Zijbalk",
+            accent: "Accent",
+            page: "Papier",
+            text: "Tekst",
+            back: "Terug",
+            next: "Volgende",
+            generate: "Maak het document",
+            step: "Stap {n} van 3"
+        },
+        mark: {
+            preamble: "Geef ALLEEN het document terug, van {doc} tot en met @@@END. Laat elke marker exact zo staan. Schrijf de inhoud in het {lang}. Verzin geen foto en geen URL: een foto voegt de gebruiker zelf toe in de editor.",
+            keep: "Laat lege velden leeg als je ze niet weet. Herhaal @@@JOB en @@@STUDY voor elke baan of opleiding.",
+            advanced: "Geavanceerd, optioneel. Op elke sectie mogen COLOR: #112233, BACKGROUND: #e0f2fe en SIZE: 11 staan. SIZE is de tekstgrootte in punten, tussen 8 en 28. @@@THEME zet de pagina: SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE, TEXT als #rrggbb, SIZE als basisgrootte, COLUMN als percentage van de zijbalk, FONT als roboto, merriweather of lora.",
+            fallback: "Blok {type} hoort ook in het document. Velden: {fields}.",
+            name: "NAME is de naam. Zet <br> waar de naam in de zijbalk op een nieuwe regel moet.",
+            role: "ROLE is één regel, bijvoorbeeld de functie.",
+            contact: "CITY, PHONE, EMAIL en BORN zijn contactregels. Een extra regel is LABEL: op de ene regel en VALUE: op de volgende.",
+            skill: "Eén vaardigheid per regel, elke regel begint met - .",
+            competence: "Eén competentie per regel: - titel: korte tekst.",
+            project: "Eén project per regel: - titel: korte tekst.",
+            intro: "Bij een CV staat de intro onder @@@PROFILE. Bij een brief staat hij als SUMMARY in de kop.",
+            timeline: "@@@JOB is werk, @@@STUDY is opleiding. TITLE, DATE en ORGANIZATION, daarna één punt per regel met - .",
+            heading: "TEXT is de kop. STYLE is bar of label. bar heeft een lijn, label niet.",
+            paragraph: "Vrije alinea. Een lege regel begint een nieuwe alinea.",
+            list: "Eén punt per regel, elke regel begint met - .",
+            letterhead: "Bij een brief staan TITLE, DATE, TO en SUBJECT in de kop. Bij een CV gebruik je @@@LETTERHEAD. In TO mag <br> een nieuwe regel zijn.",
+            closing: "De groet, en daarna SIGN: met de naam.",
+            signature: "SIGN: is de naam onder de groet.",
+            spacer: "SIZE is de hoogte in punten, bijvoorbeeld 12.",
+            photo: "CAPTION is een kort bijschrift. Laat de foto zelf weg."
+        },
+        photo: {
+            pick: "Kies een foto",
+            replace: "Andere foto",
+            title: "Foto kaderen",
+            hint: "Sleep de foto en kies een vorm. Het kader is wat er op de pagina komt.",
+            use: "Gebruik dit kader",
+            cancel: "Annuleer",
+            portrait: "Portret",
+            square: "Vierkant",
+            wide: "Breed",
+            fail: "Deze afbeelding lukte niet."
         }
     },
     en: {
@@ -136,6 +359,8 @@ const I18N = {
             duplicate: "Duplicate",
             delete: "Delete",
             add: "Add a block",
+            blocks: "Blocks",
+            dragHint: "Click to add one. Drag a block to the sidebar or the page; Escape puts it back.",
             addTo: "Add to",
             sidebar: "Sidebar",
             main: "Page",
@@ -145,16 +370,54 @@ const I18N = {
             underline: "Underline",
             addLine: "Add a line",
             hint: "Select text inside a block to colour or resize only that part.",
+            file: "File",
+            thisBlock: "This block",
+            model: "On-device model",
+            modelHint: "Copy the document with or without a guide. Paste the answer below. The block names have to stay as they are. The text is not sent to a server.",
+            copy: "Copy text",
+            copied: "Copied",
+            applyText: "Put the answer on the page",
+            applied: "The page is updated",
+            copyFailed: "Copying failed. The text is in the box; select it there.",
+            parseError: "The answer must contain @@@CV or @@@LETTER, and end with @@@END.",
+            promptCv: "Rewrite the entire text in English. Return ONLY the block from @@@CV through @@@END. Keep the field names exactly as they are. Write all content in English. Use <br> inside NAME where the name should break onto a new line.",
+            promptLetter: "Rewrite the entire text in English. Return ONLY the block from @@@LETTER through @@@END. Keep the field names exactly as they are. Write all content in English. Separate paragraphs inside BODY with a blank line.",
+            groupPerson: "Person",
+            groupCv: "CV",
+            groupLetter: "Letter",
             working: "Making the PDF…",
             importFail: "This PDF did not come from this editor. Download it here first, then you can open it again.",
             importBad: "The attachment in this PDF is not a valid document.",
             pdfError: "The PDF failed.",
             libError: "The PDF library did not load.",
             fontError: "The font failed to load.",
+            reset: "Reset",
+            resetArmed: "Clear everything?",
             toolName: "Block editor",
             pageOne: "1 page",
             pageMany: "{n} pages",
-            zoom: "Zoom"
+            pageBreak: "Page {n}",
+            zoom: "Zoom",
+            fit: "Fit",
+            more: "More",
+            langHint: "NL/EN switches the buttons, the fixed headings and the spellcheck. Text you wrote stays as it is.",
+            backToDoc: "Back to document",
+            replaceNote: "Continuing replaces the open document. Back to document leaves it as it is.",
+            replaceArmed: "Replace?",
+            saved: "Saved",
+            saveFail: "Saving failed. This device is full, or the browser is not keeping this page. Download the PDF. That file stays.",
+            downloadAnyway: "Download anyway",
+            cancel: "Cancel",
+            downloaded: "The PDF is in your downloads: {name}. You can open it here again later.",
+            imported: "The document is open.",
+            placeholderWarn: "Sample text is still on the page.",
+            nameWarn: "The name on the page is still empty.",
+            letterPages: "The letter is {n} pages.",
+            contrastWarn: "The text and the background are too close.",
+            emptyColumn: "Click a block on the left to put it here.",
+            moveBlock: "Drag to the sidebar or the page",
+            removeLine: "Remove line",
+            found: "Found: {list}."
         },
         prefix: { letter: "Motivation_letter" },
         doc: {
@@ -165,7 +428,7 @@ const I18N = {
             profile: "Profile",
             work: "Experience",
             education: "Education",
-            letter: "Letter",
+            letter: "Motivation letter",
             city: "City",
             phone: "Phone",
             email: "Email",
@@ -184,6 +447,19 @@ const I18N = {
             to: "Recipient",
             subject: "Subject"
         },
+        preview: {
+            nameA: "First",
+            nameB: "Last",
+            role: "Designer",
+            contact: "Example City",
+            skill: "Writing",
+            body: "Short text that shows the shape of this block.",
+            item: "First point",
+            item2: "Second point",
+            greeting: "Kind regards,",
+            paragraph: "A short paragraph aligned on both sides, the way it sits on the page.",
+            place: "Example City, today"
+        },
         type: {
             name: "Name",
             role: "Role",
@@ -198,28 +474,211 @@ const I18N = {
             list: "List",
             letterhead: "Letter header",
             closing: "Closing",
-            signature: "Signature"
+            signature: "Signature",
+            spacer: "Spacer",
+            photo: "Photo"
+        },
+        guide: {
+            open: "Guide",
+            kindTitle: "What are you making?",
+            kindHint: "Then fill it in step by step, start from a blank page, or paste a block of text.",
+            cv: "CV",
+            letter: "Motivation letter",
+            modeTitle: "How do you want to start?",
+            modeHint: "The guide asks your name, contact details, a short text and your experience. You can skip any question. Continuing replaces the page.",
+            steps: "Step by step",
+            blank: "Blank page",
+            paste: "Paste text",
+            showcase: "View the example",
+            nameTitle: "What is your name?",
+            nameHint: "It appears large in the sidebar.",
+            roleTitle: "Which role do you want on it?",
+            roleHint: "Short, for example designer or developer.",
+            contactTitle: "How can people reach you?",
+            contactHint: "Fill in only what you want to share.",
+            introTitle: "In short",
+            introHint: "A few sentences about you.",
+            skillsTitle: "What can you do?",
+            skillsHint: "One skill on each line.",
+            workTitle: "Experience",
+            workHint: "Role, period and organisation. Bullets are optional, one on each line.",
+            studyTitle: "Education",
+            studyHint: "The same shape as experience.",
+            letterheadTitle: "Who is the letter to?",
+            letterheadHint: "Date, recipient and subject. Only what you want to include.",
+            bodyTitle: "The letter itself",
+            bodyHint: "A blank line starts a new paragraph.",
+            closeTitle: "How do you close?",
+            closeHint: "The sign-off, and your name under it.",
+            strengthTitle: "A strength",
+            strengthHint: "A title and a short line. Another adds one more.",
+            projectTitle: "A project",
+            projectHint: "A name and one line. Another adds one more.",
+            another: "Add another",
+            next: "Next",
+            back: "Back",
+            skip: "Skip",
+            leaveEmpty: "Leave empty",
+            done: "Done",
+            close: "Close the guide",
+            step: "Step {n} of {m}",
+            added: "{n} added",
+            pasteTitle: "Paste your text",
+            pasteHint: "Paste a block of text. Make blocks sorts it here. Chrome's model is optional and does not send the text to a server.",
+            formatLocal: "Make blocks",
+            formatModel: "Model in Chrome",
+            modelMissing: "This browser has no on-device model. The text was still sorted into blocks.",
+            modelWorking: "The model is reading the text…",
+            modelReady: "The model placed the blocks.",
+            points: "Bullets, one on each line",
+            jobTitle: "Role",
+            period: "Period",
+            greeting: "Sign-off",
+            copyModel: "Copy for another model"
+        },
+        shell: {
+            kicker: "Local. No account.",
+            title: "What are we making today?",
+            cv: "CV",
+            cvHint: "A page with a sidebar, experience and skills.",
+            letter: "Motivation letter",
+            letterHint: "A letter with a header, body and closing.",
+            forkTitle: "How do you want to start?",
+            guided: "Guided builder",
+            guidedHint: "Step-by-step setup. Best for starting fresh.",
+            studio: "Studio editor",
+            studioHint: "Jump straight in. Best for pasting existing text or manual control.",
+            back: "Back",
+            identity: "Who you are",
+            intro: "In short",
+            skills: "Skills",
+            work: "Experience",
+            study: "Education",
+            letterhead: "Letter header",
+            body: "The letter",
+            close: "Closing",
+            go: "Go to Studio",
+            new: "New",
+            fill: "Fill in",
+            settings: "Settings",
+            font: "Typeface on the page",
+            addItem: "Press Enter to add another line."
+        },
+        setup: {
+            title1: "What are we making?",
+            hint1: "A CV and a motivation letter are two separate documents.",
+            cv: "CV",
+            cvHint: "Sidebar, experience and skills. Ready to fill in, or to load as an example.",
+            letter: "Motivation letter",
+            letterHint: "Header, body and closing. The example also shows every CV block.",
+            title2: "How should we start?",
+            hint2: "Step by step is the calm way. You can also write it yourself, paste text, or start from the example.",
+            blank: "Fill it in yourself",
+            blankHint: "An empty template of this document. You write the text.",
+            demo: "Demo data",
+            demoHint: "Every block is filled in, with invented details. Then you edit it.",
+            guided: "Step by step",
+            guidedHint: "One question at a time. You can skip. Colours come at the end.",
+            model: "Let an AI fill it in",
+            modelHint: "Copy a template, let an AI write your CV or letter, and paste the answer back.",
+            modelLead: "Choose what you copy. The guide names every block in this editor, so a new block is included on its own.",
+            modelBox: "The template is here. Copy it to an AI, then paste the answer over this text.",
+            fast: "Fastest",
+            copyGuide: "Copy with a guide",
+            copyGuideHint: "Every block, with the shape the AI should follow.",
+            copyPlain: "Copy the template only",
+            copyPlainHint: "Just the fields. No guide.",
+            copyAdvanced: "Advanced",
+            copyAdvancedHint: "The guide, plus colours, headings and the page style.",
+            paste: "Paste text",
+            pasteHint: "Paste a block of text. The browser turns it into blocks, on this computer.",
+            pastePlaceholder: "Paste your CV or letter here…",
+            title3: "Which palette?",
+            hint3: "Pick a ready-made palette, or set the colours yourself.",
+            zakelijk: "Business",
+            zakelijkHint: "Slate, white and sky blue.",
+            groen: "Business green",
+            groenHint: "Deep green, white and emerald.",
+            minimal: "Minimal",
+            minimalHint: "Light grey, white and black.",
+            custom: "My own colours",
+            customHint: "Sidebar, accent, paper and text.",
+            sidebar: "Sidebar",
+            accent: "Accent",
+            page: "Paper",
+            text: "Text",
+            back: "Back",
+            next: "Next",
+            generate: "Create document",
+            step: "Step {n} of 3"
+        },
+        mark: {
+            preamble: "Return ONLY the document, from {doc} through @@@END. Keep every marker exactly. Write the content in {lang}. Do not invent a photo or a URL: the user adds the picture in the editor.",
+            keep: "Leave a field empty when you do not know it. Repeat @@@JOB and @@@STUDY for each job or course.",
+            advanced: "Advanced, optional. Any section may include COLOR: #112233, BACKGROUND: #e0f2fe and SIZE: 11. SIZE is the type size in points, from 8 to 28. @@@THEME sets the page: SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE and TEXT as #rrggbb, SIZE as the base size, COLUMN as the sidebar percentage, FONT as roboto, merriweather or lora.",
+            fallback: "The {type} block belongs in the document too. Fields: {fields}.",
+            name: "NAME is the name. Use <br> where the name should break onto a new line in the sidebar.",
+            role: "ROLE is one line, for example the job title.",
+            contact: "CITY, PHONE, EMAIL and BORN are contact lines. An extra line is LABEL: on one line and VALUE: on the next.",
+            skill: "One skill on each line. Each line starts with - .",
+            competence: "One strength on each line: - title: short text.",
+            project: "One project on each line: - title: short text.",
+            intro: "On a CV the intro sits under @@@PROFILE. On a letter it is SUMMARY in the header.",
+            timeline: "@@@JOB is work, @@@STUDY is education. TITLE, DATE and ORGANIZATION, then one point on each line starting with - .",
+            heading: "TEXT is the heading. STYLE is bar or label. bar has a line under it, label does not.",
+            paragraph: "A free paragraph. A blank line starts another paragraph.",
+            list: "One point on each line. Each line starts with - .",
+            letterhead: "On a letter, TITLE, DATE, TO and SUBJECT sit in the header. On a CV use @@@LETTERHEAD. In TO, <br> starts a new line.",
+            closing: "The sign-off, then SIGN: with the name.",
+            signature: "SIGN: is the name under the sign-off.",
+            spacer: "SIZE is the height in points, for example 12.",
+            photo: "CAPTION is a short line under the picture. Leave the picture itself out."
+        },
+        photo: {
+            pick: "Choose a photo",
+            replace: "Different photo",
+            title: "Frame the photo",
+            hint: "Drag the photo and pick a shape. The frame is what lands on the page.",
+            use: "Use this frame",
+            cancel: "Cancel",
+            portrait: "Portrait",
+            square: "Square",
+            wide: "Wide",
+            fail: "This image did not work."
         }
     }
-};
-
-const ROBOTO_FONTS = {
-    regular: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@5.2.8/latin-400-normal.ttf",
-    bold: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@5.2.8/latin-700-normal.ttf",
-    italic: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@5.2.8/latin-400-italic.ttf",
-    boldItalic: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@5.2.8/latin-700-italic.ttf"
 };
 
 let lang = "nl";
 let doc = null;
 let selectedId = null;
 let addTarget = "main";
+let dragHome = null;
+let dragCancel = false;
+let dragSortable = null;
+let dragPoint = null;
 let seq = 1;
 let past = [];
 let future = [];
 let snapArmed = false;
 let activeField = null;
 let fontConfigPromise = null;
+let fontConfigKey = "";
+let setupState = { step: 1, kind: "", source: "", palette: "", guideIndex: 0, answers: null };
+const PALETTES = {
+    zakelijk: { sidebar: "#1e293b", sidebarText: "#f8fafc", accent: "#0284c7", accentLight: "#38bdf8", page: "#ffffff", text: "#334155" },
+    groen: { sidebar: "#0b1d16", sidebarText: "#ffffff", accent: "#047857", accentLight: "#6ee7b7", page: "#ffffff", text: "#111827" },
+    minimal: { sidebar: "#f4f4f5", sidebarText: "#18181b", accent: "#18181b", accentLight: "#18181b", page: "#ffffff", text: "#18181b" }
+};
+let stageScale = 1;
+let sortables = [];
+let zoomTouched = false;
+let filenameCustom = false;
+let setupReturn = false;
+let saveOk = true;
+let saveTimer = 0;
+let toastTimer = 0;
+let photoReturnFocus = null;
 
 function t(key) {
     const parts = key.split(".");
@@ -252,22 +711,26 @@ function cvTheme() {
         sidebar: "#1e293b",
         sidebarText: "#f8fafc",
         accent: "#0284c7",
+        accentLight: "#38bdf8",
         page: "#ffffff",
         text: "#334155",
-        baseSize: 10.5,
-        sidebarWidth: 33
+        baseSize: 9.5,
+        sidebarWidth: 33,
+        font: "roboto"
     };
 }
 
 function letterTheme() {
     return {
         sidebar: "#0b1d16",
-        sidebarText: "#f8fafc",
+        sidebarText: "#ffffff",
         accent: "#047857",
+        accentLight: "#6ee7b7",
         page: "#ffffff",
-        text: "#334155",
-        baseSize: 11,
-        sidebarWidth: 32
+        text: "#111827",
+        baseSize: 8.8,
+        sidebarWidth: 32,
+        font: "roboto"
     };
 }
 
@@ -282,164 +745,309 @@ function block(type, fields) {
     };
 }
 
-function showcase() {
+function barHeading(key) {
+    return block("heading", { key: key, style: "bar", html: "" });
+}
+
+function labelHeading(html) {
+    return block("heading", { key: "", style: "label", html: html });
+}
+
+function makeLetterhead(date, to, subject, title) {
+    return block("letterhead", {
+        title: title || "",
+        date: date || "",
+        to: to || "",
+        subject: subject || ""
+    });
+}
+
+function demoPack() {
+    if (lang === "en") {
+        return {
+            role: "Designer",
+            city: "Example City",
+            born: "01-01-1998 (28)",
+            skills: ["Writing", "Prototypes", "Layout", "Workshops", "HTML"],
+            strengths: [
+                ["Clear writing", "Turns a tangled idea into a short text."],
+                ["Working together", "Keeps the notes when a made-up team changes the plan."],
+                ["Structure", "Sorts a loose page into headings and a calm order."]
+            ],
+            projects: [
+                ["North Light", "A made-up site for a studio that makes lamps."],
+                ["North Cape", "A made-up exhibition. The captions are invented."],
+                ["Example Guide", "A practice site where a team added its own pages."]
+            ],
+            intro: "Alex Jansen is a made-up designer from Example City. This CV belongs to nobody. It shows a name, a role, contact, skills, strengths, a short introduction, four jobs and two studies.",
+            jobs: [
+                ["Designer", "2022 – 2024", "North Light Ltd", ["A house style for a fictional lamp studio.", "Short product lines for a catalogue that does not exist."]],
+                ["Designer", "2020 – 2022", "Example Bureau", ["Campaigns for clients who were never real.", "Presentations a stranger could follow in five minutes."]],
+                ["Intern", "2019", "Example Studio", ["Sat in on a campaign that was never broadcast."]],
+                ["Shop assistant", "2016 – 2018", "Example Shop", ["Worked in a shop beside a course, so this CV also shows a simple job."]]
+            ],
+            studies: [
+                ["Communication", "2017 – 2021", "Example University", ["A graduation project about an imaginary museum."]],
+                ["Media foundation", "2015 – 2017", "Example College", ["Type, pictures and a first practice site."]]
+            ],
+            letterIntro: "Alex Jansen is a made-up designer. This letter belongs to nobody. It shows a header, a recipient, a subject, a short box, sections and a signature.",
+            every: "This example puts every block on the page, so a paragraph, a list, a header and a signature are all visible.",
+            greeting: "Dear committee,",
+            sections: [
+                ["A wide base", "I like to work on the whole piece, not on one loose button. First the reader's question, then the text, then the page."],
+                ["From question to page", "At North Light, a studio that exists only here, I wrote the product lines and built the site. The job was fictional. The order is real: a question, a text, a page."],
+                ["Explaining to a team", "What I like most is making a difficult subject short for someone else. In this example that is a half-hour workshop and a one-page note."],
+                ["Switching when it is busy", "At Example Bureau the campaigns were never broadcast. The example learned to keep a story short and to change the order the same afternoon."],
+                ["Own projects", "North Cape is an imaginary exhibition about maps. I made the captions and the floor plan. Example Guide is a practice site. Both exist only in this letter."]
+            ],
+            list: [
+                "A page that answers the reader's question at a glance.",
+                "Text that stays short when the subject is complicated.",
+                "The same words on screen and in the PDF."
+            ],
+            closeNote: "I will gladly explain this made-up application in a meeting that also does not exist.",
+            closing: "Kind regards,",
+            date: "Example City, 29 October 2026",
+            to: "Example Organisation<br>For the committee<br>Example Street 1<br>1234 AB Example City",
+            subject: "Subject: application as a designer, a made-up vacancy"
+        };
+    }
+    return {
+        role: "Ontwerper",
+        city: "Voorbeeldstad",
+        born: "01-01-1998 (28 jaar)",
+        skills: ["Schrijven", "Prototypes", "Vormgeving", "Workshops", "HTML"],
+        strengths: [
+            ["Helder schrijven", "Maakt van een ingewikkeld idee een korte tekst."],
+            ["Samenwerken", "Houdt de notities bij als een verzonnen team het plan wijzigt."],
+            ["Structuur", "Zet een losse pagina om in koppen en een rustige volgorde."]
+        ],
+        projects: [
+            ["Noorderlicht", "Een verzonnen site voor een studio die lampen maakt."],
+            ["Noordkaap", "Een denkbeeldige tentoonstelling. De bijschriften zijn verzonnen."],
+            ["Voorbeeldgids", "Een oefensite waarop een team zelf pagina's toevoegde."]
+        ],
+        intro: "Alex Jansen is een verzonnen ontwerper uit Voorbeeldstad. Dit cv hoort bij niemand. Het toont een naam, een rol, contact, vaardigheden, competenties, een korte introductie, vier banen en twee opleidingen.",
+        jobs: [
+            ["Ontwerper", "2022 – 2024", "Noorderlicht BV", ["Een huisstijl voor een fictieve lampenstudio.", "Korte productteksten voor een catalogus die niet bestaat."]],
+            ["Vormgever", "2020 – 2022", "Voorbeeldbureau", ["Campagnes voor opdrachtgevers die nooit hebben bestaan.", "Presentaties die een buitenstaander in vijf minuten volgt."]],
+            ["Stagiair", "2019", "Atelier Voorbeeld", ["Meegelopen bij een campagne die nooit is uitgezonden."]],
+            ["Winkelmedewerker", "2016 – 2018", "Voorbeeldwinkel", ["Naast een opleiding in de winkel gestaan, zodat dit cv ook een eenvoudige baan toont."]]
+        ],
+        studies: [
+            ["Communicatie", "2017 – 2021", "Voorbeeld Hogeschool", ["Afstudeerproject over een denkbeeldig museum."]],
+            ["Voortraject media", "2015 – 2017", "Voorbeeld College", ["Typografie, beeld en een eerste oefensite."]]
+        ],
+        letterIntro: "Alex Jansen is een verzonnen ontwerper. Deze brief hoort bij niemand. Hij toont een briefkop, een ontvanger, een onderwerp, een kort vak, tussenkoppen en een handtekening.",
+        every: "Dit voorbeeld zet elk blok op de pagina, zodat een alinea, een lijst, een briefkop en een handtekening allemaal te zien zijn.",
+        greeting: "Beste commissie,",
+        sections: [
+            ["Een brede basis", "Ik werk het liefst aan het hele stuk, niet aan één losse knop. Eerst de vraag van de lezer, dan de tekst, dan de pagina."],
+            ["Van vraag naar pagina", "Bij Noorderlicht, een studio die alleen in dit voorbeeld bestaat, schreef ik de productteksten en zette ik de site in elkaar. Het werk was fictief. De volgorde is echt: een vraag, een tekst, een pagina."],
+            ["Uitleggen aan een team", "Wat ik het liefste doe is een ingewikkeld onderwerp kort maken voor iemand anders. In dit voorbeeld is dat een workshop van een half uur en een notitie van één bladzijde."],
+            ["Schakelen als het druk is", "Bij Voorbeeldbureau zijn de campagnes nooit uitgezonden. Het voorbeeld leerde een verhaal kort te houden en dezelfde middag nog een andere volgorde te kiezen."],
+            ["Eigen projecten", "Noordkaap is een denkbeeldige tentoonstelling over kaarten. Ik maakte het bijschrift en de plattegrond. Voorbeeldgids is een oefensite. Allebei bestaan alleen in deze brief."]
+        ],
+        list: [
+            "Een pagina die in één oogopslag de vraag van de lezer beantwoordt.",
+            "Teksten die kort blijven, ook als het onderwerp ingewikkeld is.",
+            "Dezelfde woorden op het scherm en in de PDF."
+        ],
+        closeNote: "Ik licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.",
+        closing: "Met vriendelijke groet,",
+        date: "Voorbeeldstad, 29 oktober 2026",
+        to: "Voorbeeld Organisatie<br>Aan de commissie<br>Voorbeeldstraat 1<br>1234 AB Voorbeeldstad",
+        subject: "Betreft: sollicitatie als ontwerper, een verzonnen vacature"
+    };
+}
+
+function placeholderPhoto() {
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' width='240' height='320' viewBox='0 0 240 320'><rect width='240' height='320' fill='#d6dee8'/><circle cx='120' cy='118' r='46' fill='#94a3b8'/><ellipse cx='120' cy='270' rx='74' ry='58' fill='#94a3b8'/></svg>";
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+function demoSidebar(copy, withProjects, compactPhoto) {
+    const side = [
+        block("name", { html: "Alex<br>Jansen" }),
+        block("photo", { src: placeholderPhoto(), original: "", caption: "", aspect: compactPhoto ? "1 / 1" : "3 / 4" }),
+        block("role", { html: copy.role }),
+        barHeading("doc.contact"),
+        block("contact", { labelKey: "city", label: "", html: copy.city }),
+        block("contact", { labelKey: "phone", label: "", html: "+31 6 0000 0000" }),
+        block("contact", { labelKey: "email", label: "", html: "alex@example.com" }),
+        block("contact", { labelKey: "born", label: "", html: copy.born }),
+        barHeading("doc.skills")
+    ];
+    copy.skills.forEach(function (skill) { side.push(block("skill", { html: skill })); });
+    if (withProjects) {
+        side.push(barHeading("doc.projects"));
+        copy.projects.forEach(function (item) {
+            side.push(block("project", { title: item[0], body: item[1] }));
+        });
+    }
+    side.push(barHeading("doc.strengths"));
+    copy.strengths.forEach(function (item) {
+        side.push(block("competence", { title: item[0], body: item[1] }));
+    });
+    return side;
+}
+
+function demoExperience(main, copy) {
+    main.push(barHeading("doc.work"));
+    copy.jobs.forEach(function (job) {
+        main.push(block("timeline", { title: job[0], date: job[1], org: job[2], items: job[3] }));
+    });
+    main.push(barHeading("doc.education"));
+    copy.studies.forEach(function (study) {
+        main.push(block("timeline", { title: study[0], date: study[1], org: study[2], items: study[3] }));
+    });
+}
+
+function demoCv() {
+    const copy = demoPack();
+    const main = [
+        makeLetterhead(copy.date, copy.city, copy.role, "CV"),
+        barHeading("doc.profile"),
+        block("intro", { html: copy.intro }),
+        block("paragraph", { html: copy.every }),
+        block("list", { items: copy.list.slice() })
+    ];
+    demoExperience(main, copy);
+    main.push(block("closing", { paragraphs: [copy.closing] }));
+    main.push(block("signature", { html: "Alex Jansen" }));
+    main.push(block("spacer", { size: 18 }));
     return {
         version: 1,
         lang: lang,
-        kind: "showcase",
+        kind: "cv",
         theme: cvTheme(),
-        sidebar: [
-            block("name", { html: "Alex<br>Jansen" }),
-            block("role", { html: "Ontwerper" }),
-            block("heading", { key: "doc.contact", html: "" }),
-            block("contact", { labelKey: "city", label: "", html: "Voorbeeldstad" }),
-            block("contact", { labelKey: "phone", label: "", html: "+31 6 0000 0000" }),
-            block("contact", { labelKey: "email", label: "", html: "alex@example.com" }),
-            block("contact", { labelKey: "born", label: "", html: "01-01-1998" }),
-            block("heading", { key: "doc.skills", html: "" }),
-            block("skill", { html: "Schrijven" }),
-            block("skill", { html: "Prototypes" }),
-            block("skill", { html: "Vormgeving" }),
-            block("heading", { key: "doc.strengths", html: "" }),
-            block("competence", { title: "Helder schrijven", body: "Maakt van een ingewikkeld idee een korte tekst." }),
-            block("heading", { key: "doc.projects", html: "" }),
-            block("project", { title: "Noorderlicht", body: "Een verzonnen site voor een studio die lampen maakt." })
-        ],
-        main: [
-            block("heading", { key: "doc.profile", html: "" }),
-            block("intro", { html: "Alex is een verzonnen ontwerper. Deze tekst laat elk bloktype zien en hoort bij niemand." }),
-            block("heading", { key: "doc.work", html: "" }),
-            block("timeline", {
-                title: "Ontwerper",
-                date: "2022 \u2013 2024",
-                org: "Noorderlicht BV",
-                items: ["Een huisstijl voor een fictieve studio.", "Korte teksten voor de website."]
-            }),
-            block("timeline", {
-                title: "Stagiair",
-                date: "2021",
-                org: "Voorbeeldbureau",
-                items: ["Meegelopen bij een campagne die niet bestaat."]
-            }),
-            block("heading", { key: "doc.education", html: "" }),
-            block("timeline", {
-                title: "Communicatie",
-                date: "2017 \u2013 2021",
-                org: "Voorbeeld Hogeschool",
-                items: ["Afstudeerproject over een denkbeeldig museum."]
-            }),
-            block("paragraph", { html: "Een losse alinea. Die staat niet in een tijdlijn en niet in een lijst." }),
-            block("list", { items: ["Eerste punt van een lijst.", "Tweede punt, ook verzonnen."] }),
-            block("letterhead", {
-                date: "29 oktober 2026",
-                to: "Voorbeeld Organisatie<br>Aan de commissie",
-                subject: "Onderwerp: een verzonnen sollicitatie"
-            }),
-            block("closing", { paragraphs: ["Met vriendelijke groet,"] }),
-            block("signature", { html: "Alex Jansen" })
-        ]
+        sidebar: demoSidebar(copy, true),
+        main: main
+    };
+}
+
+function demoLetter() {
+    const copy = demoPack();
+    const main = [
+        makeLetterhead(copy.date, copy.to, copy.subject, ""),
+        block("intro", { html: copy.letterIntro }),
+        block("paragraph", { html: copy.greeting })
+    ];
+    copy.sections.forEach(function (section) {
+        main.push(labelHeading(section[0]));
+        main.push(block("paragraph", { html: section[1] }));
+        if (section[2]) main.push(block("paragraph", { html: section[2] }));
+    });
+    main.push(block("list", { items: copy.list.slice() }));
+    demoExperience(main, copy);
+    main.push(block("paragraph", { html: copy.closeNote }));
+    main.push(block("closing", { paragraphs: [copy.closing] }));
+    main.push(block("signature", { html: "Alex Jansen" }));
+    main.push(block("spacer", { size: 8 }));
+    return {
+        version: 1,
+        lang: lang,
+        kind: "letter",
+        theme: letterTheme(),
+        sidebar: demoSidebar(copy, true, true),
+        main: main
     };
 }
 
 function emptyCv() {
-    const text = escapeHtml(t("ph.text"));
-    const title = escapeHtml(t("ph.title"));
-    const date = escapeHtml(t("ph.date"));
-    const org = escapeHtml(t("ph.org"));
     return {
         version: 1,
         lang: lang,
         kind: "cv",
         theme: cvTheme(),
         sidebar: [
-            block("name", { html: escapeHtml(t("ph.name")) }),
-            block("role", { html: escapeHtml(t("ph.role")) }),
-            block("heading", { key: "doc.contact", html: "" }),
-            block("contact", { labelKey: "city", label: "", html: text }),
-            block("contact", { labelKey: "phone", label: "", html: text }),
-            block("contact", { labelKey: "email", label: "", html: text }),
-            block("contact", { labelKey: "born", label: "", html: text }),
-            block("heading", { key: "doc.skills", html: "" }),
-            block("skill", { html: text }),
-            block("heading", { key: "doc.strengths", html: "" }),
-            block("competence", { title: title, body: text })
+            block("name", { html: "" }),
+            block("role", { html: "" }),
+            barHeading("doc.contact"),
+            block("contact", { labelKey: "city", label: "", html: "" }),
+            block("contact", { labelKey: "phone", label: "", html: "" }),
+            block("contact", { labelKey: "email", label: "", html: "" }),
+            block("contact", { labelKey: "born", label: "", html: "" }),
+            barHeading("doc.skills"),
+            block("skill", { html: "" }),
+            barHeading("doc.strengths"),
+            block("competence", { title: "", body: "" })
         ],
         main: [
-            block("heading", { key: "doc.profile", html: "" }),
-            block("intro", { html: text }),
-            block("heading", { key: "doc.work", html: "" }),
-            block("timeline", { title: title, date: date, org: org, items: [text] }),
-            block("heading", { key: "doc.education", html: "" }),
-            block("timeline", { title: title, date: date, org: org, items: [text] })
+            barHeading("doc.profile"),
+            block("intro", { html: "" }),
+            barHeading("doc.work"),
+            block("timeline", { title: "", date: "", org: "", items: [""] }),
+            barHeading("doc.education"),
+            block("timeline", { title: "", date: "", org: "", items: [""] })
         ]
     };
 }
 
 function emptyLetter() {
-    const text = escapeHtml(t("ph.text"));
     return {
         version: 1,
         lang: lang,
         kind: "letter",
         theme: letterTheme(),
         sidebar: [
-            block("name", { html: escapeHtml(t("ph.name")) }),
-            block("role", { html: escapeHtml(t("ph.role")) }),
-            block("heading", { key: "doc.contact", html: "" }),
-            block("contact", { labelKey: "city", label: "", html: text }),
-            block("contact", { labelKey: "phone", label: "", html: text }),
-            block("contact", { labelKey: "email", label: "", html: text })
+            block("name", { html: "" }),
+            block("role", { html: "" }),
+            barHeading("doc.contact"),
+            block("contact", { labelKey: "city", label: "", html: "" }),
+            block("contact", { labelKey: "phone", label: "", html: "" }),
+            block("contact", { labelKey: "email", label: "", html: "" })
         ],
         main: [
-            block("heading", { key: "doc.letter", html: "" }),
-            block("letterhead", {
-                date: escapeHtml(t("ph.date")),
-                to: escapeHtml(t("ph.to")),
-                subject: escapeHtml(t("ph.subject"))
-            }),
-            block("intro", { html: text }),
-            block("paragraph", { html: text }),
-            block("paragraph", { html: text }),
-            block("closing", { paragraphs: [text] }),
-            block("signature", { html: escapeHtml(t("ph.name")) })
+            makeLetterhead("", "", "", ""),
+            block("intro", { html: "" }),
+            block("paragraph", { html: "" }),
+            block("paragraph", { html: "" }),
+            block("closing", { paragraphs: [""] }),
+            block("signature", { html: "" })
         ]
     };
 }
 
 function createBlock(type) {
-    const text = escapeHtml(t("ph.text"));
-    const title = escapeHtml(t("ph.title"));
     const fields = {
-        name: { html: escapeHtml(t("ph.name")) },
-        role: { html: escapeHtml(t("ph.role")) },
-        contact: { labelKey: "custom", label: escapeHtml(t("ph.label")), html: text },
-        heading: { key: "", html: escapeHtml(t("ph.heading")) },
-        skill: { html: text },
-        competence: { title: title, body: text },
-        project: { title: title, body: text },
-        timeline: { title: title, date: escapeHtml(t("ph.date")), org: escapeHtml(t("ph.org")), items: [text] },
-        intro: { html: text },
-        paragraph: { html: text },
-        list: { items: [text] },
-        letterhead: {
-            date: escapeHtml(t("ph.date")),
-            to: escapeHtml(t("ph.to")),
-            subject: escapeHtml(t("ph.subject"))
+        name: { html: "" },
+        role: { html: "" },
+        contact: { labelKey: "custom", label: "", html: "" },
+        heading: {
+            key: "",
+            style: doc && doc.kind === "letter" && addTarget === "main" ? "label" : "bar",
+            html: ""
         },
-        closing: { paragraphs: [text] },
-        signature: { html: escapeHtml(t("ph.name")) }
+        photo: { src: "", original: "", caption: "", aspect: "3 / 4" },
+        skill: { html: "" },
+        competence: { title: "", body: "" },
+        project: { title: "", body: "" },
+        timeline: { title: "", date: "", org: "", items: [""] },
+        intro: { html: "" },
+        paragraph: { html: "" },
+        list: { items: [""] },
+        letterhead: { title: "", date: "", to: "", subject: "" },
+        spacer: { size: 12 },
+        closing: { paragraphs: [""] },
+        signature: { html: "" }
     };
-    return block(type, fields[type] || { html: text });
+    return block(type, fields[type] || { html: "" });
 }
 
 function normalize(data) {
     data.version = 1;
     data.sidebar = Array.isArray(data.sidebar) ? data.sidebar : [];
     data.main = Array.isArray(data.main) ? data.main : [];
-    data.theme = Object.assign(cvTheme(), data.theme || {});
-    data.theme.baseSize = Number(data.theme.baseSize) || 10.5;
-    data.theme.sidebarWidth = Number(data.theme.sidebarWidth) || 33;
-    data.kind = data.kind || "showcase";
+    if (data.kind !== "letter" && data.kind !== "cv") data.kind = "cv";
+    const base = data.kind === "letter" ? letterTheme() : cvTheme();
+    const saved = data.theme || {};
+    const hadLight = Object.prototype.hasOwnProperty.call(saved, "accentLight");
+    data.theme = Object.assign(base, saved);
+    data.theme.baseSize = Number(data.theme.baseSize) || base.baseSize;
+    data.theme.sidebarWidth = Number(data.theme.sidebarWidth) || base.sidebarWidth;
+    if (!hadLight) data.theme.accentLight = base.accentLight;
+    if (data.theme.font !== "merriweather" && data.theme.font !== "lora") data.theme.font = "roboto";
     data.lang = data.lang === "en" ? "en" : "nl";
     let max = 1;
     data.sidebar.concat(data.main).forEach(function (item) {
@@ -457,6 +1065,7 @@ function snapshot() {
     past.push(JSON.stringify(doc));
     if (past.length > 60) past.shift();
     future = [];
+    syncHistoryButtons();
 }
 
 function rememberSnapshot() {
@@ -476,21 +1085,83 @@ function restore(next) {
     save();
 }
 
+function syncHistoryButtons() {
+    const undoBtn = document.getElementById("undo-btn");
+    const redoBtn = document.getElementById("redo-btn");
+    if (undoBtn) undoBtn.disabled = !past.length;
+    if (redoBtn) redoBtn.disabled = !future.length;
+}
+
 function undo() {
     if (!past.length) return;
     future.push(JSON.stringify(doc));
     restore(JSON.parse(past.pop()));
+    syncHistoryButtons();
 }
 
 function redo() {
     if (!future.length) return;
     past.push(JSON.stringify(doc));
     restore(JSON.parse(future.pop()));
+    syncHistoryButtons();
+}
+
+function markSaved(ok) {
+    const node = document.getElementById("save-state");
+    saveOk = ok;
+    if (!node) {
+        if (!ok) showToast(t("ui.saveFail"), "error");
+        return;
+    }
+    node.classList.toggle("is-fail", !ok);
+    node.dataset.state = ok ? "ok" : "fail";
+    node.textContent = ok ? t("ui.saved") : "";
+    window.clearTimeout(saveTimer);
+    if (!ok) showToast(t("ui.saveFail"), "error");
+    if (ok) {
+        saveTimer = window.setTimeout(function () {
+            if (node.dataset.state === "ok") node.textContent = "";
+        }, 1600);
+    }
 }
 
 function save() {
-    try { localStorage.setItem(STORAGE_DOC, JSON.stringify(doc)); } catch (error) { /* private mode */ }
+    if (document.body.dataset.phase === "setup") return;
+    try {
+        localStorage.setItem(STORAGE_DOC, JSON.stringify(doc));
+        if (!saveOk || document.getElementById("save-state")) markSaved(true);
+    } catch (error) {
+        if (saveOk) markSaved(false);
+    }
     updateFilenamePreview();
+    refreshIdentity();
+}
+
+function syncFilenameFromPerson() {
+    if (filenameCustom) {
+        refreshIdentity();
+        return;
+    }
+    const input = document.getElementById("pdf-name");
+    const person = plainName().replace(/\s+/g, " ").trim();
+    const next = !person || person === t("ph.name") ? "" : person;
+    if (input && input.value !== next) {
+        input.value = next;
+        try { localStorage.setItem(STORAGE_NAME, next); } catch (error) { /* ignore */ }
+    }
+    updateFilenamePreview();
+    refreshIdentity();
+}
+
+function refreshIdentity() {
+    const title = document.getElementById("doc-title");
+    if (!doc) return;
+    const kind = doc.kind === "letter" ? t("setup.letter") : t("setup.cv");
+    const person = plainName().replace(/\s+/g, " ").trim();
+    const named = person && person !== t("ph.name");
+    const label = named ? kind + " · " + person : kind;
+    if (title) title.textContent = label;
+    document.title = label + " — " + t("ui.title");
 }
 
 function selectedBlock() {
@@ -539,10 +1210,18 @@ function serialize(root) {
         if (name === "SPAN" || name === "FONT") {
             const color = (node.style && node.style.color) || node.getAttribute("color") || "";
             const size = (node.style && node.style.fontSize) || "";
+            const weight = String((node.style && node.style.fontWeight) || "").toLowerCase();
+            const numeric = parseInt(weight, 10);
+            const bold = weight === "bold" || weight === "bolder" || numeric >= 600;
+            const italic = String((node.style && node.style.fontStyle) || "").toLowerCase() === "italic";
+            const deco = String((node.style && (node.style.textDecorationLine || node.style.textDecoration)) || "").toLowerCase();
+            let inner = serialize(node);
+            if (deco.indexOf("underline") >= 0) inner = "<u>" + inner + "</u>";
+            if (italic) inner = "<em>" + inner + "</em>";
+            if (bold) inner = "<strong>" + inner + "</strong>";
             const style = [];
             if (color) style.push("color:" + safeCss(color));
             if (size) style.push("font-size:" + safeCss(size));
-            const inner = serialize(node);
             out += style.length ? '<span style="' + style.join(";") + '">' + inner + "</span>" : inner;
             return;
         }
@@ -556,26 +1235,95 @@ function serialize(root) {
     return out;
 }
 
-function editable(className, html, write) {
+function fieldIsBlank(node) {
+    return !node.textContent.replace(/\u00a0/g, " ").trim();
+}
+
+function editable(className, html, write, placeholder) {
     const node = document.createElement("div");
     node.className = "editable" + (className ? " " + className : "");
     node.contentEditable = "true";
+    node.lang = spellLocale();
     node.spellcheck = true;
+    if (placeholder) node.dataset.placeholder = placeholder;
+    if (className === "date" || placeholder === t("doc.phone") || placeholder === t("doc.email") || placeholder === t("ph.date")) {
+        node.spellcheck = false;
+    }
     node.innerHTML = html || "";
+    node.classList.toggle("is-blank", fieldIsBlank(node));
     node.addEventListener("focus", function () {
         activeField = node;
         rememberSnapshot();
     });
-    node.addEventListener("input", function () { write(serialize(node)); });
+    node.addEventListener("input", function () {
+        node.classList.toggle("is-blank", fieldIsBlank(node));
+        write(serialize(node));
+    });
+    node.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" || event.shiftKey || event.altKey || event.isComposing || event.keyCode === 229) return;
+        if (node.closest(".line")) return;
+        const block = node.closest(".block");
+        if (!block) return;
+        const multiline = block.classList.contains("name")
+            || block.classList.contains("paragraph")
+            || block.classList.contains("intro")
+            || node.classList.contains("body")
+            || node.classList.contains("to");
+        if (multiline) return;
+        event.preventDefault();
+        const fields = Array.prototype.slice.call(document.querySelectorAll("#sheet .editable"));
+        const next = fields[fields.indexOf(node) + 1];
+        if (next) focusEditable(next);
+        else node.blur();
+    });
     node.addEventListener("paste", function (event) {
         event.preventDefault();
         const text = event.clipboardData ? event.clipboardData.getData("text/plain") : "";
-        document.execCommand("insertText", false, text);
+        const before = node.innerHTML;
+        let inserted = false;
+        try { inserted = document.execCommand("insertText", false, text); } catch (error) { inserted = false; }
+        if (!inserted || node.innerHTML === before) {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount) return;
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+            range.setStartAfter(textNode);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            node.dispatchEvent(new Event("input", { bubbles: true }));
+        }
     });
     return node;
 }
 
+function focusEditable(node) {
+    if (!node) return;
+    node.focus();
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function focusLine(id, index) {
+    const rows = document.querySelectorAll('.block[data-id="' + id + '"] .line .editable');
+    focusEditable(rows[index]);
+}
+
 function paint(node, item) {
+    if (item.type === "spacer") {
+        node.style.height = (Number(item.fields.size) || 12) + "px";
+        node.style.color = "";
+        node.style.background = "";
+        node.style.fontSize = "";
+        return;
+    }
     node.style.color = item.color || "";
     node.style.background = item.background || "";
     node.style.fontSize = item.fontSize ? item.fontSize + "pt" : "";
@@ -583,34 +1331,50 @@ function paint(node, item) {
     else node.style.removeProperty("--block-color");
 }
 
+function headingStyle(item) {
+    if (item.fields.style === "label" || item.fields.style === "bar") return item.fields.style;
+    if (doc.kind === "letter" && columnOf(item.id) === "main" && !item.fields.key) return "label";
+    return "bar";
+}
+
 function bindDrag(handle, blockEl) {
     handle.addEventListener("pointerdown", function (event) {
         if (event.button !== 0) return;
         event.preventDefault();
         event.stopPropagation();
+        const originParent = blockEl.parentElement;
+        const originNext = blockEl.nextSibling;
         let snapped = false;
+        let cancelled = false;
         function move(moveEvent) {
             const point = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
             const target = point && point.closest(".block");
             if (!target || target === blockEl) return;
-            const parent = target.parentElement;
-            if (!parent || (parent.id !== "col-sidebar" && parent.id !== "col-main")) return;
-            if (!snapped) {
-                snapshot();
-                snapped = true;
-            }
+            const column = target.parentElement;
+            if (!column || (column.id !== "col-sidebar" && column.id !== "col-main")) return;
+            snapped = true;
             const rect = target.getBoundingClientRect();
             const after = moveEvent.clientY > rect.top + rect.height / 2;
-            parent.insertBefore(blockEl, after ? target.nextSibling : target);
+            column.insertBefore(blockEl, after ? target.nextSibling : target);
+        }
+        function onKey(keyEvent) {
+            if (keyEvent.key !== "Escape") return;
+            keyEvent.preventDefault();
+            keyEvent.stopPropagation();
+            cancelled = true;
+            if (originParent) originParent.insertBefore(blockEl, originNext);
+            up();
         }
         function up() {
             handle.removeEventListener("pointermove", move);
             handle.removeEventListener("pointerup", up);
-            if (snapped) {
-                syncColumnsFromDom();
-                save();
-            }
+            document.removeEventListener("keydown", onKey, true);
+            if (cancelled || !snapped) return;
+            snapshot();
+            syncColumnsFromDom();
+            save();
         }
+        document.addEventListener("keydown", onKey, true);
         handle.addEventListener("pointermove", move);
         handle.addEventListener("pointerup", up);
         try { handle.setPointerCapture(event.pointerId); } catch (error) { /* synthetic events */ }
@@ -640,11 +1404,14 @@ function lineList(item, key, asList) {
         const field = editable("", html, function (value) {
             item.fields[key][index] = value;
             save();
-        });
+        }, t("ph.text"));
+        field.title = t("shell.addItem");
         const remove = document.createElement("button");
         remove.type = "button";
         remove.className = "line-x";
         remove.textContent = "\u00d7";
+        remove.setAttribute("aria-label", t("ui.removeLine"));
+        remove.title = t("ui.removeLine");
         remove.addEventListener("mousedown", function (event) { event.preventDefault(); });
         remove.addEventListener("click", function () {
             snapshot();
@@ -652,6 +1419,39 @@ function lineList(item, key, asList) {
             if (!item.fields[key].length) item.fields[key].push(escapeHtml(t("ph.text")));
             render();
             save();
+        });
+        field.addEventListener("keydown", function (event) {
+            if (event.altKey || event.isComposing || event.keyCode === 229) return;
+            const empty = !field.textContent.replace(/\u00a0/g, " ").trim();
+            if (event.key === "Enter" && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+                event.preventDefault();
+                if (empty) {
+                    if (item.fields[key].length < 2) {
+                        field.blur();
+                        return;
+                    }
+                    snapshot();
+                    item.fields[key].splice(index, 1);
+                    render();
+                    save();
+                    focusLine(item.id, Math.max(0, index - 1));
+                    return;
+                }
+                snapshot();
+                item.fields[key].splice(index + 1, 0, "");
+                render();
+                save();
+                focusLine(item.id, index + 1);
+                return;
+            }
+            if (event.key === "Backspace" && empty && !event.shiftKey && !event.ctrlKey && !event.metaKey && item.fields[key].length > 1) {
+                event.preventDefault();
+                snapshot();
+                item.fields[key].splice(index, 1);
+                render();
+                save();
+                focusLine(item.id, Math.max(0, index - 1));
+            }
         });
         row.append(field, remove);
         list.appendChild(row);
@@ -669,7 +1469,9 @@ function renderBlock(item) {
     handle.className = "drag-handle";
     handle.tabIndex = -1;
     handle.textContent = "\u22ee\u22ee";
-    bindDrag(handle, node);
+    handle.setAttribute("aria-label", t("ui.moveBlock"));
+    handle.title = t("ui.moveBlock");
+    if (typeof Sortable === "undefined") bindDrag(handle, node);
     node.appendChild(handle);
     node.addEventListener("pointerdown", function (event) {
         if (event.target.closest(".drag-handle") || event.target.closest(".line-x")) return;
@@ -677,12 +1479,55 @@ function renderBlock(item) {
     });
 
     const fields = item.fields;
-    if (item.type === "heading") {
+    if (item.type === "spacer") {
+        node.classList.add("is-spacer");
+        node.setAttribute("aria-hidden", "true");
+    } else if (item.type === "photo") {
+        const frame = document.createElement("button");
+        frame.type = "button";
+        frame.className = "photo-frame";
+        frame.style.aspectRatio = fields.aspect || "3 / 4";
+        frame.title = t("photo.title");
+        if (fields.src) {
+            const img = document.createElement("img");
+            img.alt = "";
+            img.src = fields.src;
+            frame.appendChild(img);
+        } else {
+            frame.textContent = t("photo.pick");
+        }
+        frame.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (fields.src || fields.original) openPhotoCrop(item.id);
+            else pickPhoto(item.id);
+        });
+        const replace = document.createElement("button");
+        replace.type = "button";
+        replace.className = "photo-replace";
+        replace.textContent = t("photo.replace");
+        replace.hidden = !fields.src;
+        replace.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            pickPhoto(item.id);
+        });
+        node.append(
+            frame,
+            replace,
+            editable("caption", fields.caption || "", function (html) {
+                fields.caption = html;
+                save();
+            }, t("ph.text"))
+        );
+    } else if (item.type === "heading") {
+        if (headingStyle(item) === "label") node.classList.add("is-label");
         node.appendChild(editable("", fields.key ? escapeHtml(t(fields.key)) : (fields.html || ""), function (html) {
             fields.key = "";
+            fields.style = headingStyle(item);
             fields.html = html;
             save();
-        }));
+        }, t("ph.heading")));
     } else if (item.type === "contact") {
         const label = document.createElement("div");
         label.className = "contact-label";
@@ -693,27 +1538,28 @@ function renderBlock(item) {
                 fields.label = html;
                 fields.labelKey = "custom";
                 save();
-            }));
+            }, t("ph.label")));
         }
+        const contactPrompt = fields.labelKey && fields.labelKey !== "custom" ? t("doc." + fields.labelKey) : t("ph.text");
         node.append(
             label,
-            editable("", fields.html || "", function (html) { fields.html = html; save(); })
+            editable("", fields.html || "", function (html) { fields.html = html; save(); }, contactPrompt)
         );
     } else if (item.type === "competence" || item.type === "project") {
         node.append(
-            editable("title", fields.title || "", function (html) { fields.title = html; save(); }),
-            editable("body", fields.body || "", function (html) { fields.body = html; save(); })
+            editable("title", fields.title || "", function (html) { fields.title = html; save(); }, t("ph.title")),
+            editable("body", fields.body || "", function (html) { fields.body = html; save(); }, t("ph.text"))
         );
     } else if (item.type === "timeline") {
         const top = document.createElement("div");
         top.className = "timeline-top";
         top.append(
-            editable("title", fields.title || "", function (html) { fields.title = html; save(); }),
-            editable("date", fields.date || "", function (html) { fields.date = html; save(); })
+            editable("title", fields.title || "", function (html) { fields.title = html; save(); }, t("ph.title")),
+            editable("date", fields.date || "", function (html) { fields.date = html; save(); }, t("ph.date"))
         );
         node.append(
             top,
-            editable("org", fields.org || "", function (html) { fields.org = html; save(); }),
+            editable("org", fields.org || "", function (html) { fields.org = html; save(); }, t("ph.org")),
             lineList(item, "items", true)
         );
     } else if (item.type === "intro") {
@@ -721,33 +1567,74 @@ function renderBlock(item) {
         label.className = "intro-label";
         label.dataset.i18n = "doc.intro";
         label.textContent = t("doc.intro");
-        node.append(label, editable("", fields.html || "", function (html) { fields.html = html; save(); }));
+        node.append(label, editable("", fields.html || "", function (html) { fields.html = html; save(); }, t("ph.text")));
     } else if (item.type === "list") {
         node.appendChild(lineList(item, "items", true));
     } else if (item.type === "letterhead") {
+        const top = document.createElement("div");
+        top.className = "letterhead-top";
+        top.append(
+            editable("doc-title", fields.title || escapeHtml(t("doc.letter")), function (html) {
+                fields.title = html;
+                save();
+            }, t("doc.letter")),
+            editable("date", fields.date || "", function (html) { fields.date = html; save(); }, t("ph.date"))
+        );
         node.append(
-            editable("date", fields.date || "", function (html) { fields.date = html; save(); }),
-            editable("to", fields.to || "", function (html) { fields.to = html; save(); }),
-            editable("subject", fields.subject || "", function (html) { fields.subject = html; save(); })
+            top,
+            editable("to", fields.to || "", function (html) { fields.to = html; save(); }, t("ph.to")),
+            editable("subject", fields.subject || "", function (html) { fields.subject = html; save(); }, t("ph.subject"))
         );
     } else if (item.type === "closing") {
         node.appendChild(lineList(item, "paragraphs", false));
     } else {
-        node.appendChild(editable("", fields.html || "", function (html) { fields.html = html; save(); }));
+        const prompts = { name: t("ph.name"), role: t("ph.role"), skill: t("ph.text"), paragraph: t("ph.text"), signature: t("ph.name") };
+        node.appendChild(editable("", fields.html || "", function (html) {
+            fields.html = html;
+            save();
+            if (item.type === "name") syncFilenameFromPerson();
+        }, prompts[item.type] || t("ph.text")));
     }
     return node;
+}
+
+function mixHex(base, tint, amount) {
+    const read = function (hex) {
+        const h = String(hex || "").replace("#", "");
+        if (!/^[0-9a-fA-F]{6}$/.test(h)) return [255, 255, 255];
+        return [0, 2, 4].map(function (index) { return parseInt(h.slice(index, index + 2), 16); });
+    };
+    const from = read(base);
+    const to = read(tint);
+    return "#" + from.map(function (channel, index) {
+        const mixed = Math.round(channel + (to[index] - channel) * amount).toString(16);
+        return mixed.length === 1 ? "0" + mixed : mixed;
+    }).join("");
 }
 
 function applyTheme() {
     const sheet = document.getElementById("sheet");
     const theme = doc.theme;
-    sheet.style.setProperty("--sidebar", theme.sidebar);
-    sheet.style.setProperty("--sidebar-text", theme.sidebarText);
-    sheet.style.setProperty("--accent", theme.accent);
-    sheet.style.setProperty("--page", theme.page);
-    sheet.style.setProperty("--text", theme.text);
+    [sheet, document.getElementById("library")].forEach(function (node) {
+        if (!node) return;
+        node.style.setProperty("--sidebar", theme.sidebar);
+        node.style.setProperty("--sidebar-text", theme.sidebarText);
+        node.style.setProperty("--accent", theme.accent);
+        node.style.setProperty("--accent-light", theme.accentLight || theme.accent);
+        node.style.setProperty("--page", theme.page);
+        node.style.setProperty("--text", theme.text);
+        node.style.setProperty("--skill-fill", mixHex(theme.sidebar, "#ffffff", 0.1));
+        node.style.setProperty("--skill-fill-main", mixHex(theme.page, theme.accent, 0.1));
+        node.style.setProperty("--intro-fill", mixHex(theme.page, theme.accent, 0.12));
+        node.style.setProperty("--rule", mixHex(theme.page, "#64748b", 0.45));
+        node.style.setProperty("--rule-side", mixHex(theme.sidebar, "#ffffff", 0.28));
+    });
+    sheet.dataset.kind = doc.kind === "letter" ? "letter" : "cv";
     sheet.style.setProperty("--base-size", theme.baseSize + "pt");
     sheet.style.setProperty("--sidebar-width", theme.sidebarWidth + "%");
+    sheet.style.fontFamily = fontChoice().family + ', "Segoe UI", sans-serif';
+    const library = document.getElementById("library");
+    if (library) library.style.fontFamily = sheet.style.fontFamily;
 }
 
 function setColorInput(id, value) {
@@ -762,10 +1649,116 @@ function syncThemeInputs() {
     setColorInput("theme-accent", theme.accent);
     setColorInput("theme-page", theme.page);
     setColorInput("theme-text", theme.text);
-    document.getElementById("theme-size").value = theme.baseSize;
-    document.getElementById("theme-width").value = theme.sidebarWidth;
-    document.getElementById("theme-size-value").textContent = theme.baseSize + " pt";
-    document.getElementById("theme-width-value").textContent = theme.sidebarWidth + "%";
+    const size = document.getElementById("theme-size");
+    const width = document.getElementById("theme-width");
+    if (size) size.value = theme.baseSize;
+    if (width) width.value = theme.sidebarWidth;
+    const sizeValue = document.getElementById("theme-size-value");
+    const widthValue = document.getElementById("theme-width-value");
+    if (sizeValue) sizeValue.textContent = theme.baseSize + " pt";
+    if (widthValue) widthValue.textContent = theme.sidebarWidth + "%";
+    const font = document.getElementById("theme-font");
+    if (font) font.value = theme.font || "roboto";
+    paintContrastWarning();
+}
+
+function previewLine(className, text) {
+    const node = document.createElement("div");
+    if (className) node.className = className;
+    node.textContent = text;
+    return node;
+}
+
+function previewFor(type) {
+    const frame = document.createElement("div");
+    frame.className = "library-frame";
+    frame.setAttribute("aria-hidden", "true");
+    const sample = document.createElement("div");
+    const sideTypes = { name: 1, photo: 1, role: 1, contact: 1, skill: 1, competence: 1, project: 1 };
+    const onSide = type === "heading" || type === "spacer" ? addTarget === "sidebar" : !!sideTypes[type];
+    sample.className = "library-sample " + (onSide ? "is-side" : "is-main");
+    sample.dataset.kind = doc.kind === "letter" ? "letter" : "cv";
+    const piece = document.createElement("div");
+    piece.className = "block " + type;
+    if (type === "spacer") piece.classList.add("is-spacer");
+    if (type === "heading" && doc.kind === "letter" && !onSide) piece.classList.add("is-label");
+    if (type === "photo") {
+        const frame = document.createElement("div");
+        frame.className = "photo-frame";
+        piece.appendChild(frame);
+    } else if (type === "name") {
+        piece.append(document.createTextNode(t("preview.nameA")), document.createElement("br"), document.createTextNode(t("preview.nameB")));
+    } else if (type === "role") {
+        piece.textContent = t("preview.role");
+    } else if (type === "contact") {
+        piece.append(previewLine("contact-label", t("doc.city")), previewLine("", t("preview.contact")));
+    } else if (type === "heading") {
+        piece.textContent = t("ph.heading");
+    } else if (type === "skill") {
+        piece.textContent = t("preview.skill");
+    } else if (type === "competence" || type === "project") {
+        piece.append(previewLine("title", t("ph.title")), previewLine("body", t("preview.body")));
+    } else if (type === "intro") {
+        piece.append(previewLine("intro-label", t("doc.intro")), previewLine("", t("preview.body")));
+    } else if (type === "timeline") {
+        const top = document.createElement("div");
+        top.className = "timeline-top";
+        top.append(previewLine("title", t("ph.title")), previewLine("date", t("ph.date")));
+        const list = document.createElement("ul");
+        list.className = "bullets";
+        const item = document.createElement("li");
+        item.textContent = t("preview.item");
+        list.appendChild(item);
+        piece.append(top, previewLine("org", t("ph.org")), list);
+    } else if (type === "paragraph") {
+        piece.textContent = t("preview.paragraph");
+    } else if (type === "list") {
+        const list = document.createElement("ul");
+        list.className = "bullets";
+        [t("preview.item"), t("preview.item2")].forEach(function (text) {
+            const item = document.createElement("li");
+            item.textContent = text;
+            list.appendChild(item);
+        });
+        piece.appendChild(list);
+    } else if (type === "letterhead") {
+        const top = document.createElement("div");
+        top.className = "letterhead-top";
+        top.append(previewLine("doc-title", t("doc.letter")), previewLine("date", t("preview.place")));
+        piece.append(top, previewLine("to", t("ph.to")), previewLine("subject", t("ph.subject")));
+    } else if (type === "closing") {
+        const row = document.createElement("div");
+        row.className = "closing";
+        row.appendChild(previewLine("line", t("preview.greeting")));
+        piece.appendChild(row);
+    } else if (type === "signature") {
+        piece.appendChild(previewLine("editable", t("preview.nameA") + " " + t("preview.nameB")));
+    }
+    sample.appendChild(piece);
+    frame.appendChild(sample);
+    return frame;
+}
+
+function fillBlockGrid() {
+    const grid = document.getElementById("block-grid");
+    if (!grid || !doc) return;
+    grid.replaceChildren();
+    const types = ALL_BLOCKS;
+    types.forEach(function (type) {
+        const button = keepSelection(h("button", { class: "library-card", type: "button" }));
+        button.append(previewFor(type), h("span", { class: "library-name", text: t("type." + type), i18n: "type." + type }));
+        button.addEventListener("click", function () { addBlock(type); });
+        grid.appendChild(button);
+    });
+}
+
+function setAddTarget(next) {
+    const target = next === "sidebar" ? "sidebar" : "main";
+    const changed = addTarget !== target;
+    addTarget = target;
+    const radio = document.querySelector('input[name="add-target"][value="' + addTarget + '"]');
+    if (radio) radio.checked = true;
+    if (changed) fillBlockGrid();
 }
 
 function render() {
@@ -775,14 +1768,43 @@ function render() {
     main.replaceChildren();
     doc.sidebar.forEach(function (item) { sidebar.appendChild(renderBlock(item)); });
     doc.main.forEach(function (item) { main.appendChild(renderBlock(item)); });
+    if (!doc.sidebar.length) sidebar.appendChild(columnHint());
+    if (!doc.main.length) main.appendChild(columnHint());
     applyTheme();
     syncThemeInputs();
+    syncTemplateState();
     if (selectedId && selectedBlock()) select(selectedId);
     else {
         selectedId = null;
         updateInspector();
     }
+    bindSortables();
+    fillBlockGrid();
+    syncSpellLocale();
     requestAnimationFrame(updatePageGuides);
+}
+
+function columnHint() {
+    const hint = document.createElement("p");
+    hint.className = "column-hint";
+    hint.textContent = t("ui.emptyColumn");
+    return hint;
+}
+
+function blurField() {
+    const active = document.activeElement;
+    if (active && active !== document.body && active.isContentEditable && typeof active.blur === "function") active.blur();
+    const selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+}
+
+function clearFocus() {
+    blurField();
+    selectedId = null;
+    document.querySelectorAll(".block.is-selected").forEach(function (node) {
+        node.classList.remove("is-selected");
+    });
+    updateInspector();
 }
 
 function select(id) {
@@ -793,9 +1815,7 @@ function select(id) {
     const node = document.querySelector('.block[data-id="' + id + '"]');
     if (node) {
         node.classList.add("is-selected");
-        addTarget = node.parentElement && node.parentElement.id === "col-sidebar" ? "sidebar" : "main";
-        const radio = document.querySelector('input[name="add-target"][value="' + addTarget + '"]');
-        if (radio) radio.checked = true;
+        setAddTarget(node.parentElement && node.parentElement.id === "col-sidebar" ? "sidebar" : "main");
     }
     updateInspector();
 }
@@ -806,17 +1826,183 @@ function defaultTextColor(item) {
 
 function updateInspector() {
     const item = selectedBlock();
-    document.getElementById("inspector-empty").hidden = !!item;
-    document.getElementById("inspector").hidden = !item;
-    if (!item) return;
-    document.getElementById("inspector-type").textContent = t("type." + item.type);
+    const bar = document.getElementById("floatbar");
+    const inStudio = document.body.dataset.phase === "studio";
+    document.body.classList.toggle("has-selection", !!(item && inStudio));
+    syncLibraryHint();
+    if (!bar) return;
+    if (!item || !inStudio) {
+        bar.hidden = true;
+        return;
+    }
+    bar.hidden = false;
     setColorInput("block-color", item.color || defaultTextColor(item));
     setColorInput("block-bg", item.background || "#ffffff");
-    const size = item.fontSize || doc.theme.baseSize;
-    document.getElementById("block-size").value = size;
-    document.getElementById("block-size-value").textContent = size + " pt";
+    const size = item.type === "spacer" ? (Number(item.fields.size) || 12) : (item.fontSize || doc.theme.baseSize);
+    const sizeInput = document.getElementById("block-size");
+    const sizeLabel = document.getElementById("block-size-value");
+    if (sizeInput) sizeInput.value = size;
+    if (sizeLabel) sizeLabel.textContent = String(size);
     const lines = item.type === "list" || item.type === "timeline" || item.type === "closing";
-    document.getElementById("add-line").hidden = !lines;
+    const addLine = document.getElementById("add-line");
+    if (addLine) addLine.hidden = !lines;
+    bar.title = t("ui.hint");
+    syncLibraryHint();
+    positionFloatbar();
+}
+
+function syncLibraryHint() {
+    const note = document.getElementById("library-hint");
+    if (!note) return;
+    const item = selectedBlock();
+    const lines = item && (item.type === "list" || item.type === "timeline" || item.type === "closing");
+    note.textContent = lines ? t("shell.addItem") + " " + t("ui.hint") : t("ui.dragHint");
+}
+
+function positionFloatbar() {
+    const bar = document.getElementById("floatbar");
+    const node = selectedId && document.querySelector('.block[data-id="' + selectedId + '"]');
+    if (!bar || bar.hidden || !node) return;
+    const rect = node.getBoundingClientRect();
+    const width = bar.offsetWidth || 280;
+    let left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+    const chrome = document.getElementById("topbar");
+    const limit = chrome ? chrome.getBoundingClientRect().bottom + 8 : 68;
+    let top = rect.top - bar.offsetHeight - 10;
+    if (top < limit) top = Math.min(rect.bottom + 10, window.innerHeight - bar.offsetHeight - 8);
+    bar.style.left = left + "px";
+    bar.style.top = top + "px";
+}
+
+function dragPointFrom(event) {
+    if (!event) return null;
+    const touch = event.changedTouches && event.changedTouches[0];
+    const source = touch || event;
+    if (typeof source.clientX !== "number") return null;
+    return { x: source.clientX, y: source.clientY };
+}
+
+function trackDragPoint(event) {
+    const point = dragPointFrom(event);
+    if (point) dragPoint = point;
+}
+
+function columnAtPoint(point) {
+    if (!point) return null;
+    const stack = document.elementsFromPoint(point.x, point.y);
+    for (let index = 0; index < stack.length; index += 1) {
+        const node = stack[index];
+        if (!node || node.nodeType !== 1) continue;
+        if (node.closest(".sortable-fallback, .sortable-drag")) continue;
+        if (node.closest("#floatbar, #toast, .crop-dialog, .topbar, .library, .drawer")) return null;
+        if (node.id === "col-sidebar" || node.id === "col-main") return node;
+        const column = node.closest("#col-sidebar, #col-main");
+        if (column) return column;
+        if (node.closest("#sheet")) continue;
+        return null;
+    }
+    return null;
+}
+
+function placeBlockAtPoint(item, point) {
+    const column = columnAtPoint(point);
+    if (!column || !item) return false;
+    const blocks = Array.from(column.children).filter(function (node) {
+        return node !== item && node.classList.contains("block");
+    });
+    let next = null;
+    blocks.forEach(function (block) {
+        if (next) return;
+        const rect = block.getBoundingClientRect();
+        if (point.y < rect.top + rect.height / 2) next = block;
+    });
+    if (item.parentElement !== column || item.nextSibling !== next) column.insertBefore(item, next);
+    return true;
+}
+
+function bindSortables() {
+    sortables.forEach(function (sortable) { sortable.destroy(); });
+    sortables = [];
+    if (typeof Sortable === "undefined") return;
+    ["col-sidebar", "col-main"].forEach(function (id) {
+        const column = document.getElementById(id);
+        if (!column) return;
+        sortables.push(Sortable.create(column, {
+            group: { name: "blocks", pull: true, put: true },
+            handle: ".drag-handle",
+            animation: 180,
+            ghostClass: "is-ghost",
+            chosenClass: "is-chosen",
+            forceFallback: true,
+            fallbackOnBody: true,
+            fallbackTolerance: 3,
+            swapThreshold: 0.65,
+            emptyInsertThreshold: 80,
+            draggable: ".block",
+            disabled: document.body.dataset.phase !== "studio",
+            onChoose: function () { dragSortable = this; },
+            onUnchoose: function () {
+                dragSortable = null;
+                document.removeEventListener("pointermove", trackDragPoint, true);
+            },
+            onStart: function (evt) {
+                dragCancel = false;
+                dragPoint = dragPointFrom(evt.originalEvent);
+                dragHome = { parent: evt.from, next: evt.item.nextSibling };
+                document.addEventListener("pointermove", trackDragPoint, true);
+            },
+            onEnd: function (evt) {
+                document.removeEventListener("pointermove", trackDragPoint, true);
+                const point = dragPointFrom(evt.originalEvent) || dragPoint;
+                const from = evt.item && evt.item.dataset ? columnOf(evt.item.dataset.id) : null;
+                dragHome = null;
+                dragPoint = null;
+                if (dragCancel) return;
+                if (point) placeBlockAtPoint(evt.item, point);
+                const previous = JSON.stringify(doc);
+                syncColumnsFromDom();
+                if (JSON.stringify(doc) === previous) {
+                    positionFloatbar();
+                    return;
+                }
+                past.push(previous);
+                if (past.length > 60) past.shift();
+                future = [];
+                save();
+                const moved = evt.item && evt.item.dataset && columnOf(evt.item.dataset.id) !== from;
+                if (moved) requestAnimationFrame(render);
+                else positionFloatbar();
+            }
+        }));
+    });
+}
+
+function cancelDrag() {
+    const dragged = typeof Sortable !== "undefined" ? Sortable.dragged : null;
+    const active = (typeof Sortable !== "undefined" && Sortable.active) || dragSortable;
+    if (!active || !dragged || !active._onDrop) return false;
+    dragCancel = true;
+    if (dragHome && dragHome.parent) {
+        const next = dragHome.next && dragHome.next.parentNode === dragHome.parent ? dragHome.next : null;
+        dragHome.parent.insertBefore(dragged, next);
+    }
+    try {
+        active._onDrop({
+            type: "drop",
+            preventDefault: function () {},
+            stopPropagation: function () {}
+        });
+    } catch (error) {
+        dragCancel = false;
+        render();
+    }
+    requestAnimationFrame(function () {
+        if (!document.querySelector(".sortable-fallback, .block.is-ghost, .block.is-chosen")) return;
+        dragCancel = false;
+        render();
+    });
+    return true;
 }
 
 function updatePageGuides() {
@@ -833,22 +2019,84 @@ function updatePageGuides() {
         const line = document.createElement("div");
         line.className = "page-break";
         line.style.top = (index * pagePx) + "px";
+        const tag = document.createElement("span");
+        tag.className = "page-break-label";
+        tag.textContent = t("ui.pageBreak").replace("{n}", String(index + 1));
+        line.appendChild(tag);
         guides.appendChild(line);
     }
-    if (status) {
-        status.textContent = pages === 1 ? t("ui.pageOne") : t("ui.pageMany").replace("{n}", String(pages));
+    const label = pages === 1 ? t("ui.pageOne") : t("ui.pageMany").replace("{n}", String(pages));
+    if (status) status.textContent = label;
+    const chip = document.getElementById("page-chip");
+    if (chip) {
+        chip.textContent = label;
+        chip.classList.toggle("is-warn", !!(doc && doc.kind === "letter" && pages > 1));
     }
+    applyStageScale(stageScale);
+}
+
+function pageCount() {
+    const sheet = document.getElementById("sheet");
+    if (!sheet || !sheet.offsetWidth) return 1;
+    const pagePx = sheet.offsetWidth * (297 / 210);
+    return Math.max(1, Math.ceil((sheet.scrollHeight - 1) / pagePx));
+}
+
+function previewFitScale() {
+    const preview = document.getElementById("preview");
+    const sheet = document.getElementById("sheet");
+    if (!preview || !sheet || !sheet.offsetWidth) return 1;
+    const styles = getComputedStyle(preview);
+    const pad = (parseFloat(styles.paddingLeft) || 0) + (parseFloat(styles.paddingRight) || 0);
+    const available = preview.clientWidth - pad - 8;
+    if (!available) return 1;
+    return Math.max(0.4, Math.min(1, available / sheet.offsetWidth));
+}
+
+function setZoom(scale, touched) {
+    zoomTouched = !!touched;
+    const next = Math.max(0.4, Math.min(1.3, scale || 1));
+    const zoom = document.getElementById("zoom");
+    const pct = Math.round(next * 100);
+    if (zoom) zoom.value = String(pct);
+    const label = document.getElementById("zoom-value");
+    if (label) label.textContent = pct + "%";
+    applyStageScale(next);
+}
+
+function fitStage(retry) {
+    if (document.body.dataset.phase !== "studio") return;
+    const sheet = document.getElementById("sheet");
+    if (!sheet || !sheet.offsetWidth) {
+        if (!retry) requestAnimationFrame(function () { fitStage(true); });
+        return;
+    }
+    setZoom(previewFitScale(), false);
+    updatePageGuides();
+}
+
+function applyStageScale(scale) {
+    stageScale = scale || 1;
+    const stage = document.getElementById("stage");
+    const inner = document.getElementById("stage-scale");
+    const sheet = document.getElementById("sheet");
+    if (!stage || !inner || !sheet) return;
+    inner.style.transform = stageScale === 1 ? "" : "scale(" + stageScale + ")";
+    const width = sheet.offsetWidth;
+    const height = sheet.offsetHeight;
+    if (!width || !height) return;
+    stage.style.width = Math.ceil(width * stageScale) + "px";
+    stage.style.height = Math.ceil(height * stageScale) + "px";
 }
 
 function useTemplate(kind) {
     snapshot();
-    doc = kind === "cv" ? emptyCv() : kind === "letter" ? emptyLetter() : showcase();
+    doc = kind === "letter" ? emptyLetter() : emptyCv();
     selectedId = null;
-    const name = document.getElementById("pdf-name");
-    name.value = plainName();
-    try { localStorage.setItem(STORAGE_NAME, name.value); } catch (error) { /* ignore */ }
+    filenameCustom = false;
     applyLanguage();
     render();
+    syncFilenameFromPerson();
     save();
 }
 
@@ -860,7 +2108,28 @@ function addBlock(type) {
     render();
     save();
     const node = document.querySelector('.block[data-id="' + item.id + '"]');
-    if (node) node.scrollIntoView({ block: "nearest" });
+    const field = node && node.querySelector(".editable");
+    if (field) focusEditable(field);
+    else if (node) node.scrollIntoView({ block: "nearest" });
+}
+
+function moveBlock(delta) {
+    const item = selectedBlock();
+    if (!item) return;
+    const column = columnOf(item.id);
+    const index = doc[column].findIndex(function (entry) { return entry.id === item.id; });
+    const next = index + delta;
+    if (index < 0 || next < 0 || next >= doc[column].length) return;
+    snapshot();
+    const moved = doc[column].splice(index, 1)[0];
+    doc[column].splice(next, 0, moved);
+    render();
+    save();
+    const node = document.querySelector('.block[data-id="' + item.id + '"]');
+    if (!node) return;
+    node.tabIndex = -1;
+    node.focus();
+    node.scrollIntoView({ block: "nearest" });
 }
 
 function duplicateBlock() {
@@ -880,21 +2149,27 @@ function duplicateBlock() {
 function deleteBlock() {
     const item = selectedBlock();
     if (!item) return;
-    snapshot();
     const column = columnOf(item.id);
+    const index = doc[column].findIndex(function (entry) { return entry.id === item.id; });
+    snapshot();
     doc[column] = doc[column].filter(function (entry) { return entry.id !== item.id; });
-    selectedId = null;
+    const next = doc[column][Math.min(index, doc[column].length - 1)] || null;
+    selectedId = next ? next.id : null;
     render();
     save();
+    if (!next) return;
+    const node = document.querySelector('.block[data-id="' + next.id + '"]');
+    if (!node) return;
+    node.tabIndex = -1;
+    node.focus();
 }
 
 function addLine() {
     const item = selectedBlock();
     if (!item) return;
     snapshot();
-    const text = escapeHtml(t("ph.text"));
-    if (item.type === "closing") item.fields.paragraphs.push(text);
-    else item.fields.items.push(text);
+    if (item.type === "closing") item.fields.paragraphs.push("");
+    else item.fields.items.push("");
     render();
     save();
 }
@@ -948,6 +2223,727 @@ function format(command) {
     if (activeField) activeField.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
+function syncTemplateState() {
+    document.querySelectorAll("[data-template]").forEach(function (button) {
+        button.classList.toggle("is-current", button.dataset.template === doc.kind);
+    });
+}
+
+function markedText(html) {
+    const holder = document.createElement("div");
+    holder.innerHTML = html || "";
+    holder.querySelectorAll("br").forEach(function (br) { br.replaceWith("\n"); });
+    return holder.textContent.replace(/\u00a0/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function textToHtml(value) {
+    return escapeHtml(value || "").replace(/\n/g, "<br>");
+}
+
+function nameToHtml(value) {
+    return String(value || "")
+        .split(/<br\s*\/?>/i)
+        .map(function (part) { return escapeHtml(part.trim()); })
+        .filter(Boolean)
+        .join("<br>");
+}
+
+function fieldValue(text, key) {
+    const match = String(text || "").match(new RegExp("^" + key + ":\\s*(.*)$", "im"));
+    return match ? match[1].trim() : "";
+}
+
+function bulletLines(text) {
+    return String(text || "").split(/\r?\n/).map(function (line) { return line.trim(); }).filter(function (line) {
+        return line.indexOf("- ") === 0;
+    }).map(function (line) { return line.slice(2).trim(); }).filter(Boolean);
+}
+
+function titledLines(text) {
+    return bulletLines(text).map(function (line) {
+        const split = line.indexOf(":");
+        return split < 0
+            ? { title: "", body: line }
+            : { title: line.slice(0, split).trim(), body: line.slice(split + 1).trim() };
+    });
+}
+
+function entryFrom(text) {
+    const bullets = [];
+    const fields = {};
+    String(text || "").split(/\r?\n/).forEach(function (line) {
+        const trimmed = line.trim();
+        if (trimmed.indexOf("- ") === 0) {
+            bullets.push(trimmed.slice(2).trim());
+            return;
+        }
+        const match = trimmed.match(/^(TITLE|DATE|ORGANIZATION):\s*(.*)$/i);
+        if (match) fields[match[1].toUpperCase()] = match[2].trim();
+    });
+    return {
+        title: fields.TITLE || "",
+        date: fields.DATE || "",
+        org: fields.ORGANIZATION || "",
+        items: bullets
+    };
+}
+
+function exportMarked() {
+    const lines = [doc.kind === "letter" ? "@@@LETTER" : "@@@CV"];
+    const name = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "name"; });
+    const role = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "role"; });
+    lines.push("NAME: " + (name ? markedText(name.fields.html).replace(/\n/g, "<br>") : ""));
+    lines.push("ROLE: " + (role ? markedText(role.fields.html) : ""));
+    const intro = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "intro"; });
+    if (doc.kind === "letter") {
+        const letterhead = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "letterhead"; });
+        if (letterhead) {
+            lines.push("TITLE: " + markedText(letterhead.fields.title || escapeHtml(t("doc.letter"))));
+            lines.push("DATE: " + markedText(letterhead.fields.date));
+            lines.push("TO: " + markedText(letterhead.fields.to).replace(/\n/g, "<br>"));
+            lines.push("SUBJECT: " + markedText(letterhead.fields.subject));
+        }
+        lines.push("SUMMARY: " + (intro ? markedText(intro.fields.html).replace(/\n/g, " ") : ""));
+    }
+    lines.push("@@@CONTACT");
+    ["city", "phone", "email", "born"].forEach(function (key) {
+        const row = doc.sidebar.concat(doc.main).find(function (item) {
+            return item.type === "contact" && item.fields.labelKey === key;
+        });
+        lines.push(key.toUpperCase() + ": " + (row ? markedText(row.fields.html) : ""));
+    });
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type === "contact" && item.fields.labelKey === "custom") {
+            lines.push("LABEL: " + markedText(item.fields.label));
+            lines.push("VALUE: " + markedText(item.fields.html));
+        }
+    });
+    lines.push("@@@SKILLS");
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type === "skill") lines.push("- " + markedText(item.fields.html));
+    });
+    lines.push("@@@STRENGTHS");
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type === "competence") lines.push("- " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
+    });
+    lines.push("@@@PROJECTS");
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type === "project") lines.push("- " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
+    });
+    if (doc.kind !== "letter") {
+        lines.push("@@@PROFILE");
+        lines.push(intro ? markedText(intro.fields.html) : "");
+    }
+    let mode = "job";
+    let closing = null;
+    let sign = "";
+    doc.main.forEach(function (item) {
+        if (item.type === "heading") {
+            if (item.fields.key === "doc.education") mode = "study";
+            else if (item.fields.key === "doc.work") mode = "job";
+            else if (!item.fields.key && item.fields.key !== "doc.profile" && item.fields.key !== "doc.letter") {
+                lines.push("@@@SECTION");
+                lines.push("HEADING: " + markedText(item.fields.html));
+            }
+            return;
+        }
+        if (item.type === "timeline") {
+            lines.push(mode === "study" ? "@@@STUDY" : "@@@JOB");
+            lines.push("TITLE: " + markedText(item.fields.title));
+            lines.push("DATE: " + markedText(item.fields.date));
+            lines.push("ORGANIZATION: " + markedText(item.fields.org));
+            (item.fields.items || []).forEach(function (bullet) { lines.push("- " + markedText(bullet)); });
+        } else if (item.type === "paragraph") {
+            lines.push("@@@PARAGRAPH");
+            lines.push(markedText(item.fields.html));
+        } else if (item.type === "letterhead") {
+            if (doc.kind === "letter") return;
+            lines.push("@@@LETTERHEAD");
+            lines.push("DATE: " + markedText(item.fields.date));
+            lines.push("TO: " + markedText(item.fields.to).replace(/\n/g, "<br>"));
+            lines.push("SUBJECT: " + markedText(item.fields.subject));
+        } else if (item.type === "list") {
+            lines.push("@@@LIST");
+            (item.fields.items || []).forEach(function (bullet) { lines.push("- " + markedText(bullet)); });
+        } else if (item.type === "closing") {
+            closing = item;
+        } else if (item.type === "signature") {
+            sign = markedText(item.fields.html);
+        } else if (item.type === "spacer") {
+            lines.push("@@@SPACER");
+            lines.push("SIZE: " + (Number(item.fields.size) || 12));
+        }
+    });
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type !== "photo") return;
+        lines.push("@@@PHOTO");
+        lines.push("CAPTION: " + markedText(item.fields.caption || ""));
+    });
+    if (closing || sign) {
+        lines.push("@@@CLOSING");
+        if (closing) lines.push((closing.fields.paragraphs || []).map(markedText).filter(Boolean).join("\n\n"));
+        if (sign) lines.push("SIGN: " + sign);
+    }
+    lines.push("@@@END");
+    return lines.join("\n");
+}
+
+function parseMarked(raw) {
+    const end = String(raw || "").lastIndexOf("@@@END");
+    const cvAt = String(raw || "").indexOf("@@@CV");
+    const letterAt = String(raw || "").indexOf("@@@LETTER");
+    const start = cvAt >= 0 && (letterAt < 0 || cvAt < letterAt) ? cvAt : letterAt;
+    if (start < 0 || end < start) throw new Error(t("ui.parseError"));
+    const kind = raw.startsWith("@@@LETTER", start) ? "letter" : "cv";
+    const chunks = raw.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
+    return { kind: kind, chunks: chunks };
+}
+
+function pushTimeline(target, item) {
+    target.push(block("timeline", {
+        title: textToHtml(item.title),
+        date: textToHtml(item.date),
+        org: textToHtml(item.org),
+        items: (item.items.length ? item.items : [""]).map(textToHtml)
+    }));
+}
+
+function hexField(text, key) {
+    const value = fieldValue(text, key);
+    return /^#[0-9a-fA-F]{6}$/.test(value) ? value : "";
+}
+
+function applyChunkPaint(next, sideBefore, mainBefore, rest) {
+    const color = hexField(rest, "COLOR");
+    const background = hexField(rest, "BACKGROUND");
+    const size = Number(fieldValue(rest, "SIZE"));
+    const sized = size >= 8 && size <= 28;
+    if (!color && !background && !sized) return;
+    next.sidebar.slice(sideBefore).concat(next.main.slice(mainBefore)).forEach(function (item) {
+        if (item.type === "spacer") return;
+        if (color) item.color = color;
+        if (background) item.background = background;
+        if (sized) item.fontSize = size;
+    });
+}
+
+function applyThemeFields(theme, rest) {
+    const map = {
+        SIDEBAR: "sidebar",
+        SIDEBARTEXT: "sidebarText",
+        ACCENT: "accent",
+        ACCENTLIGHT: "accentLight",
+        PAGE: "page",
+        TEXT: "text"
+    };
+    Object.keys(map).forEach(function (key) {
+        const value = hexField(rest, key);
+        if (value) theme[map[key]] = value;
+    });
+    const size = Number(fieldValue(rest, "SIZE"));
+    if (size >= 8 && size <= 14) theme.baseSize = size;
+    const column = Number(fieldValue(rest, "COLUMN"));
+    if (column >= 24 && column <= 50) theme.sidebarWidth = column;
+    const font = fieldValue(rest, "FONT").toLowerCase();
+    if (font === "roboto" || font === "merriweather" || font === "lora") theme.font = font;
+}
+
+function applyMarked(raw) {
+    const parsed = parseMarked(raw);
+    const next = { version: 1, lang: lang, kind: parsed.kind, theme: doc.theme, sidebar: [], main: [] };
+    const seen = {};
+    let useful = false;
+    let sign = "";
+    function marker(flag, key) {
+        if (seen[flag]) return;
+        seen[flag] = true;
+        next.sidebar.push(barHeading(key));
+    }
+    parsed.chunks.forEach(function (chunk) {
+        const breakAt = chunk.indexOf("\n");
+        const head = (breakAt < 0 ? chunk : chunk.slice(0, breakAt)).replace(/^@+/, "").trim().toUpperCase();
+        const rest = breakAt < 0 ? "" : chunk.slice(breakAt + 1).trim();
+        if (head === "THEME") {
+            applyThemeFields(next.theme, rest);
+            return;
+        }
+        const sideBefore = next.sidebar.length;
+        const mainBefore = next.main.length;
+        if (head === "CV" || head === "LETTER") {
+            const person = fieldValue(rest, "NAME");
+            const role = fieldValue(rest, "ROLE");
+            if (person) {
+                next.sidebar.push(block("name", { html: nameToHtml(person) }));
+                useful = true;
+            }
+            if (role) next.sidebar.push(block("role", { html: textToHtml(role) }));
+            if (parsed.kind === "letter") {
+                next.main.push(makeLetterhead(
+                    textToHtml(fieldValue(rest, "DATE")),
+                    nameToHtml(fieldValue(rest, "TO")),
+                    textToHtml(fieldValue(rest, "SUBJECT")),
+                    textToHtml(fieldValue(rest, "TITLE"))
+                ));
+                useful = true;
+            }
+            if (fieldValue(rest, "SUMMARY")) {
+                next.main.push(block("intro", { html: textToHtml(fieldValue(rest, "SUMMARY")) }));
+                useful = true;
+            }
+        } else if (head === "CONTACT") {
+            const rows = ["city", "phone", "email", "born"].filter(function (key) { return fieldValue(rest, key.toUpperCase()); });
+            const custom = [];
+            rest.split(/\n/).forEach(function (line, index, all) {
+                if (!/^LABEL:/i.test(line)) return;
+                const valueLine = all[index + 1] || "";
+                custom.push({
+                    label: line.replace(/^LABEL:\s*/i, "").trim(),
+                    value: /^VALUE:/i.test(valueLine) ? valueLine.replace(/^VALUE:\s*/i, "").trim() : ""
+                });
+            });
+            if (rows.length || custom.length) marker("contact", "doc.contact");
+            rows.forEach(function (key) {
+                next.sidebar.push(block("contact", { labelKey: key, label: "", html: textToHtml(fieldValue(rest, key.toUpperCase())) }));
+                useful = true;
+            });
+            custom.forEach(function (row) {
+                next.sidebar.push(block("contact", { labelKey: "custom", label: textToHtml(row.label), html: textToHtml(row.value) }));
+            });
+        } else if (head === "SKILLS") {
+            const skills = bulletLines(rest);
+            if (!skills.length) return;
+            marker("skills", "doc.skills");
+            skills.forEach(function (skill) { next.sidebar.push(block("skill", { html: textToHtml(skill) })); });
+            useful = true;
+        } else if (head === "STRENGTHS") {
+            const items = titledLines(rest);
+            if (!items.length) return;
+            marker("strengths", "doc.strengths");
+            items.forEach(function (item) {
+                next.sidebar.push(block("competence", { title: textToHtml(item.title), body: textToHtml(item.body) }));
+            });
+            useful = true;
+        } else if (head === "PROJECTS") {
+            const items = titledLines(rest);
+            if (!items.length) return;
+            marker("projects", "doc.projects");
+            items.forEach(function (item) {
+                next.sidebar.push(block("project", { title: textToHtml(item.title), body: textToHtml(item.body) }));
+            });
+            useful = true;
+        } else if (head === "PROFILE") {
+            if (!rest) return;
+            next.main.push(barHeading("doc.profile"));
+            next.main.push(block("intro", { html: textToHtml(rest) }));
+            useful = true;
+        } else if (head === "JOB" || head === "STUDY") {
+            const item = entryFrom(rest);
+            const flag = head === "STUDY" ? "study" : "work";
+            if (!seen[flag]) {
+                seen[flag] = true;
+                next.main.push(barHeading(flag === "study" ? "doc.education" : "doc.work"));
+            }
+            pushTimeline(next.main, item);
+            useful = true;
+        } else if (head === "PARAGRAPH" || head === "OPENING") {
+            rest.split(/\n{2,}/).forEach(function (part) {
+                if (!part.trim()) return;
+                next.main.push(block("paragraph", { html: textToHtml(part.trim()) }));
+                useful = true;
+            });
+        } else if (head === "LIST") {
+            const items = bulletLines(rest);
+            if (!items.length) return;
+            next.main.push(block("list", { items: items.map(textToHtml) }));
+            useful = true;
+        } else if (head === "LETTERHEAD") {
+            next.main.push(makeLetterhead(
+                textToHtml(fieldValue(rest, "DATE")),
+                nameToHtml(fieldValue(rest, "TO")),
+                textToHtml(fieldValue(rest, "SUBJECT")),
+                textToHtml(fieldValue(rest, "TITLE"))
+            ));
+            useful = true;
+        } else if (head === "SECTION") {
+            const bodyAt = rest.search(/^BODY:\s*/im);
+            const body = bodyAt < 0 ? "" : rest.slice(bodyAt).replace(/^BODY:\s*/i, "");
+            next.main.push(block("heading", {
+                key: "",
+                style: parsed.kind === "letter" ? "label" : "bar",
+                html: textToHtml(fieldValue(rest, "HEADING"))
+            }));
+            body.split(/\n{2,}/).forEach(function (part) {
+                if (part.trim()) next.main.push(block("paragraph", { html: textToHtml(part.trim()) }));
+            });
+            useful = true;
+        } else if (head === "CLOSING") {
+            sign = fieldValue(rest, "SIGN") || sign;
+            const paragraphs = rest.replace(/^SIGN:.*$/gim, "").trim().split(/\n{2,}/).map(function (part) {
+                return part.trim();
+            }).filter(function (part) { return part && !/^SIGN:/i.test(part); });
+            if (paragraphs.length) {
+                next.main.push(block("closing", { paragraphs: paragraphs.map(textToHtml) }));
+                useful = true;
+            }
+        } else if (head === "HEADING") {
+            const style = /^label$/i.test(fieldValue(rest, "STYLE")) ? "label" : "bar";
+            next.main.push(block("heading", { key: "", style: style, html: textToHtml(fieldValue(rest, "TEXT")) }));
+            useful = true;
+        } else if (head === "SPACER") {
+            const size = Number(fieldValue(rest, "SIZE")) || 12;
+            next.main.push(block("spacer", { size: Math.max(4, Math.min(48, size)) }));
+            useful = true;
+        } else if (head === "PHOTO") {
+            next.sidebar.push(block("photo", {
+                src: "",
+                original: "",
+                caption: textToHtml(fieldValue(rest, "CAPTION")),
+                aspect: "3 / 4"
+            }));
+            useful = true;
+        }
+        applyChunkPaint(next, sideBefore, mainBefore, rest);
+    });
+    if (sign) next.main.push(block("signature", { html: textToHtml(sign) }));
+    if (!useful) throw new Error(t("ui.parseError"));
+    snapshot();
+    doc = next;
+    normalize(doc);
+    selectedId = null;
+    const nameInput = document.getElementById("pdf-name");
+    nameInput.value = plainName();
+    try { localStorage.setItem(STORAGE_NAME, nameInput.value); } catch (error) { /* ignore */ }
+    showError("");
+    applyLanguage();
+    render();
+    save();
+}
+
+function showToast(message, tone, actions) {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+    window.clearTimeout(toastTimer);
+    toast.replaceChildren();
+    if (!message) {
+        toast.hidden = true;
+        return;
+    }
+    toast.hidden = false;
+    toast.className = "toast" + (tone === "error" ? " is-error" : tone === "warn" ? " is-warn" : "");
+    toast.setAttribute("role", tone === "error" || tone === "warn" ? "alert" : "status");
+    const text = document.createElement("p");
+    text.textContent = message;
+    toast.appendChild(text);
+    (actions || []).forEach(function (action) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = action.primary ? "btn-primary" : "btn";
+        button.textContent = action.label;
+        button.addEventListener("click", action.run);
+        toast.appendChild(button);
+    });
+    if (tone !== "error" && tone !== "warn") {
+        toastTimer = window.setTimeout(function () { toast.hidden = true; }, 4200);
+    }
+}
+
+function showStatus(message) {
+    const box = document.getElementById("status");
+    if (box) {
+        box.hidden = !message;
+        box.textContent = message || "";
+    }
+    if (message) showToast(message, "ok");
+}
+
+function markCatalog() {
+    return [
+        { types: ["name"], key: "name", shape: "NAME: Voornaam<br>Achternaam" },
+        { types: ["role"], key: "role", shape: "ROLE: " },
+        { types: ["contact"], key: "contact", shape: "@@@CONTACT\nCITY: \nPHONE: \nEMAIL: \nBORN: \nLABEL: \nVALUE: " },
+        { types: ["skill"], key: "skill", shape: "@@@SKILLS\n- " },
+        { types: ["competence"], key: "competence", shape: "@@@STRENGTHS\n- titel: tekst" },
+        { types: ["project"], key: "project", shape: "@@@PROJECTS\n- titel: tekst" },
+        { types: ["intro"], key: "intro", shape: "@@@PROFILE\nSUMMARY: " },
+        { types: ["timeline"], key: "timeline", shape: "@@@JOB\nTITLE: \nDATE: \nORGANIZATION: \n- \n@@@STUDY" },
+        { types: ["heading"], key: "heading", shape: "@@@HEADING\nTEXT: \nSTYLE: bar" },
+        { types: ["paragraph"], key: "paragraph", shape: "@@@PARAGRAPH" },
+        { types: ["list"], key: "list", shape: "@@@LIST\n- " },
+        { types: ["letterhead"], key: "letterhead", shape: "@@@LETTERHEAD\nTITLE: \nDATE: \nTO: \nSUBJECT: " },
+        { types: ["closing"], key: "closing", shape: "@@@CLOSING\nSIGN: " },
+        { types: ["signature"], key: "signature", shape: "SIGN: " },
+        { types: ["spacer"], key: "spacer", shape: "@@@SPACER\nSIZE: 12" },
+        { types: ["photo"], key: "photo", shape: "@@@PHOTO\nCAPTION: " }
+    ];
+}
+
+function uncoveredBlocks() {
+    const known = {};
+    markCatalog().forEach(function (entry) {
+        entry.types.forEach(function (type) { known[type] = true; });
+    });
+    return ALL_BLOCKS.filter(function (type) { return !known[type]; });
+}
+
+function fieldSketch(type) {
+    try {
+        return Object.keys(createBlock(type).fields).filter(function (key) {
+            return key !== "src" && key !== "original";
+        }).join(", ");
+    } catch (error) {
+        return type;
+    }
+}
+
+function themeBlock(theme) {
+    const source = theme || (setupState.kind === "letter" ? letterTheme() : cvTheme());
+    return [
+        "@@@THEME",
+        "SIDEBAR: " + source.sidebar,
+        "SIDEBARTEXT: " + source.sidebarText,
+        "ACCENT: " + source.accent,
+        "ACCENTLIGHT: " + source.accentLight,
+        "PAGE: " + source.page,
+        "TEXT: " + source.text,
+        "SIZE: " + source.baseSize,
+        "COLUMN: " + source.sidebarWidth,
+        "FONT: " + (source.font || "roboto")
+    ].join("\n");
+}
+
+function modelInstructions(mode, kind) {
+    const letter = (kind || setupState.kind) === "letter";
+    const lines = [t("mark.preamble")
+        .replace("{doc}", letter ? "@@@LETTER" : "@@@CV")
+        .replace("{lang}", lang === "en" ? "English" : "Nederlands")];
+    markCatalog().forEach(function (entry) {
+        const title = entry.types.map(function (type) { return t("type." + type); }).join(", ");
+        lines.push("", title, entry.shape);
+        const say = t("mark." + entry.key);
+        if (say && say !== "mark." + entry.key) lines.push(say);
+    });
+    uncoveredBlocks().forEach(function (type) {
+        const fields = fieldSketch(type);
+        lines.push("", t("mark.fallback").replace("{type}", t("type." + type)).replace("{fields}", fields));
+    });
+    if (mode === "advanced") lines.push("", t("mark.advanced"));
+    lines.push("", t("mark.keep"));
+    return lines.join("\n");
+}
+
+function blankMarked() {
+    const letter = setupState.kind === "letter";
+    const lines = [letter ? "@@@LETTER" : "@@@CV", "NAME: ", "ROLE: "];
+    if (letter) lines.push("TITLE: ", "DATE: ", "TO: ", "SUBJECT: ", "SUMMARY: ");
+    lines.push(
+        "@@@CONTACT", "CITY: ", "PHONE: ", "EMAIL: ", "BORN: ",
+        "@@@SKILLS", "- ",
+        "@@@STRENGTHS", "- : ",
+        "@@@PROJECTS", "- : "
+    );
+    if (!letter) lines.push("@@@PROFILE", "");
+    lines.push(
+        "@@@JOB", "TITLE: ", "DATE: ", "ORGANIZATION: ", "- ",
+        "@@@STUDY", "TITLE: ", "DATE: ", "ORGANIZATION: ", "- ",
+        "@@@HEADING", "TEXT: ", "STYLE: bar",
+        "@@@PARAGRAPH", "",
+        "@@@LIST", "- "
+    );
+    if (!letter) lines.push("@@@LETTERHEAD", "TITLE: ", "DATE: ", "TO: ", "SUBJECT: ");
+    lines.push("@@@PHOTO", "CAPTION: ", "@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
+    return lines.join("\n");
+}
+
+function modelBundle(mode) {
+    let body = blankMarked();
+    if (mode === "advanced") body = body.replace("@@@END", themeBlock() + "\n@@@END");
+    if (mode === "plain") return body;
+    return modelInstructions(mode) + "\n\n" + body;
+}
+
+function filledBundle(mode) {
+    let body = exportMarked();
+    if (mode === "advanced" && doc && doc.theme) body = body.replace("@@@END", themeBlock(doc.theme) + "\n@@@END");
+    if (mode === "plain") return body;
+    return modelInstructions(mode, doc && doc.kind) + "\n\n" + body;
+}
+
+async function copyModelText(mode, filled) {
+    const text = filled ? filledBundle(mode) : modelBundle(mode);
+    const box = document.getElementById(filled ? "llm-input" : "setup-model-text");
+    if (box) {
+        box.value = text;
+        box.scrollTop = 0;
+    }
+    try {
+        await navigator.clipboard.writeText(text);
+        if (filled) showStatus(t("ui.copied"));
+        else setupMessage(t("ui.copied"), false);
+    } catch (error) {
+        if (box) {
+            box.focus();
+            box.select();
+        }
+        if (filled) showError(t("ui.copyFailed"));
+        else setupMessage(t("ui.copyFailed"), true);
+    }
+}
+
+async function copyForModel() {
+    const pick = document.getElementById("model-mode");
+    copyModelText(pick ? pick.value : "guide", true);
+}
+
+function applyModelText() {
+    const input = document.getElementById("llm-input");
+    try {
+        applyMarked(input ? input.value : "");
+        showStatus(t("ui.applied"));
+    } catch (error) {
+        showError(error && error.message ? error.message : t("ui.parseError"));
+    }
+}
+
+let cropper = null;
+let photoTargetId = null;
+let cropRatio = 0.75;
+
+function findBlock(id) {
+    if (!doc) return null;
+    return doc.sidebar.concat(doc.main).find(function (item) { return item.id === id; }) || null;
+}
+
+function pickPhoto(id) {
+    photoTargetId = id;
+    const input = document.getElementById("photo-file");
+    if (!input) return;
+    input.value = "";
+    input.click();
+}
+
+function loadImage(url) {
+    return new Promise(function (resolve, reject) {
+        const image = new Image();
+        image.onload = function () { resolve(image); };
+        image.onerror = reject;
+        image.src = url;
+    });
+}
+
+function downscaleImage(image, max) {
+    const scale = Math.min(1, max / Math.max(image.width, image.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.9);
+}
+
+function aspectNumber(value) {
+    if (value === "1 / 1") return 1;
+    if (value === "4 / 3") return 4 / 3;
+    return 3 / 4;
+}
+
+function aspectName(value) {
+    if (Math.abs(value - 1) < 0.05) return "1 / 1";
+    if (value > 1) return "4 / 3";
+    return "3 / 4";
+}
+
+function markCropAspect(value) {
+    cropRatio = value;
+    document.querySelectorAll("#crop-dialog [data-aspect]").forEach(function (button) {
+        button.classList.toggle("is-selected", Math.abs(Number(button.dataset.aspect) - value) < 0.05);
+    });
+    if (cropper) cropper.setAspectRatio(value);
+}
+
+function closePhotoCrop() {
+    const dialog = document.getElementById("crop-dialog");
+    if (!dialog || dialog.hidden) return false;
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    dialog.hidden = true;
+    const back = photoReturnFocus;
+    photoReturnFocus = null;
+    if (back && typeof back.focus === "function") back.focus();
+    return true;
+}
+
+function openPhotoCrop(id) {
+    const item = findBlock(id);
+    if (!item) return;
+    const src = item.fields.original || item.fields.src;
+    if (!src) {
+        pickPhoto(id);
+        return;
+    }
+    photoTargetId = id;
+    const dialog = document.getElementById("crop-dialog");
+    const img = document.getElementById("crop-image");
+    if (!dialog || !img || typeof Cropper === "undefined") {
+        showError(t("photo.fail"));
+        return;
+    }
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    photoReturnFocus = document.activeElement;
+    dialog.hidden = false;
+    markCropAspect(aspectNumber(item.fields.aspect));
+    const cancel = document.getElementById("crop-cancel");
+    if (cancel) cancel.focus();
+    img.onload = function () {
+        img.onload = null;
+        cropper = new Cropper(img, {
+            aspectRatio: cropRatio,
+            viewMode: 1,
+            dragMode: "move",
+            autoCropArea: 1,
+            background: false,
+            responsive: true,
+            toggleDragModeOnDblclick: false
+        });
+    };
+    img.src = src;
+    if (img.complete && img.naturalWidth) img.onload();
+}
+
+function applyPhotoCrop() {
+    const item = findBlock(photoTargetId);
+    if (!item || !cropper) return;
+    const canvas = cropper.getCroppedCanvas({ maxWidth: 900, maxHeight: 1200, imageSmoothingQuality: "high" });
+    if (!canvas) return;
+    snapshot();
+    item.fields.src = canvas.toDataURL("image/jpeg", 0.86);
+    item.fields.aspect = aspectName(cropRatio);
+    closePhotoCrop();
+    render();
+    save();
+    select(item.id);
+}
+
+function readPhotoFile(file) {
+    const reader = new FileReader();
+    reader.onload = function () {
+        loadImage(String(reader.result || "")).then(function (image) {
+            const item = findBlock(photoTargetId);
+            if (!item) return;
+            snapshot();
+            item.fields.original = downscaleImage(image, 1600);
+            render();
+            save();
+            openPhotoCrop(item.id);
+        }).catch(function () { showError(t("photo.fail")); });
+    };
+    reader.onerror = function () { showError(t("photo.fail")); };
+    reader.readAsDataURL(file);
+}
+
 function filePrefix() {
     return doc.kind === "letter" ? t("prefix.letter") : "CV";
 }
@@ -993,9 +2989,12 @@ function downloadBlob(bytes, filename) {
 
 function showError(message) {
     const box = document.getElementById("error");
-    if (!box) return;
-    box.hidden = !message;
-    box.textContent = message || "";
+    if (box) {
+        box.hidden = !message;
+        box.textContent = message || "";
+    }
+    if (message) showToast(message, "error");
+    else showToast("");
 }
 
 function h(tag, attrs, children) {
@@ -1017,7 +3016,7 @@ function keepSelection(button) {
 }
 
 function colorField(id, labelKey) {
-    return h("label", { class: "field" }, [
+    return h("label", { class: "swatch" }, [
         h("span", { i18n: labelKey }),
         h("input", { id: id, type: "color" })
     ]);
@@ -1037,14 +3036,349 @@ function bindColor(id, apply) {
     input.addEventListener("change", function () { snapped = false; });
 }
 
+const SECTION_HEADS = [
+    ["work", /^(werkervaring(?:en)?|experience|work experience|employment|loopbaan)$/i],
+    ["study", /^(opleiding(?:en)?|education|studies?|scholing)$/i],
+    ["skills", /^(vaardigheden|skills|kundigheden)$/i],
+    ["strengths", /^(competenties|strengths|kernkwaliteiten)$/i],
+    ["projects", /^(projecten|projects)$/i],
+    ["profile", /^(profiel|profile|over mij|about(?: me)?|in het kort|samenvatting|summary)$/i],
+    ["contact", /^(contact|contactgegevens)$/i]
+];
+
+function headingId(line) {
+    const clean = String(line || "").trim().replace(/[:.]$/, "");
+    for (let i = 0; i < SECTION_HEADS.length; i++) {
+        if (SECTION_HEADS[i][1].test(clean)) return SECTION_HEADS[i][0];
+    }
+    return "";
+}
+
+function isBullet(line) {
+    return /^([-*•]|\d+[.)])\s+/.test(String(line || "").trim());
+}
+
+function bulletText(line) {
+    return String(line || "").trim().replace(/^([-*•]|\d+[.)])\s+/, "").trim();
+}
+
+function looksLikeDate(line) {
+    const value = String(line || "").trim();
+    if (!value || value.length > 42) return false;
+    return /(\d{4}\s*[–—-]\s*(?:\d{4}|heden|present|nu|now))|((?:jan(?:uari)?|feb(?:ruari)?|mrt|maart|apr(?:il)?|mei|jun(?:i)?|jul(?:i)?|aug(?:ustus)?|sep(?:tember)?|okt(?:ober)?|nov(?:ember)?|dec(?:ember)?|january|february|march|april|may|june|july|august|september|october|november|december)[a-z.]*\s+\d{4})|^(\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4})$/i.test(value);
+}
+
+function buildCvData(data) {
+    const next = { version: 1, lang: lang, kind: "cv", theme: doc.theme, sidebar: [], main: [] };
+    next.sidebar.push(block("name", { html: textToHtml(data.name || t("ph.name")) }));
+    next.sidebar.push(block("role", { html: textToHtml(data.role || t("ph.role")) }));
+    const contacts = [
+        ["city", data.city],
+        ["phone", data.phone],
+        ["email", data.email],
+        ["born", data.born]
+    ].filter(function (row) { return row[1]; });
+    if (contacts.length) {
+        next.sidebar.push(barHeading("doc.contact"));
+        contacts.forEach(function (row) {
+            next.sidebar.push(block("contact", { labelKey: row[0], label: "", html: textToHtml(row[1]) }));
+        });
+    }
+    const skills = data.skills || [];
+    if (skills.length) {
+        next.sidebar.push(barHeading("doc.skills"));
+        skills.forEach(function (skill) { next.sidebar.push(block("skill", { html: textToHtml(skill) })); });
+    }
+    (data.strengths || []).forEach(function (item, index) {
+        if (index === 0) next.sidebar.push(barHeading("doc.strengths"));
+        next.sidebar.push(block("competence", { title: textToHtml(item.title), body: textToHtml(item.body) }));
+    });
+    (data.projects || []).forEach(function (item, index) {
+        if (index === 0) next.sidebar.push(barHeading("doc.projects"));
+        next.sidebar.push(block("project", { title: textToHtml(item.title), body: textToHtml(item.body) }));
+    });
+    if (data.intro) {
+        next.main.push(barHeading("doc.profile"));
+        next.main.push(block("intro", { html: textToHtml(data.intro) }));
+    }
+    if ((data.jobs || []).length) {
+        next.main.push(barHeading("doc.work"));
+        data.jobs.forEach(function (item) { pushTimeline(next.main, item); });
+    }
+    if ((data.studies || []).length) {
+        next.main.push(barHeading("doc.education"));
+        data.studies.forEach(function (item) { pushTimeline(next.main, item); });
+    }
+    return next;
+}
+
+function buildLetterData(data) {
+    const next = { version: 1, lang: lang, kind: "letter", theme: doc.theme, sidebar: [], main: [] };
+    next.sidebar.push(block("name", { html: textToHtml(data.name || t("ph.name")) }));
+    next.sidebar.push(block("role", { html: textToHtml(data.role || t("ph.role")) }));
+    const contacts = [["city", data.city], ["phone", data.phone], ["email", data.email]].filter(function (row) { return row[1]; });
+    if (contacts.length) {
+        next.sidebar.push(barHeading("doc.contact"));
+        contacts.forEach(function (row) {
+            next.sidebar.push(block("contact", { labelKey: row[0], label: "", html: textToHtml(row[1]) }));
+        });
+    }
+    const head = data.letter || {};
+    next.main.push(makeLetterhead(
+        textToHtml(head.date || ""),
+        nameToHtml(head.to || ""),
+        textToHtml(head.subject || ""),
+        ""
+    ));
+    if (data.intro) next.main.push(block("intro", { html: textToHtml(data.intro) }));
+    (head.paragraphs || []).forEach(function (paragraph) {
+        next.main.push(block("paragraph", { html: textToHtml(paragraph) }));
+    });
+    if (head.closing) next.main.push(block("closing", { paragraphs: [textToHtml(head.closing)] }));
+    if (head.sign || data.name) next.main.push(block("signature", { html: textToHtml(head.sign || data.name || "") }));
+    return next;
+}
+
+function parseLoose(text, kind) {
+    const lines = String(text || "").replace(/\r/g, "").split("\n");
+    const flat = lines.join("\n");
+    const email = (flat.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [""])[0];
+    const phoneMatch = flat.match(/(?:\+\d{1,3}[\s().-]*)?(?:\(?0\)?[\s.-]*)?\d(?:[\s().-]*\d){8,12}/);
+    const phone = phoneMatch ? phoneMatch[0].replace(/\s+/g, " ").trim() : "";
+    const born = (lines.map(function (line) { return line.trim(); }).find(function (line) { return /^\d{2}[-/.]\d{2}[-/.]\d{4}$/.test(line); }) || "");
+    const sections = { preamble: [], profile: [], skills: [], strengths: [], projects: [], work: [], study: [], contact: [] };
+    let current = "preamble";
+    lines.forEach(function (line) {
+        const id = headingId(line);
+        if (id) {
+            current = id;
+            return;
+        }
+        sections[current].push(line);
+    });
+    function grouped(list) {
+        const chunks = [];
+        let buf = [];
+        function flush() {
+            if (buf.some(function (line) { return line.trim(); })) chunks.push(buf);
+            buf = [];
+        }
+        list.forEach(function (line) {
+            if (!line.trim()) flush();
+            else buf.push(line);
+        });
+        flush();
+        return chunks.map(function (chunk) {
+            const bullets = [];
+            const heads = [];
+            chunk.forEach(function (line) {
+                if (isBullet(line)) bullets.push(bulletText(line));
+                else heads.push(line.trim());
+            });
+            const date = heads.find(looksLikeDate) || "";
+            const rest = heads.filter(function (line) { return line !== date; });
+            return { title: rest[0] || "", org: rest.slice(1).join(", "), date: date, items: bullets };
+        }).filter(function (entry) { return entry.title || entry.org || entry.date || entry.items.length; });
+    }
+    const preamble = sections.preamble.map(function (line) { return line.trim(); }).filter(Boolean);
+    const leftovers = preamble.filter(function (line) {
+        if (email && line.indexOf(email) >= 0) return false;
+        if (phone && line.replace(/\s/g, "").indexOf(phone.replace(/\s/g, "")) >= 0) return false;
+        if (born && line === born) return false;
+        if (isBullet(line)) return false;
+        return true;
+    });
+    let name = "";
+    let role = "";
+    if (kind !== "letter") {
+        name = leftovers.find(function (line) {
+            return line.length < 42 && line.split(/\s+/).length <= 5 && !looksLikeDate(line) && line.indexOf(":") < 0;
+        }) || "";
+        const after = leftovers.slice(leftovers.indexOf(name) + 1);
+        role = after.find(function (line) {
+            return line.length < 48 && line.split(/\s+/).length <= 7 && !looksLikeDate(line);
+        }) || "";
+        if (role.length > 40) role = "";
+    }
+    const used = {};
+    [name, role, email, phone, born].forEach(function (value) { if (value) used[value] = true; });
+    const city = leftovers.find(function (line) {
+        return !used[line] && line.length < 32 && !looksLikeDate(line) && line.indexOf("@") < 0 && !/\d{3}/.test(line) && line.split(/\s+/).length <= 3;
+    }) || "";
+    if (city) used[city] = true;
+    const introLines = [];
+    if (kind !== "letter") {
+        leftovers.forEach(function (line) { if (!used[line]) introLines.push(line); });
+        sections.profile.forEach(function (line) { if (line.trim()) introLines.push(line.trim()); });
+    }
+    function titled(list) {
+        return list.map(function (line) { return line.trim(); }).filter(Boolean).map(function (line) {
+            const value = isBullet(line) ? bulletText(line) : line;
+            const split = value.indexOf(":");
+            return split < 0
+                ? { title: value, body: "" }
+                : { title: value.slice(0, split).trim(), body: value.slice(split + 1).trim() };
+        });
+    }
+    const skills = sections.skills.map(function (line) { return line.trim(); }).filter(Boolean).map(function (line) {
+        return isBullet(line) ? bulletText(line) : line;
+    });
+    if (!skills.length && kind !== "letter") {
+        preamble.filter(isBullet).forEach(function (line) { skills.push(bulletText(line)); });
+    }
+    const data = {
+        name: name,
+        role: role,
+        city: city,
+        phone: phone,
+        email: email,
+        born: born,
+        intro: introLines.join("\n").trim(),
+        skills: skills,
+        strengths: titled(sections.strengths),
+        projects: titled(sections.projects),
+        jobs: grouped(sections.work),
+        studies: grouped(sections.study),
+        letter: null
+    };
+    if (kind === "letter") {
+        const bodyLines = lines.map(function (line) { return line.trim(); });
+        const subjectLine = bodyLines.find(function (line) { return /^(onderwerp|betreft|subject|re)\s*:/i.test(line); }) || "";
+        const greetAt = bodyLines.findIndex(function (line) { return /^(beste|geachte|dear|hi|hallo)\b/i.test(line); });
+        const closeAt = bodyLines.findIndex(function (line) { return /^(met vriendelijke groet|hoogachtend|kind regards|yours sincerely|sincerely|groeten)\b/i.test(line); });
+        const date = bodyLines.find(function (line) { return looksLikeDate(line); }) || "";
+        const topEnd = greetAt > 0 ? greetAt : Math.min(bodyLines.length, 8);
+        const top = bodyLines.slice(0, topEnd).filter(Boolean).filter(function (line) {
+            return line !== date && line !== subjectLine && line.indexOf(email) < 0 && line !== phone && !headingId(line);
+        });
+        const person = top.length ? top[0] : "";
+        const start = greetAt >= 0 ? greetAt + 1 : 0;
+        const end = closeAt >= 0 ? closeAt : bodyLines.length;
+        const paragraphs = bodyLines.slice(start, end).join("\n").split(/\n{2,}/).map(function (part) { return part.trim(); }).filter(Boolean);
+        const after = closeAt >= 0 ? bodyLines.slice(closeAt + 1).filter(Boolean) : [];
+        data.name = person || data.name;
+        data.letter = {
+            date: date,
+            to: top.filter(function (line) { return line !== person; }).join("\n"),
+            subject: subjectLine.replace(/^(onderwerp|betreft|subject|re)\s*:\s*/i, ""),
+            paragraphs: paragraphs,
+            closing: closeAt >= 0 ? bodyLines[closeAt] : "",
+            sign: after.length ? after[after.length - 1] : person
+        };
+    }
+    return data;
+}
+
+function installDocument(next, keepTheme) {
+    if (keepTheme && doc) next.theme = doc.theme;
+    snapshot();
+    doc = next;
+    normalize(doc);
+    selectedId = null;
+    filenameCustom = false;
+    syncFilenameFromPerson();
+    showError("");
+    applyLanguage();
+    render();
+    save();
+}
+
+function browserModelApi() {
+    if (typeof LanguageModel !== "undefined") return LanguageModel;
+    if (window.ai && window.ai.languageModel) return window.ai.languageModel;
+    return null;
+}
+
+async function formatWithBrowserModel(text) {
+    const api = browserModelApi();
+    if (!api) throw new Error(t("guide.modelMissing"));
+    const options = {
+        expectedInputs: [{ type: "text", languages: ["en"] }],
+        expectedOutputs: [{ type: "text", languages: ["en"] }]
+    };
+    let availability = "unavailable";
+    try {
+        availability = await api.availability(options);
+    } catch (error) {
+        try { availability = await api.availability(); } catch (again) { availability = "unavailable"; }
+    }
+    if (!availability || availability === "unavailable") throw new Error(t("guide.modelMissing"));
+    const session = await api.create(Object.assign({}, options, {
+        initialPrompts: [{
+            role: "system",
+            content: "Turn the user's CV or motivation letter into marked text. Output only the block from @@@CV or @@@LETTER through @@@END. Keep these English field names: NAME, ROLE, CITY, PHONE, EMAIL, BORN, TITLE, DATE, ORGANIZATION, SUMMARY, SUBJECT, TO, SIGN, HEADING, BODY. Write the person's own words in the same language as the input. Use @@@CONTACT, @@@SKILLS, @@@STRENGTHS, @@@PROJECTS, @@@PROFILE, @@@JOB, @@@STUDY, @@@PARAGRAPH, @@@OPENING, @@@SECTION and @@@CLOSING where they fit."
+        }]
+    }));
+    try {
+        const answer = await session.prompt(text);
+        applyMarked(typeof answer === "string" ? answer : String(answer || ""));
+    } finally {
+        if (session && session.destroy) session.destroy();
+    }
+}
+
+function describeLoose(data) {
+    const bits = [];
+    if (data.name) bits.push(data.name);
+    if (data.role) bits.push(data.role);
+    if (data.skills && data.skills.length) bits.push(t("doc.skills") + " " + data.skills.length);
+    if (data.jobs && data.jobs.length) bits.push(t("doc.work") + " " + data.jobs.length);
+    if (data.studies && data.studies.length) bits.push(t("doc.education") + " " + data.studies.length);
+    if (data.letter && data.letter.paragraphs && data.letter.paragraphs.length) bits.push(t("shell.body"));
+    return bits.join(", ");
+}
+
+function applyLooseText(text, kind) {
+    const data = parseLoose(text, kind);
+    if (kind === "letter" && data.letter) installDocument(buildLetterData(data), true);
+    else installDocument(buildCvData(data), true);
+    return data;
+}
+
 function mountTools() {
-    const root = document.getElementById("tools");
+    const root = document.getElementById("drawer");
+    const topbar = document.getElementById("topbar");
+    const bar = document.getElementById("floatbar");
     const nl = keepSelection(h("button", { type: "button", "data-lang": "nl", text: "NL" }));
     const en = keepSelection(h("button", { type: "button", "data-lang": "en", text: "EN" }));
     nl.addEventListener("click", function () { setLanguage("nl"); });
     en.addEventListener("click", function () { setLanguage("en"); });
 
     const download = keepSelection(h("button", { id: "download", class: "btn-primary", type: "button", i18n: "ui.download" }));
+    function closeMore() {
+        const menu = document.querySelector(".more-menu");
+        if (menu) menu.open = false;
+    }
+    const freshBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "shell.new" }));
+    freshBtn.addEventListener("click", function () {
+        closeMore();
+        resetSetup();
+        setupReturn = true;
+        setPhase("setup");
+    });
+    const wipeMenu = keepSelection(h("button", { id: "reset-all", class: "btn menu-reset", type: "button", i18n: "ui.reset" }));
+    wipeMenu.addEventListener("click", function () { resetAll(wipeMenu); });
+    const settingsBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "shell.settings" }));
+    settingsBtn.addEventListener("click", function () {
+        closeMore();
+        toggleDrawer();
+    });
+    const fillBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "shell.fill" }));
+    fillBtn.addEventListener("click", function () {
+        closeMore();
+        const kind = doc && doc.kind === "letter" ? "letter" : "cv";
+        resetSetup();
+        setupReturn = true;
+        setPhase("setup");
+        chooseKind(kind);
+    });
+    const pasteBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.paste" }));
+    pasteBtn.addEventListener("click", function () {
+        closeMore();
+        toggleDrawer(true);
+        const box = document.getElementById("loose-text");
+        if (box) box.focus();
+    });
     const importer = keepSelection(h("button", { id: "import", class: "btn", type: "button", i18n: "ui.import" }));
     const file = h("input", { id: "pdf-file", type: "file", accept: "application/pdf,.pdf", hidden: "hidden" });
     download.addEventListener("click", downloadPdf);
@@ -1058,8 +3392,20 @@ function mountTools() {
         }).catch(function () { showError(t("ui.importFail")); });
     });
 
-    const name = h("input", { id: "pdf-name", type: "text", autocomplete: "off" });
+    const name = h("input", {
+        id: "pdf-name",
+        class: "topbar-name",
+        type: "text",
+        autocomplete: "off",
+        "data-i18n-placeholder": "ui.fileName"
+    });
+    name.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        name.blur();
+    });
     name.addEventListener("input", function () {
+        filenameCustom = true;
         try { localStorage.setItem(STORAGE_NAME, name.value); } catch (error) { /* ignore */ }
         updateFilenamePreview();
     });
@@ -1068,22 +3414,19 @@ function mountTools() {
     stamp.addEventListener("change", updateFilenamePreview);
     finalBox.addEventListener("change", updateFilenamePreview);
 
-    const undoBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.undo" }));
-    const redoBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.redo" }));
+    const undoBtn = keepSelection(h("button", { id: "undo-btn", class: "btn", type: "button", i18n: "ui.undo" }));
+    const redoBtn = keepSelection(h("button", { id: "redo-btn", class: "btn", type: "button", i18n: "ui.redo" }));
     undoBtn.addEventListener("click", undo);
     redoBtn.addEventListener("click", redo);
 
-    const showcaseBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.showcase" }));
     const cvBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.emptyCv" }));
     const letterBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.emptyLetter" }));
-    showcaseBtn.addEventListener("click", function () { useTemplate("showcase"); });
-    cvBtn.addEventListener("click", function () { useTemplate("cv"); });
-    letterBtn.addEventListener("click", function () { useTemplate("letter"); });
+    cvBtn.addEventListener("click", function () { armControl(cvBtn, function () { useTemplate("cv"); }); });
+    letterBtn.addEventListener("click", function () { armControl(letterBtn, function () { useTemplate("letter"); }); });
 
-    const zoom = h("input", { id: "zoom", type: "range", min: "60", max: "130", value: "100" });
+    const zoom = h("input", { id: "zoom", type: "range", min: "40", max: "130", value: "100", "aria-label": t("ui.zoom") });
     zoom.addEventListener("input", function () {
-        document.getElementById("stage").style.zoom = String(Number(zoom.value) / 100);
-        document.getElementById("zoom-value").textContent = zoom.value + "%";
+        setZoom(Number(zoom.value) / 100, true);
         updatePageGuides();
     });
 
@@ -1109,21 +3452,16 @@ function mountTools() {
         ]);
     }
 
-    const grid = h("div", { class: "block-grid" });
-    BLOCK_TYPES.forEach(function (type) {
-        const button = keepSelection(h("button", { class: "btn", type: "button", i18n: "type." + type }));
-        button.addEventListener("click", function () { addBlock(type); });
-        grid.appendChild(button);
-    });
+    const grid = h("div", { id: "block-grid", class: "library-grid" });
 
     const sidebarRadio = h("input", { type: "radio", name: "add-target", value: "sidebar" });
     const mainRadio = h("input", { type: "radio", name: "add-target", value: "main", checked: "checked" });
-    sidebarRadio.addEventListener("change", function () { if (sidebarRadio.checked) addTarget = "sidebar"; });
-    mainRadio.addEventListener("change", function () { if (mainRadio.checked) addTarget = "main"; });
+    sidebarRadio.addEventListener("change", function () { if (sidebarRadio.checked) setAddTarget("sidebar"); });
+    mainRadio.addEventListener("change", function () { if (mainRadio.checked) setAddTarget("main"); });
 
-    const bold = keepSelection(h("button", { class: "btn", type: "button", text: "B", i18nTitle: "ui.bold" }));
-    const italic = keepSelection(h("button", { class: "btn", type: "button", text: "I", i18nTitle: "ui.italic" }));
-    const underline = keepSelection(h("button", { class: "btn", type: "button", text: "U", i18nTitle: "ui.underline" }));
+    const bold = keepSelection(h("button", { class: "btn", type: "button", text: "B", i18nTitle: "ui.bold", "data-command": "bold" }));
+    const italic = keepSelection(h("button", { class: "btn", type: "button", text: "I", i18nTitle: "ui.italic", "data-command": "italic" }));
+    const underline = keepSelection(h("button", { class: "btn", type: "button", text: "U", i18nTitle: "ui.underline", "data-command": "underline" }));
     bold.addEventListener("click", function () { format("bold"); });
     italic.addEventListener("click", function () { format("italic"); });
     underline.addEventListener("click", function () { format("underline"); });
@@ -1136,45 +3474,123 @@ function mountTools() {
     duplicateBtn.addEventListener("click", duplicateBlock);
     deleteBtn.addEventListener("click", deleteBlock);
     resetBtn.addEventListener("click", resetStyle);
+    deleteBtn.classList.add("btn-danger");
 
+    const loose = h("textarea", { id: "loose-text", rows: "8" });
+    const llm = h("textarea", { id: "llm-input", rows: "6" });
+    const formatBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "guide.formatLocal" }));
+    const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel" }));
+    const copyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.copy" }));
+    const applyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.applyText" }));
+    formatBtn.addEventListener("click", function () {
+        const data = applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
+        const found = describeLoose(data);
+        showStatus(t("ui.applied") + (found ? " " + t("ui.found").replace("{list}", found) : ""));
+    });
+    modelBtn.addEventListener("click", function () {
+        showStatus(t("guide.modelWorking"));
+        formatWithBrowserModel(loose.value).then(function () {
+            showStatus(t("guide.modelReady"));
+        }).catch(function () {
+            applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
+            showError(t("guide.modelMissing"));
+        });
+    });
+    copyBtn.addEventListener("click", function () { copyForModel(); });
+    applyBtn.addEventListener("click", applyModelText);
+    const fontSelect = h("select", { id: "theme-font" }, [
+        h("option", { value: "roboto", text: "Roboto" }),
+        h("option", { value: "merriweather", text: "Merriweather" }),
+        h("option", { value: "lora", text: "Lora" })
+    ]);
+
+    const more = document.createElement("details");
+    more.className = "more-menu";
+    const summary = document.createElement("summary");
+    summary.className = "btn";
+    summary.dataset.i18n = "ui.more";
+    more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn]));
+    const zoomSlot = document.getElementById("zoom-slot");
+    if (zoomSlot) zoomSlot.appendChild(zoom);
+    topbar.append(
+        h("h1", { id: "doc-title" }),
+        h("div", { class: "lang-switch" }, [nl, en]),
+        h("span", { id: "save-state", class: "save-state" }),
+        h("div", { class: "spacer" }),
+        undoBtn,
+        redoBtn,
+        name,
+        download,
+        more,
+        file
+    );
+    bar.append(
+        bold,
+        italic,
+        underline,
+        h("input", { id: "block-color", type: "color", i18nTitle: "ui.blockColor" }),
+        h("input", { id: "block-bg", type: "color", i18nTitle: "ui.blockBg" }),
+        h("input", { id: "block-size", type: "range", min: "8", max: "28", step: "0.5" }),
+        h("span", { id: "block-size-value", class: "size-readout" }),
+        addLineBtn,
+        duplicateBtn,
+        deleteBtn,
+        resetBtn
+    );
     root.append(
-        h("div", { class: "row" }, [h("h1", { i18n: "ui.title" }), h("div", { class: "lang-switch" }, [nl, en])]),
-        h("div", { class: "row" }, [download, importer, file]),
         h("p", { id: "error", class: "error", hidden: "hidden" }),
-        h("label", { class: "field" }, [h("span", { i18n: "ui.fileName" }), name]),
-        h("label", { class: "check" }, [stamp, h("span", { i18n: "ui.timestamp" })]),
-        h("label", { class: "check" }, [finalBox, h("span", { i18n: "ui.final" })]),
-        h("p", { id: "pdf-preview", class: "filename" }),
-        h("p", { id: "page-status", class: "page-status" }),
-        h("div", { class: "row" }, [undoBtn, redoBtn]),
-        h("h2", { i18n: "ui.templates" }),
-        h("div", { class: "row" }, [showcaseBtn, cvBtn, letterBtn]),
-        h("label", { class: "field" }, [h("span", { i18n: "ui.zoom" }), zoom, h("span", { id: "zoom-value", text: "100%" })]),
-        h("h2", { i18n: "ui.theme" }),
-        colorField("theme-sidebar", "ui.sidebarColor"),
-        colorField("theme-sidebar-text", "ui.sidebarText"),
-        colorField("theme-accent", "ui.accent"),
-        colorField("theme-page", "ui.page"),
-        colorField("theme-text", "ui.text"),
-        themeRange("theme-size", "baseSize", "ui.baseSize", "8", "14", "0.5"),
-        themeRange("theme-width", "sidebarWidth", "ui.column", "24", "45", "1"),
-        h("h2", { i18n: "ui.block" }),
-        h("p", { id: "inspector-empty", class: "note", i18n: "ui.none" }),
-        h("div", { id: "inspector", class: "stack", hidden: "hidden" }, [
-            h("strong", { id: "inspector-type" }),
-            h("div", { class: "row" }, [bold, italic, underline]),
-            colorField("block-color", "ui.blockColor"),
-            colorField("block-bg", "ui.blockBg"),
-            h("label", { class: "field" }, [
-                h("span", { i18n: "ui.blockSize" }),
-                h("input", { id: "block-size", type: "range", min: "8", max: "28", step: "0.5" }),
-                h("span", { id: "block-size-value" })
-            ]),
-            h("div", { class: "row" }, [addLineBtn, duplicateBtn, deleteBtn, resetBtn])
+        h("p", { id: "status", class: "note", hidden: "hidden" }),
+        h("section", { class: "menu-block" }, [
+            h("h2", { i18n: "ui.file" }),
+            h("label", { class: "check" }, [stamp, h("span", { i18n: "ui.timestamp" })]),
+            h("label", { class: "check" }, [finalBox, h("span", { i18n: "ui.final" })]),
+            h("p", { id: "pdf-preview", class: "filename" }),
+            h("p", { id: "page-status", class: "page-status" }),
+            wipeMenu
         ]),
-        h("p", { class: "note", i18n: "ui.hint" }),
-        h("h2", { i18n: "ui.add" }),
-        h("div", { class: "row" }, [
+        h("section", { class: "menu-block" }, [
+            h("h2", { i18n: "guide.pasteTitle" }),
+            h("p", { class: "note", i18n: "guide.pasteHint" }),
+            loose,
+            h("div", { class: "menu-actions" }, [formatBtn, modelBtn])
+        ]),
+        h("section", { class: "menu-block" }, [
+            h("h2", { i18n: "ui.model" }),
+            h("p", { class: "note", i18n: "ui.modelHint" }),
+            llm,
+            h("div", { class: "menu-actions" }, [
+                h("select", { id: "model-mode" }, [
+                    h("option", { value: "guide", i18n: "setup.copyGuide" }),
+                    h("option", { value: "plain", i18n: "setup.copyPlain" }),
+                    h("option", { value: "advanced", i18n: "setup.copyAdvanced" })
+                ]),
+                copyBtn,
+                applyBtn
+            ])
+        ]),
+        h("section", { class: "menu-block" }, [
+            h("h2", { i18n: "ui.templates" }),
+            h("div", { class: "menu-actions" }, [cvBtn, letterBtn])
+        ]),
+        h("section", { class: "menu-block" }, [
+            h("h2", { i18n: "ui.theme" }),
+            h("label", { class: "field" }, [h("span", { i18n: "shell.font" }), fontSelect]),
+            h("div", { class: "menu-colors" }, [
+                colorField("theme-sidebar", "ui.sidebarColor"),
+                colorField("theme-sidebar-text", "ui.sidebarText"),
+                colorField("theme-accent", "ui.accent"),
+                colorField("theme-page", "ui.page"),
+                colorField("theme-text", "ui.text")
+            ]),
+            h("p", { id: "theme-contrast", class: "note contrast-note", hidden: "hidden" }),
+            themeRange("theme-size", "baseSize", "ui.baseSize", "8", "14", "0.5"),
+            themeRange("theme-width", "sidebarWidth", "ui.column", "24", "50", "1")
+        ])
+    );
+    document.getElementById("library").append(
+        h("h2", { i18n: "ui.blocks" }),
+        h("p", { id: "library-hint", class: "note" }),
+        h("div", { class: "row library-target" }, [
             h("span", { class: "note", i18n: "ui.addTo" }),
             h("label", { class: "check" }, [sidebarRadio, h("span", { i18n: "ui.sidebar" })]),
             h("label", { class: "check" }, [mainRadio, h("span", { i18n: "ui.main" })])
@@ -1182,11 +3598,19 @@ function mountTools() {
         grid
     );
 
-    bindColor("theme-sidebar", function (value) { doc.theme.sidebar = value; applyTheme(); save(); });
-    bindColor("theme-sidebar-text", function (value) { doc.theme.sidebarText = value; applyTheme(); save(); });
-    bindColor("theme-accent", function (value) { doc.theme.accent = value; applyTheme(); save(); });
-    bindColor("theme-page", function (value) { doc.theme.page = value; applyTheme(); save(); });
-    bindColor("theme-text", function (value) { doc.theme.text = value; applyTheme(); save(); });
+    bindColor("theme-sidebar", function (value) { doc.theme.sidebar = value; applyTheme(); save(); paintContrastWarning(); });
+    bindColor("theme-sidebar-text", function (value) { doc.theme.sidebarText = value; applyTheme(); save(); paintContrastWarning(); });
+    bindColor("theme-accent", function (value) { doc.theme.accent = value; applyTheme(); save(); paintContrastWarning(); });
+    bindColor("theme-page", function (value) { doc.theme.page = value; applyTheme(); save(); paintContrastWarning(); });
+    bindColor("theme-text", function (value) { doc.theme.text = value; applyTheme(); save(); paintContrastWarning(); });
+    fontSelect.addEventListener("change", function () {
+        snapshot();
+        doc.theme.font = fontSelect.value;
+        fontConfigPromise = null;
+        fontConfigKey = "";
+        applyTheme();
+        save();
+    });
 
     const blockColor = document.getElementById("block-color");
     let blockColorSnapped = false;
@@ -1233,8 +3657,17 @@ function mountTools() {
     });
     blockSize.addEventListener("change", function () {
         const value = Number(blockSize.value);
-        if (applyTextStyle({ fontSize: value + "pt" })) return;
         const item = selectedBlock();
+        if (item && item.type === "spacer") {
+            snapshot();
+            item.fields.size = value;
+            item.fontSize = 0;
+            const node = document.querySelector('.block[data-id="' + item.id + '"]');
+            if (node) node.style.height = value + "px";
+            save();
+            return;
+        }
+        if (applyTextStyle({ fontSize: value + "pt" })) return;
         if (!item) return;
         snapshot();
         item.fontSize = value;
@@ -1244,61 +3677,104 @@ function mountTools() {
     });
 }
 
+function spellLocale() {
+    return lang === "en" ? "en" : "nl-NL";
+}
+
+function syncSpellLocale() {
+    const code = spellLocale();
+    document.documentElement.lang = code;
+    ["sheet", "setup-paste", "loose-text"].forEach(function (id) {
+        const node = document.getElementById(id);
+        if (node) node.lang = code;
+    });
+    document.querySelectorAll(".editable, #setup-guide input, #setup-guide textarea").forEach(function (node) {
+        node.lang = code;
+    });
+}
+
 function applyLanguage() {
-    document.documentElement.lang = lang;
+    syncSpellLocale();
     document.querySelectorAll("[data-i18n]").forEach(function (node) {
         node.textContent = t(node.dataset.i18n);
     });
     document.querySelectorAll("[data-i18n-title]").forEach(function (node) {
         node.title = t(node.dataset.i18nTitle);
     });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function (node) {
+        node.placeholder = t(node.dataset.i18nPlaceholder);
+    });
     document.querySelectorAll(".lang-switch button").forEach(function (button) {
         button.classList.toggle("is-active", button.dataset.lang === lang);
+        button.setAttribute("aria-pressed", button.dataset.lang === lang ? "true" : "false");
     });
-    document.title = t("ui.title");
+    document.querySelectorAll(".lang-switch").forEach(function (node) {
+        node.title = t("ui.langHint");
+    });
+    const nameInput = document.getElementById("pdf-name");
+    if (nameInput) nameInput.setAttribute("aria-label", t("ui.fileName"));
+    const zoom = document.getElementById("zoom");
+    if (zoom) zoom.setAttribute("aria-label", t("ui.zoom"));
+    syncLibraryHint();
+    syncHistoryButtons();
+    refreshIdentity();
     updateFilenamePreview();
+    paintContrastWarning();
 }
 
 function setLanguage(next) {
+    if (setupState.source === "guided") storeGuideStep();
     lang = next === "en" ? "en" : "nl";
     doc.lang = lang;
     try { localStorage.setItem(STORAGE_LANG, lang); } catch (error) { /* ignore */ }
     applyLanguage();
     render();
     save();
+    if (document.body.dataset.phase === "setup") showSetupStep(setupState.step);
 }
 
-function loadFontBytes(url) {
-    return fetch(url).then(function (response) {
-        if (!response.ok) throw new Error(t("ui.fontError") + " (" + response.status + ")");
-        return response.arrayBuffer();
-    }).then(function (buffer) { return new Uint8Array(buffer); });
+function decodeFont(b64) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+}
+
+function fontChoice() {
+    const key = doc && doc.theme && doc.theme.font;
+    if (key === "merriweather") return { key: "merriweather", family: "Merriweather" };
+    if (key === "lora") return { key: "lora", family: "Lora" };
+    return { key: "roboto", family: "Roboto" };
 }
 
 function getFontConfig() {
-    if (!fontConfigPromise) {
-        fontConfigPromise = Promise.all([
-            loadFontBytes(ROBOTO_FONTS.regular),
-            loadFontBytes(ROBOTO_FONTS.bold),
-            loadFontBytes(ROBOTO_FONTS.italic),
-            loadFontBytes(ROBOTO_FONTS.boldItalic)
-        ]).then(function (fonts) {
+    const choice = fontChoice();
+    if (!fontConfigPromise || fontConfigKey !== choice.family) {
+        fontConfigKey = choice.family;
+        const pack = typeof FONT_DATA !== "undefined" ? FONT_DATA[choice.key] : null;
+        if (!pack) {
+            fontConfigPromise = Promise.reject(new Error(t("ui.fontError")));
+        } else {
+            const regular = decodeFont(pack.regular);
+            const bold = decodeFont(pack.bold);
+            const italic = decodeFont(pack.italic);
+            const boldItalic = decodeFont(pack.boldItalic);
             const faces = [
-                [fonts[0], 400, "normal"],
-                [fonts[0], 500, "normal"],
-                [fonts[1], 600, "normal"],
-                [fonts[1], 700, "normal"],
-                [fonts[1], 800, "normal"],
-                [fonts[2], 400, "italic"],
-                [fonts[2], 500, "italic"],
-                [fonts[3], 600, "italic"],
-                [fonts[3], 700, "italic"],
-                [fonts[3], 800, "italic"]
+                [regular, 400, "normal"],
+                [regular, 500, "normal"],
+                [bold, 600, "normal"],
+                [bold, 700, "normal"],
+                [bold, 800, "normal"],
+                [italic, 400, "italic"],
+                [italic, 500, "italic"],
+                [boldItalic, 600, "italic"],
+                [boldItalic, 700, "italic"],
+                [boldItalic, 800, "italic"]
             ];
-            return faces.map(function (face) {
-                return { fontFamily: "Roboto", fontBytes: face[0], fontWeight: face[1], fontStyle: face[2] };
-            });
-        });
+            fontConfigPromise = Promise.resolve(faces.map(function (face) {
+                return { fontFamily: choice.family, fontBytes: face[0], fontWeight: face[1], fontStyle: face[2] };
+            }));
+        }
     }
     return fontConfigPromise;
 }
@@ -1308,13 +3784,42 @@ async function buildPdfBytes() {
         throw new Error(t("ui.libError"));
     }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-    const stage = document.getElementById("stage");
-    const previousZoom = stage.style.zoom;
-    stage.style.zoom = "1";
+    const previousScale = stageScale;
+    applyStageScale(1);
     document.body.classList.add("pdf-exporting");
+    const stamped = [];
+    document.querySelectorAll("#sheet .skill, #sheet .intro, #sheet .heading").forEach(function (node) {
+        stamped.push([node, node.getAttribute("style")]);
+        const computed = getComputedStyle(node);
+        if (node.classList.contains("skill") || node.classList.contains("intro")) {
+            node.style.backgroundColor = computed.backgroundColor;
+            node.style.borderLeftWidth = computed.borderLeftWidth;
+            node.style.borderLeftStyle = "solid";
+            node.style.borderLeftColor = computed.borderLeftColor;
+        }
+        if (node.classList.contains("heading") && !node.classList.contains("is-label")) {
+            node.style.borderBottomWidth = "1px";
+            node.style.borderBottomStyle = "solid";
+            node.style.borderBottomColor = computed.borderBottomColor;
+        }
+    });
+    const photoSources = [];
+    document.querySelectorAll("#sheet .photo-frame img").forEach(function (img) {
+        const src = img.getAttribute("src") || "";
+        if (src.indexOf("data:image/svg") !== 0) return;
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || 240;
+        canvas.height = img.naturalHeight || 320;
+        try {
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            photoSources.push([img, src]);
+            img.setAttribute("src", canvas.toDataURL("image/png"));
+        } catch (error) { /* keep the drawing */ }
+    });
     try {
-        await document.fonts.load("16px Roboto");
-        await document.fonts.load("700 16px Roboto");
+        const family = fontChoice().family;
+        await document.fonts.load("16px " + family);
+        await document.fonts.load("700 16px " + family);
         await document.fonts.ready;
         await new Promise(function (resolve) {
             requestAnimationFrame(function () { requestAnimationFrame(resolve); });
@@ -1346,18 +3851,65 @@ async function buildPdfBytes() {
         });
         return await pdf.save();
     } finally {
-        stage.style.zoom = previousZoom;
+        stamped.forEach(function (pair) {
+            if (pair[1] === null) pair[0].removeAttribute("style");
+            else pair[0].setAttribute("style", pair[1]);
+        });
+        photoSources.forEach(function (pair) { pair[0].setAttribute("src", pair[1]); });
+        applyStageScale(previousScale);
         document.body.classList.remove("pdf-exporting");
     }
 }
 
-async function downloadPdf() {
+function plainFieldText(html) {
+    const holder = document.createElement("div");
+    holder.innerHTML = html || "";
+    return (holder.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function downloadWarnings() {
+    const known = {};
+    ["name", "role", "text", "heading", "label", "title", "date", "org", "to", "subject"].forEach(function (key) {
+        known[t("ph." + key)] = true;
+    });
+    let placeholders = 0;
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        Object.keys(item.fields || {}).forEach(function (key) {
+            const value = item.fields[key];
+            const list = Array.isArray(value) ? value : [value];
+            list.forEach(function (entry) {
+                if (typeof entry === "string" && known[plainFieldText(entry)]) placeholders += 1;
+            });
+        });
+    });
+    const notes = [];
+    if (!plainName()) notes.push(t("ui.nameWarn"));
+    if (placeholders) notes.push(t("ui.placeholderWarn"));
+    const pages = pageCount();
+    if (doc.kind === "letter" && pages > 1) notes.push(t("ui.letterPages").replace("{n}", String(pages)));
+    if (contrastNotes(doc.theme).length) notes.push(t("ui.contrastWarn"));
+    return notes;
+}
+
+async function downloadPdf(force) {
+    if (force !== true) {
+        const notes = downloadWarnings();
+        if (notes.length) {
+            showToast(notes.join(" "), "warn", [
+                { label: t("ui.downloadAnyway"), primary: true, run: function () { showToast(""); downloadPdf(true); } },
+                { label: t("ui.cancel"), run: function () { showToast(""); } }
+            ]);
+            return;
+        }
+    }
     const button = document.getElementById("download");
     button.disabled = true;
     button.textContent = t("ui.working");
     showError("");
     try {
-        downloadBlob(await buildPdfBytes(), pdfFilename());
+        const filename = pdfFilename();
+        downloadBlob(await buildPdfBytes(), filename);
+        showStatus(t("ui.downloaded").replace("{name}", filename));
     } catch (error) {
         console.error(error);
         showError(t("ui.pdfError") + " " + (error && error.message ? error.message : ""));
@@ -1415,49 +3967,907 @@ async function importPdfBytes(bytes) {
     lang = doc.lang;
     try { localStorage.setItem(STORAGE_LANG, lang); } catch (error) { /* ignore */ }
     selectedId = null;
-    const name = document.getElementById("pdf-name");
-    name.value = plainName();
-    try { localStorage.setItem(STORAGE_NAME, name.value); } catch (error) { /* ignore */ }
+    filenameCustom = false;
     showError("");
     applyLanguage();
     render();
+    syncFilenameFromPerson();
     save();
+    setupReturn = false;
+    setPhase("studio");
+    showStatus(t("ui.imported"));
 }
 
 function savedLang() {
     try { return localStorage.getItem(STORAGE_LANG) === "en" ? "en" : "nl"; } catch (error) { return "nl"; }
 }
 
+function hexChannels(hex) {
+    const raw = String(hex || "").replace("#", "");
+    const full = raw.length === 3 ? raw.split("").map(function (part) { return part + part; }).join("") : raw;
+    if (!/^[0-9a-fA-F]{6}$/.test(full)) return null;
+    return [0, 2, 4].map(function (index) { return parseInt(full.slice(index, index + 2), 16); });
+}
+
+function contrastRatio(a, b) {
+    function lum(hex) {
+        const channels = hexChannels(hex);
+        if (!channels) return 0;
+        const linear = channels.map(function (channel) {
+            const value = channel / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+    }
+    const left = lum(a);
+    const right = lum(b);
+    const lighter = Math.max(left, right);
+    const darker = Math.min(left, right);
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+function contrastNotes(colors) {
+    if (!colors) return [];
+    const notes = [];
+    if (contrastRatio(colors.sidebar, colors.sidebarText) < 4.5) notes.push("sidebar");
+    if (contrastRatio(colors.page, colors.text) < 4.5) notes.push("page");
+    return notes;
+}
+
+function paintContrastWarning() {
+    const setupNote = document.getElementById("setup-contrast");
+    if (setupNote) {
+        let bad = [];
+        try { bad = contrastNotes(activePalette()); } catch (error) { bad = []; }
+        setupNote.hidden = !bad.length;
+        setupNote.textContent = bad.length ? t("ui.contrastWarn") : "";
+    }
+    const themeNote = document.getElementById("theme-contrast");
+    if (themeNote && doc && doc.theme) {
+        const bad = contrastNotes(doc.theme);
+        themeNote.hidden = !bad.length;
+        themeNote.textContent = bad.length ? t("ui.contrastWarn") : "";
+    }
+}
+
+function readableOn(hex) {
+    const raw = String(hex || "").replace("#", "");
+    const full = raw.length === 3 ? raw.split("").map(function (part) { return part + part; }).join("") : raw;
+    const n = parseInt(full, 16);
+    if (!isFinite(n)) return "#f8fafc";
+    const y = ((n >> 16) & 255) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114;
+    return y > 160000 ? "#18181b" : "#f8fafc";
+}
+
+function accentLightFor(accent, sidebar) {
+    if (readableOn(sidebar) === "#18181b") return accent;
+    const known = { "#0284c7": "#38bdf8", "#047857": "#6ee7b7" };
+    const hit = known[String(accent || "").toLowerCase()];
+    if (hit) return hit;
+    const n = parseInt(String(accent || "").replace("#", ""), 16);
+    if (!isFinite(n)) return accent;
+    const channels = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(function (channel) {
+        const mixed = Math.round(channel + (255 - channel) * 0.45);
+        const hex = Math.max(0, Math.min(255, mixed)).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    });
+    return "#" + channels.join("");
+}
+
+function activePalette() {
+    let colors;
+    if (setupState.palette === "custom") {
+        const sidebar = document.getElementById("setup-sidebar").value;
+        colors = {
+            sidebar: sidebar,
+            sidebarText: readableOn(sidebar),
+            accent: document.getElementById("setup-accent").value,
+            page: document.getElementById("setup-page").value,
+            text: document.getElementById("setup-text").value
+        };
+    } else if (PALETTES[setupState.palette]) {
+        colors = Object.assign({}, PALETTES[setupState.palette]);
+    } else {
+        colors = Object.assign({}, setupState.kind === "letter" ? PALETTES.groen : PALETTES.zakelijk);
+    }
+    if (!colors.accentLight) colors.accentLight = accentLightFor(colors.accent, colors.sidebar);
+    return colors;
+}
+
+function paintPalettePreview() {
+    const node = document.getElementById("palette-preview");
+    if (!node) return;
+    const colors = activePalette();
+    const side = node.querySelector(".pp-side");
+    const main = node.querySelector(".pp-main");
+    side.style.background = colors.sidebar;
+    side.style.color = colors.sidebarText;
+    main.style.background = colors.page;
+    main.style.color = colors.text;
+    node.style.setProperty("--pp-accent", colors.accent);
+}
+
+function showSetupStep(step) {
+    setupState.step = step < 1 ? 1 : step;
+    document.querySelectorAll(".setup-step").forEach(function (node) {
+        node.hidden = Number(node.dataset.setupStep) !== setupState.step;
+    });
+    document.querySelectorAll("#setup-dots span").forEach(function (dot, index) {
+        dot.classList.toggle("is-current", index === setupState.step - 1);
+        dot.classList.toggle("is-done", index < setupState.step - 1);
+    });
+    const kicker = document.getElementById("setup-kicker");
+    if (kicker) kicker.textContent = t("setup.step").replace("{n}", String(setupState.step)) + " · " + t("shell.kicker");
+    document.querySelectorAll("#view-setup [data-kind]").forEach(function (button) {
+        button.classList.toggle("is-selected", button.dataset.kind === setupState.kind);
+    });
+    document.querySelectorAll("#view-setup [data-source]").forEach(function (button) {
+        button.classList.toggle("is-selected", button.dataset.source === setupState.source);
+    });
+    document.querySelectorAll("#view-setup [data-palette]").forEach(function (button) {
+        button.classList.toggle("is-selected", button.dataset.palette === setupState.palette);
+    });
+    const pasteWrap = document.getElementById("setup-paste-wrap");
+    if (pasteWrap) pasteWrap.hidden = !(setupState.step === 2 && setupState.source === "paste");
+    const guide = document.getElementById("setup-guide");
+    if (guide) guide.hidden = !(setupState.step === 2 && setupState.source === "guided");
+    const model = document.getElementById("setup-model");
+    if (model) model.hidden = !(setupState.step === 2 && setupState.source === "model");
+    const sourceWrap = document.getElementById("setup-source");
+    const sourceOpen = setupState.step === 2 && (setupState.source === "guided" || setupState.source === "model" || setupState.source === "paste");
+    if (sourceWrap) sourceWrap.hidden = sourceOpen;
+    if (setupState.step === 2 && setupState.source === "guided") renderGuide();
+    const back = document.getElementById("setup-back");
+    const cont = document.getElementById("setup-continue");
+    const generate = document.getElementById("setup-generate");
+    if (back) back.hidden = setupState.step === 1;
+    if (cont) cont.hidden = !(setupState.step === 2 && (setupState.source === "paste" || setupState.source === "model"));
+    if (generate) generate.hidden = setupState.step !== 3;
+    const custom = document.getElementById("setup-custom");
+    if (custom) custom.hidden = setupState.palette !== "custom";
+    const backToDoc = document.getElementById("setup-return");
+    if (backToDoc) backToDoc.hidden = !setupReturn;
+    const replaceNote = document.getElementById("setup-replace-note");
+    if (replaceNote) replaceNote.hidden = !setupReturn;
+    const nav = document.querySelector(".setup-nav");
+    if (nav) nav.hidden = ![back, cont, generate, backToDoc].some(function (button) { return button && !button.hidden; });
+    paintPalettePreview();
+    paintContrastWarning();
+}
+
+function armControl(button, action) {
+    if (!button.dataset.armed) {
+        button.dataset.armed = "1";
+        button.textContent = t("ui.replaceArmed");
+        window.setTimeout(function () {
+            if (!button.dataset.armed) return;
+            button.dataset.armed = "";
+            button.textContent = t(button.dataset.i18n || "ui.replaceArmed");
+        }, 8000);
+        return;
+    }
+    button.dataset.armed = "";
+    button.textContent = t(button.dataset.i18n || "ui.replaceArmed");
+    action();
+}
+
+function resetAll(button) {
+    if (!button.dataset.armed) {
+        button.dataset.armed = "1";
+        button.textContent = t("ui.resetArmed");
+        window.setTimeout(function () {
+            if (!button.dataset.armed) return;
+            button.dataset.armed = "";
+            button.textContent = t("ui.reset");
+        }, 8000);
+        return;
+    }
+    button.dataset.armed = "";
+    button.textContent = t("ui.reset");
+    try {
+        localStorage.removeItem(STORAGE_DOC);
+        localStorage.removeItem(STORAGE_NAME);
+    } catch (error) { /* private mode */ }
+    past = [];
+    future = [];
+    selectedId = null;
+    filenameCustom = false;
+    doc = emptyCv();
+    normalize(doc);
+    const name = document.getElementById("pdf-name");
+    if (name) name.value = "";
+    const loose = document.getElementById("loose-text");
+    if (loose) loose.value = "";
+    const llm = document.getElementById("llm-input");
+    if (llm) llm.value = "";
+    showError("");
+    showStatus("");
+    resetSetup();
+    syncHistoryButtons();
+    setPhase("setup");
+}
+
+function resetSetup() {
+    setupState = { step: 1, kind: "", source: "", palette: "", guideIndex: 0, answers: null };
+    const paste = document.getElementById("setup-paste");
+    if (paste) paste.value = "";
+    const model = document.getElementById("setup-model-text");
+    if (model) model.value = "";
+}
+
+function blankGuide() {
+    return {
+        name: "", role: "", city: "", phone: "", email: "", born: "",
+        intro: "", skills: "",
+        strengths: [], projects: [], jobs: [], studies: [],
+        date: "", to: "", subject: "", body: "", closing: "", sign: ""
+    };
+}
+
+function guidePlan() {
+    const letter = setupState.kind === "letter";
+    const contactInputs = [["city", "doc.city"], ["phone", "doc.phone"], ["email", "doc.email"]];
+    if (!letter) contactInputs.push(["born", "doc.born"]);
+    const steps = [
+        { id: "name", title: "guide.nameTitle", hint: "guide.nameHint", inputs: [["name", "ph.name"]] },
+        { id: "role", title: "guide.roleTitle", hint: "guide.roleHint", inputs: [["role", "ph.role"]] },
+        { id: "contact", title: "guide.contactTitle", hint: "guide.contactHint", inputs: contactInputs }
+    ];
+    if (letter) {
+        steps.push(
+            { id: "letterhead", title: "guide.letterheadTitle", hint: "guide.letterheadHint", inputs: [["date", "ph.date"], ["subject", "ph.subject"]], area: ["to", "ph.to"] },
+            { id: "intro", title: "guide.introTitle", hint: "guide.introHint", area: ["intro", "doc.intro"] },
+            { id: "body", title: "guide.bodyTitle", hint: "guide.bodyHint", area: ["body", "guide.bodyTitle"] },
+            { id: "close", title: "guide.closeTitle", hint: "guide.closeHint", inputs: [["closing", "guide.greeting"], ["sign", "ph.name"]] }
+        );
+        return steps;
+    }
+    steps.push(
+        { id: "intro", title: "guide.introTitle", hint: "guide.introHint", area: ["intro", "doc.intro"] },
+        { id: "job", title: "guide.workTitle", hint: "guide.workHint", repeat: "jobs", inputs: [["title", "guide.jobTitle"], ["date", "guide.period"], ["org", "ph.org"]], area: ["points", "guide.points"] },
+        { id: "study", title: "guide.studyTitle", hint: "guide.studyHint", repeat: "studies", inputs: [["title", "guide.jobTitle"], ["date", "guide.period"], ["org", "ph.org"]], area: ["points", "guide.points"] },
+        { id: "skills", title: "guide.skillsTitle", hint: "guide.skillsHint", area: ["skills", "guide.points"] },
+        { id: "strength", title: "guide.strengthTitle", hint: "guide.strengthHint", repeat: "strengths", inputs: [["title", "ph.title"], ["body", "ph.text"]] },
+        { id: "project", title: "guide.projectTitle", hint: "guide.projectHint", repeat: "projects", inputs: [["title", "ph.title"], ["body", "ph.text"]] }
+    );
+    return steps;
+}
+
+function readGuideInputs() {
+    const values = {};
+    document.querySelectorAll("#setup-guide [data-guide-key]").forEach(function (input) {
+        values[input.dataset.guideKey] = input.value;
+    });
+    return values;
+}
+
+function storeGuideStep() {
+    if (setupState.source !== "guided" || !setupState.answers) return;
+    const step = guidePlan()[setupState.guideIndex || 0];
+    if (!step || step.repeat) return;
+    const values = readGuideInputs();
+    Object.keys(values).forEach(function (key) { setupState.answers[key] = values[key]; });
+}
+
+function commitRepeat(step) {
+    const values = readGuideInputs();
+    const draft = {
+        title: values.title || "",
+        body: values.body || "",
+        date: values.date || "",
+        org: values.org || "",
+        points: values.points || ""
+    };
+    if (!Object.keys(draft).some(function (key) { return String(draft[key]).trim(); })) return;
+    setupState.answers[step.repeat].push(draft);
+}
+
+function guideControl(key, labelKey, value, multiline) {
+    const input = document.createElement(multiline ? "textarea" : "input");
+    if (!multiline) input.type = "text";
+    else input.rows = 4;
+    input.dataset.guideKey = key;
+    input.value = value || "";
+    input.placeholder = t(labelKey);
+    input.lang = spellLocale();
+    input.spellcheck = key !== "phone" && key !== "email" && key !== "born" && key !== "date";
+    input.autocomplete = "off";
+    input.enterKeyHint = multiline ? "enter" : "next";
+    return h("label", { class: "field" }, [h("span", { text: t(labelKey) }), input]);
+}
+
+function renderGuide() {
+    const host = document.getElementById("setup-guide");
+    if (!host) return;
+    if (!setupState.answers) setupState.answers = blankGuide();
+    const steps = guidePlan();
+    const index = Math.max(0, Math.min(setupState.guideIndex || 0, steps.length - 1));
+    setupState.guideIndex = index;
+    const step = steps[index];
+    const answers = setupState.answers;
+    host.replaceChildren(
+        h("p", { class: "kicker", text: t("guide.step").replace("{n}", String(index + 1)).replace("{m}", String(steps.length)) }),
+        h("h2", { text: t(step.title) }),
+        h("p", { class: "setup-lead", text: t(step.hint) })
+    );
+    (step.inputs || []).forEach(function (pair) {
+        host.appendChild(guideControl(pair[0], pair[1], step.repeat ? "" : answers[pair[0]], false));
+    });
+    if (step.area) host.appendChild(guideControl(step.area[0], step.area[1], step.repeat ? "" : answers[step.area[0]], true));
+    if (step.repeat) {
+        host.appendChild(h("p", { class: "note", text: t("guide.added").replace("{n}", String(answers[step.repeat].length)) }));
+    }
+    const skip = h("button", { type: "button", class: "btn", text: t("guide.leaveEmpty") });
+    const another = h("button", { type: "button", class: "btn", text: t("guide.another") });
+    const next = h("button", { type: "button", class: "btn-primary", text: index === steps.length - 1 ? t("setup.title3") : t("guide.next") });
+    if (!step.repeat) another.hidden = true;
+    function refreshSkip() {
+        const values = readGuideInputs();
+        const typed = Object.keys(values).some(function (key) { return String(values[key] || "").trim(); });
+        skip.textContent = typed ? t("guide.skip") : t("guide.leaveEmpty");
+    }
+    skip.addEventListener("click", function () {
+        if (index >= steps.length - 1) {
+            if (step.repeat) commitRepeat(step);
+            else storeGuideStep();
+            showSetupStep(3);
+            focusPaletteCard();
+            return;
+        }
+        moveGuide(1);
+    });
+    another.addEventListener("click", function () {
+        commitRepeat(step);
+        renderGuide();
+    });
+    next.addEventListener("click", pressGuidePrimary);
+    host.appendChild(h("div", { class: "guide-actions" }, [skip, another, next]));
+    host.querySelectorAll("input, textarea").forEach(function (input) {
+        input.addEventListener("input", refreshSkip);
+    });
+    refreshSkip();
+    const first = host.querySelector("input, textarea");
+    if (first) {
+        first.focus();
+        if (first.setSelectionRange) first.setSelectionRange(first.value.length, first.value.length);
+    }
+}
+
+function focusPaletteCard() {
+    const card = document.querySelector("#view-setup [data-palette].is-selected") || document.querySelector("#view-setup [data-palette]");
+    if (card) card.focus();
+}
+
+function pressGuidePrimary() {
+    const steps = guidePlan();
+    const index = Math.max(0, Math.min(setupState.guideIndex || 0, steps.length - 1));
+    const step = steps[index];
+    if (!step) return;
+    if (index >= steps.length - 1) {
+        if (step.repeat) commitRepeat(step);
+        else storeGuideStep();
+        showSetupStep(3);
+        focusPaletteCard();
+        return;
+    }
+    moveGuide(1);
+}
+
+function moveGuide(delta) {
+    storeGuideStep();
+    setupState.guideIndex = (setupState.guideIndex || 0) + delta;
+    renderGuide();
+}
+
+function guideLines(text) {
+    return String(text || "").split(/\n/).map(function (line) { return line.trim(); }).filter(Boolean);
+}
+
+function guideHtml(value) {
+    const raw = String(value || "").trim();
+    return raw ? textToHtml(raw) : "";
+}
+
+function guideFilled(value) {
+    return String(value || "").trim().length > 0;
+}
+
+function buildGuideDocument() {
+    const kind = setupState.kind === "letter" ? "letter" : "cv";
+    const answers = setupState.answers || blankGuide();
+    const side = [
+        block("name", { html: guideFilled(answers.name) ? nameToHtml(answers.name.replace(/\n/g, "<br>")) : "" }),
+        block("role", { html: guideHtml(answers.role) })
+    ];
+    const contactKeys = ["city", "phone", "email", "born"];
+    const contacts = contactKeys.filter(function (key) { return guideFilled(answers[key]); });
+    if (contacts.length) {
+        side.push(barHeading("doc.contact"));
+        contacts.forEach(function (key) {
+            side.push(block("contact", { labelKey: key, label: "", html: guideHtml(answers[key]) }));
+        });
+    }
+    const skills = guideLines(answers.skills);
+    if (skills.length) {
+        side.push(barHeading("doc.skills"));
+        skills.forEach(function (skill) { side.push(block("skill", { html: textToHtml(skill) })); });
+    }
+    const projects = (answers.projects || []).filter(function (item) {
+        return guideFilled(item.title) || guideFilled(item.body);
+    });
+    if (projects.length) {
+        side.push(barHeading("doc.projects"));
+        projects.forEach(function (item) {
+            side.push(block("project", { title: guideHtml(item.title), body: guideHtml(item.body) }));
+        });
+    }
+    const strengths = (answers.strengths || []).filter(function (item) {
+        return guideFilled(item.title) || guideFilled(item.body);
+    });
+    if (strengths.length) {
+        side.push(barHeading("doc.strengths"));
+        strengths.forEach(function (item) {
+            side.push(block("competence", { title: guideHtml(item.title), body: guideHtml(item.body) }));
+        });
+    }
+    const main = [];
+    if (kind === "letter") {
+        main.push(makeLetterhead(guideHtml(answers.date), guideHtml(answers.to), guideHtml(answers.subject), ""));
+    }
+    if (guideFilled(answers.intro)) {
+        if (kind !== "letter") main.push(barHeading("doc.profile"));
+        main.push(block("intro", { html: guideHtml(answers.intro) }));
+    }
+    if (kind === "letter") {
+        const parts = String(answers.body || "").split(/\n{2,}/).map(function (part) { return part.trim(); }).filter(Boolean);
+        if (parts.length) parts.forEach(function (part) { main.push(block("paragraph", { html: textToHtml(part) })); });
+        else main.push(block("paragraph", { html: "" }));
+    }
+    const jobs = (answers.jobs || []).filter(function (item) {
+        return guideFilled(item.title) || guideFilled(item.date) || guideFilled(item.org) || guideFilled(item.points);
+    });
+    if (jobs.length) {
+        main.push(barHeading("doc.work"));
+        jobs.forEach(function (item) {
+            const points = guideLines(item.points);
+            main.push(block("timeline", {
+                title: guideHtml(item.title),
+                date: guideHtml(item.date),
+                org: guideHtml(item.org),
+                items: (points.length ? points : [""]).map(textToHtml)
+            }));
+        });
+    }
+    const studies = (answers.studies || []).filter(function (item) {
+        return guideFilled(item.title) || guideFilled(item.date) || guideFilled(item.org) || guideFilled(item.points);
+    });
+    if (studies.length) {
+        main.push(barHeading("doc.education"));
+        studies.forEach(function (item) {
+            const points = guideLines(item.points);
+            main.push(block("timeline", {
+                title: guideHtml(item.title),
+                date: guideHtml(item.date),
+                org: guideHtml(item.org),
+                items: (points.length ? points : [""]).map(textToHtml)
+            }));
+        });
+    }
+    if (kind === "letter") {
+        main.push(block("closing", { paragraphs: [guideHtml(answers.closing)] }));
+        main.push(block("signature", { html: guideHtml(answers.sign || answers.name) }));
+    }
+    return {
+        version: 1,
+        lang: lang,
+        kind: kind,
+        theme: kind === "letter" ? letterTheme() : cvTheme(),
+        sidebar: side,
+        main: main
+    };
+}
+
+function modelTemplate() {
+    return modelBundle("guide");
+}
+
+function setupMessage(message, isError) {
+    const box = document.getElementById("setup-message");
+    if (!box) return;
+    box.hidden = !message;
+    box.textContent = message || "";
+    box.className = isError ? "error" : "note";
+}
+
+function openFromText(text) {
+    const kind = setupState.kind === "letter" ? "letter" : "cv";
+    const theme = Object.assign({}, kind === "letter" ? letterTheme() : cvTheme(), activePalette());
+    const raw = String(text || "");
+    const previous = doc;
+    try {
+        if (raw.indexOf("@@@") >= 0) {
+            doc = { version: 1, lang: lang, kind: kind, theme: theme, sidebar: [], main: [] };
+            applyMarked(raw);
+            doc.theme = theme;
+            applyTheme();
+            save();
+        } else {
+            const data = parseLoose(raw, kind);
+            const next = kind === "letter" ? buildLetterData(data) : buildCvData(data);
+            next.kind = kind;
+            next.theme = theme;
+            installDocument(next, false);
+        }
+    } catch (error) {
+        doc = previous;
+        throw error;
+    }
+    setPhase("studio");
+    toggleDrawer(false);
+}
+
+function chooseKind(kind) {
+    setupState.kind = kind === "letter" ? "letter" : "cv";
+    setupState.palette = setupState.kind === "letter" ? "groen" : "zakelijk";
+    const palette = PALETTES[setupState.palette];
+    document.getElementById("setup-sidebar").value = palette.sidebar;
+    document.getElementById("setup-accent").value = palette.accent;
+    document.getElementById("setup-page").value = palette.page;
+    document.getElementById("setup-text").value = palette.text;
+    showSetupStep(2);
+}
+
+function chooseSource(source) {
+    setupState.source = source;
+    if (source === "guided") {
+        setupState.guideIndex = 0;
+        setupState.answers = blankGuide();
+        showSetupStep(2);
+        return;
+    }
+    if (source === "model") {
+        showSetupStep(2);
+        const box = document.getElementById("setup-model-text");
+        if (box) {
+            box.value = modelTemplate();
+            box.focus();
+            box.setSelectionRange(0, 0);
+            box.scrollTop = 0;
+        }
+        return;
+    }
+    if (source === "paste") {
+        showSetupStep(2);
+        const box = document.getElementById("setup-paste");
+        if (box) box.focus();
+        return;
+    }
+    showSetupStep(3);
+}
+
+function choosePalette(name) {
+    setupState.palette = name;
+    if (name !== "custom" && PALETTES[name]) {
+        document.getElementById("setup-sidebar").value = PALETTES[name].sidebar;
+        document.getElementById("setup-accent").value = PALETTES[name].accent;
+        document.getElementById("setup-page").value = PALETTES[name].page;
+        document.getElementById("setup-text").value = PALETTES[name].text;
+    }
+    showSetupStep(3);
+}
+
+function generateDocument() {
+    const kind = setupState.kind === "letter" ? "letter" : "cv";
+    let next;
+    if (setupState.source === "demo") next = kind === "letter" ? demoLetter() : demoCv();
+    else if (setupState.source === "guided") next = buildGuideDocument();
+    else     if (setupState.source === "model") {
+        try {
+            openFromText(document.getElementById("setup-model-text").value);
+            setupMessage("");
+            setupReturn = false;
+        } catch (error) {
+            setupMessage(error && error.message ? error.message : t("ui.parseError"), true);
+            showSetupStep(2);
+        }
+        return;
+    } else if (setupState.source === "paste") {
+        const text = document.getElementById("setup-paste").value;
+        const data = parseLoose(text, kind);
+        next = kind === "letter" ? buildLetterData(data) : buildCvData(data);
+    } else next = kind === "letter" ? emptyLetter() : emptyCv();
+    next.kind = kind;
+    next.theme = Object.assign({}, kind === "letter" ? letterTheme() : cvTheme(), activePalette());
+    setupReturn = false;
+    setPhase("studio");
+    installDocument(next, false);
+    toggleDrawer(false);
+}
+
+function setPhase(phase) {
+    document.body.dataset.phase = phase;
+    const setup = document.getElementById("view-setup");
+    const studio = document.getElementById("studio");
+    if (setup) setup.hidden = phase !== "setup";
+    if (studio) studio.hidden = phase !== "studio";
+    const stage = document.getElementById("stage");
+    const home = document.getElementById("studio-stage");
+    if (stage && home && stage.parentElement !== home) home.appendChild(stage);
+    if (phase !== "studio") {
+        document.body.classList.remove("has-selection");
+        const bar = document.getElementById("floatbar");
+        if (bar) bar.hidden = true;
+    }
+    if (phase === "setup") showSetupStep(setupState.step || 1);
+    bindSortables();
+    requestAnimationFrame(function () {
+        if (phase === "studio" && !zoomTouched) fitStage();
+        else updatePageGuides();
+        positionFloatbar();
+    });
+}
+
+function toggleDrawer(forceOpen) {
+    const drawer = document.getElementById("drawer");
+    if (!drawer) return;
+    const open = typeof forceOpen === "boolean" ? forceOpen : !drawer.classList.contains("is-open");
+    drawer.classList.toggle("is-open", open);
+    if ("inert" in drawer) drawer.inert = !open;
+    requestAnimationFrame(function () {
+        if (!zoomTouched) fitStage();
+        else updatePageGuides();
+        positionFloatbar();
+    });
+}
+
 function boot() {
     try { document.execCommand("styleWithCSS", false, true); } catch (error) { /* ignore */ }
     lang = savedLang();
+    let fresh = false;
     try {
         const raw = localStorage.getItem(STORAGE_DOC);
-        doc = raw ? JSON.parse(raw) : showcase();
+        if (raw) doc = JSON.parse(raw);
+        else {
+            doc = emptyCv();
+            fresh = true;
+        }
     } catch (error) {
-        doc = showcase();
+        doc = emptyCv();
+        fresh = true;
     }
-    if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = showcase();
+    if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
     normalize(doc);
     if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
     mountTools();
     const name = document.getElementById("pdf-name");
     let storedName = "";
     try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
-    name.value = storedName || plainName();
+    const person = plainName().replace(/\s+/g, " ").trim();
+    const follow = !person || person === t("ph.name") ? "" : person;
+    filenameCustom = !!(storedName && storedName !== follow);
+    name.value = filenameCustom ? storedName : follow;
     applyLanguage();
+    setPhase(fresh ? "setup" : "studio");
+    toggleDrawer(false);
     render();
+    document.querySelectorAll("#view-setup [data-lang]").forEach(function (button) {
+        button.addEventListener("click", function () { setLanguage(button.dataset.lang); });
+    });
+    document.querySelectorAll("#view-setup [data-kind]").forEach(function (button) {
+        button.addEventListener("click", function () { chooseKind(button.dataset.kind); });
+    });
+    document.querySelectorAll("#view-setup [data-source]").forEach(function (button) {
+        button.addEventListener("click", function () { chooseSource(button.dataset.source); });
+    });
+    document.querySelectorAll("#view-setup [data-palette]").forEach(function (button) {
+        button.addEventListener("click", function () { choosePalette(button.dataset.palette); });
+    });
+    document.getElementById("setup-return").addEventListener("click", function () {
+        setupReturn = false;
+        setPhase("studio");
+    });
+    document.getElementById("setup-import").addEventListener("click", function () {
+        const input = document.getElementById("pdf-file");
+        if (input) input.click();
+    });
+    document.getElementById("zoom-fit").addEventListener("click", function () {
+        zoomTouched = false;
+        fitStage();
+    });
+    document.getElementById("setup-back").addEventListener("click", function () {
+        if (setupState.step === 2 && setupState.source === "guided" && setupState.guideIndex > 0) {
+            moveGuide(-1);
+            return;
+        }
+        if (setupState.step === 2 && setupState.source) {
+            setupState.source = "";
+            showSetupStep(2);
+            return;
+        }
+        showSetupStep(setupState.step - 1);
+    });
+    document.querySelectorAll("[data-copy]").forEach(function (button) {
+        button.addEventListener("click", function () { copyModelText(button.dataset.copy, false); });
+    });
+    document.querySelectorAll("#crop-dialog [data-aspect]").forEach(function (button) {
+        button.addEventListener("click", function () { markCropAspect(Number(button.dataset.aspect)); });
+    });
+    document.getElementById("crop-cancel").addEventListener("click", closePhotoCrop);
+    document.getElementById("crop-apply").addEventListener("click", applyPhotoCrop);
+    const photoFile = document.getElementById("photo-file");
+    photoFile.addEventListener("change", function () {
+        const picked = photoFile.files && photoFile.files[0];
+        photoFile.value = "";
+        if (picked) readPhotoFile(picked);
+    });
+    document.getElementById("crop-dialog").addEventListener("click", function (event) {
+        if (event.target.id === "crop-dialog") closePhotoCrop();
+    });
+    document.getElementById("setup-model-run").addEventListener("click", function () {
+        const text = document.getElementById("setup-model-text").value;
+        setupMessage(t("guide.modelWorking"), false);
+        const theme = Object.assign({}, setupState.kind === "letter" ? letterTheme() : cvTheme(), activePalette());
+        doc.theme = theme;
+        formatWithBrowserModel(text).then(function () {
+            doc.theme = theme;
+            applyTheme();
+            save();
+            setupReturn = false;
+            setPhase("studio");
+            toggleDrawer(false);
+        }).catch(function () {
+            try {
+                openFromText(text);
+                showStatus(t("guide.modelMissing"));
+            } catch (error) {
+                setupMessage(error && error.message ? error.message : t("guide.modelMissing"), true);
+            }
+        });
+    });
+    document.getElementById("setup-continue").addEventListener("click", function () { showSetupStep(3); });
+    document.getElementById("setup-generate").addEventListener("click", generateDocument);
+    ["setup-sidebar", "setup-accent", "setup-page", "setup-text"].forEach(function (id) {
+        document.getElementById(id).addEventListener("input", function () {
+            setupState.palette = "custom";
+            showSetupStep(3);
+        });
+    });
+    document.getElementById("preview").addEventListener("scroll", positionFloatbar, { passive: true });
+    document.addEventListener("pointerdown", function (event) {
+        if (document.body.dataset.phase !== "studio") return;
+        const target = event.target;
+        if (!target || !target.closest) return;
+        if (target.closest(".editable, #floatbar, .library-card, .topbar, .drawer, .crop-dialog, button, input, textarea, select, a, .drag-handle, .line-x")) return;
+        if (target.closest(".block")) {
+            blurField();
+            return;
+        }
+        clearFocus();
+    }, true);
     document.addEventListener("focusout", function (event) {
         if (event.target && event.target.isContentEditable) snapArmed = false;
     });
     document.addEventListener("keydown", function (event) {
+        if (document.body.dataset.phase !== "setup" || event.key !== "Enter" || event.altKey || event.isComposing || event.keyCode === 229) return;
+        const target = event.target;
+        if (!target || !target.closest) return;
+        const palette = target.closest("[data-palette]");
+        if (palette && setupState.step === 3) {
+            event.preventDefault();
+            if (palette.dataset.palette === setupState.palette) generateDocument();
+            else choosePalette(palette.dataset.palette);
+            return;
+        }
+        const guide = target.closest("#setup-guide");
+        if (guide && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
+            const command = event.ctrlKey || event.metaKey;
+            if (target.tagName === "TEXTAREA" && !command) return;
+            event.preventDefault();
+            const fields = Array.prototype.slice.call(guide.querySelectorAll("input, textarea"));
+            const nextField = fields[fields.indexOf(target) + 1];
+            if (nextField && !command) {
+                nextField.focus();
+                if (nextField.setSelectionRange) nextField.setSelectionRange(nextField.value.length, nextField.value.length);
+                return;
+            }
+            if (guide.querySelector(".btn-primary")) pressGuidePrimary();
+            return;
+        }
+        if (target.tagName === "TEXTAREA" && (event.ctrlKey || event.metaKey)) {
+            const cont = document.getElementById("setup-continue");
+            if (cont && !cont.hidden) {
+                event.preventDefault();
+                cont.click();
+            }
+        }
+    }, true);
+    document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+        if (closePhotoCrop()) {
+            event.preventDefault();
+            return;
+        }
+        if (document.body.dataset.phase === "setup") return;
+        if (cancelDrag()) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+        }
+        const menu = document.querySelector(".more-menu");
+        if (menu && menu.open) {
+            menu.open = false;
+            event.preventDefault();
+            return;
+        }
+        const target = event.target;
+        if (target && (target.isContentEditable || target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")) {
+            target.blur();
+            event.preventDefault();
+            return;
+        }
+        if (selectedId) {
+            clearFocus();
+            event.preventDefault();
+            return;
+        }
+        const drawer = document.getElementById("drawer");
+        if (drawer && drawer.classList.contains("is-open")) {
+            toggleDrawer(false);
+            event.preventDefault();
+        }
+    }, true);
+    document.addEventListener("keydown", function (event) {
+        if (document.body.dataset.phase !== "studio") return;
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+            event.preventDefault();
+            downloadPdf();
+            return;
+        }
+        const tag = event.target && event.target.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
         if (event.target && event.target.isContentEditable) return;
-        if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "z") return;
-        event.preventDefault();
-        if (event.shiftKey) redo();
-        else undo();
+        if (event.ctrlKey || event.metaKey) {
+            const key = event.key.toLowerCase();
+            if (key === "z") {
+                event.preventDefault();
+                if (event.shiftKey) redo();
+                else undo();
+            } else if (key === "y") {
+                event.preventDefault();
+                redo();
+            }
+            return;
+        }
+        if (!selectedId) return;
+        if (event.key === "Delete" || event.key === "Backspace") {
+            event.preventDefault();
+            deleteBlock();
+            return;
+        }
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            event.preventDefault();
+            moveBlock(event.key === "ArrowUp" ? -1 : 1);
+        }
     });
-    window.addEventListener("resize", updatePageGuides);
+    document.addEventListener("selectionchange", function () {
+        ["bold", "italic", "underline"].forEach(function (command) {
+            const button = document.querySelector('#floatbar [data-command="' + command + '"]');
+            if (!button) return;
+            let on = false;
+            try { on = document.queryCommandState(command); } catch (error) { on = false; }
+            button.classList.toggle("is-on", on);
+        });
+    });
+    document.addEventListener("pointerdown", function (event) {
+        const menu = document.querySelector(".more-menu");
+        if (!menu || !menu.open || menu.contains(event.target)) return;
+        menu.open = false;
+    }, true);
+    window.addEventListener("resize", function () {
+        if (!zoomTouched) fitStage();
+        else updatePageGuides();
+        positionFloatbar();
+    });
 }
 
 boot();
