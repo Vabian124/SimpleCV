@@ -372,6 +372,8 @@ const I18N_NL = {
         aDutch: "Ja. De brief en de CV zijn twee documenten. Open de Nederlandse pagina, of zet deze site op NL. NL verandert de knoppen en de vaste koppen. Tekst die je al typte blijft staan.",
         qPdf: "Is de tekst in de PDF selecteerbaar?",
         aPdf: "Ja. De download is een PDF met echte tekst, geen foto van de pagina. Die PDF kun je opnieuw importeren en verder bewerken.",
+        qSaves: "Kan ik meer dan één document bewaren?",
+        aSaves: "Ja. Opgeslagen, in de kop, houdt kopieën in deze browser. Je kunt er een bewerken, dupliceren of de PDF downloaden. Reset wist het open document en elke kopie. Er wordt niets geüpload.",
         qCode: "Welke licentie heeft de code?",
         aCode: "De eigen code is CC0, zo dicht bij het publieke domein als de wet toelaat. De meegeleverde bibliotheken houden hun eigen licentie.",
         examples: "Voorbeelden",

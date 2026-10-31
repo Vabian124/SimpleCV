@@ -110,6 +110,13 @@ JSON.parse(faqJson[1]).mainEntity.forEach(function (question) {
     if (faqBlock.indexOf(question.name) < 0) fail("FAQ question is not on the page: " + question.name);
     if (faqBlock.indexOf(question.acceptedAnswer.text) < 0) fail("FAQ answer is not on the page: " + question.name);
 });
+const nlHome = fs.readFileSync(path.join(root, "nl", "index.html"), "utf8");
+const nlFaq = nlHome.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+if (!nlFaq) fail("the Dutch page is missing its FAQ schema");
+JSON.parse(nlFaq[1]).mainEntity.forEach(function (question) {
+    if (nlHome.indexOf(question.name) < 0) fail("Dutch FAQ question is not on the page: " + question.name);
+    if (nlHome.indexOf(question.acceptedAnswer.text) < 0) fail("Dutch FAQ answer is not on the page: " + question.name);
+});
 
 const strings = {};
 vm.createContext(strings);

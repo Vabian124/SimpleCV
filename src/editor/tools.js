@@ -258,7 +258,7 @@ function mountTools() {
         h("div", { class: "spacer" }),
         undoBtn,
         redoBtn,
-        h("button", { type: "button", class: "btn saves-open", id: "saves-open" }, [
+        h("button", { type: "button", class: "btn saves-open", id: "saves-open", "aria-controls": "save-manager", "aria-expanded": "false" }, [
             h("span", { i18n: "ui.saves" }),
             h("span", { class: "saves-count" })
         ]),

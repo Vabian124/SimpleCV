@@ -347,6 +347,10 @@ const pages = [
 function render(page) {
     const text = readCatalog(page.id);
     const locale = page.lang === "nl" ? "nl_NL" : "en_US";
+    const otherLocale = page.lang === "nl" ? "en_US" : "nl_NL";
+    const imageAlt = page.lang === "nl"
+        ? "LibreCV, een gratis editor voor een CV of motivatiebrief. Geen account."
+        : "LibreCV, a free CV and motivation-letter builder. No account.";
     const xDefault = page.lang === "en" ? page.url : page.pair;
     const distinct = page.lang === "nl"
         ? "Deze LibreCV schrijft een CV of een motivatiebrief. Het is niet de LibreCV-vereniging voor computervisie, en niet de Python-bibliotheek SimpleCV."
@@ -392,16 +396,17 @@ function render(page) {
         "    <meta property=\"og:description\" content=\"" + esc(page.description) + "\">\n" +
         "    <meta property=\"og:url\" content=\"" + esc(page.url) + "\">\n" +
         "    <meta property=\"og:locale\" content=\"" + locale + "\">\n" +
+        "    <meta property=\"og:locale:alternate\" content=\"" + otherLocale + "\">\n" +
         "    <meta name=\"twitter:card\" content=\"summary_large_image\">\n" +
         "    <meta name=\"twitter:title\" content=\"" + esc(page.title) + "\">\n" +
         "    <meta name=\"twitter:description\" content=\"" + esc(page.description) + "\">\n" +
         "    <meta name=\"twitter:image\" content=\"https://librecv.org/og.png\">\n" +
-        "    <meta name=\"twitter:image:alt\" content=\"LibreCV, a free CV and motivation-letter builder. No account.\">\n" +
+        "    <meta name=\"twitter:image:alt\" content=\"" + esc(imageAlt) + "\">\n" +
         "    <meta property=\"og:image\" content=\"https://librecv.org/og.png\">\n" +
         "    <meta property=\"og:image:type\" content=\"image/png\">\n" +
         "    <meta property=\"og:image:width\" content=\"1200\">\n" +
         "    <meta property=\"og:image:height\" content=\"630\">\n" +
-        "    <meta property=\"og:image:alt\" content=\"LibreCV, a free CV and motivation-letter builder. No account.\">\n" +
+        "    <meta property=\"og:image:alt\" content=\"" + esc(imageAlt) + "\">\n" +
         "    <link rel=\"icon\" href=\"/favicon.ico\" sizes=\"96x96\" type=\"image/x-icon\">\n" +
         "    <link rel=\"icon\" href=\"/favicon.png\" sizes=\"96x96\" type=\"image/png\">\n" +
         "    <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n" +

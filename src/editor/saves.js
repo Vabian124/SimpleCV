@@ -182,16 +182,23 @@ function duplicateSave(id) {
     showStatus(t("ui.savesStored"));
 }
 
+let savesReturn = null;
+
 function toggleSaves(force) {
     const panel = document.getElementById("save-manager");
     if (!panel) return;
     const open = typeof force === "boolean" ? force : panel.hidden;
     panel.hidden = !open;
+    document.querySelectorAll(".saves-open").forEach(function (button) {
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     if (open) {
         paintSaves();
         const store = document.getElementById("save-manager-store");
         if (store) store.focus();
+        return;
     }
+    if (savesReturn && document.body.contains(savesReturn)) savesReturn.focus();
 }
 
 async function downloadSaved(id, button) {
@@ -251,12 +258,12 @@ function mountSaves() {
     const store = h("button", { id: "save-manager-store", class: "btn-primary", type: "button", i18n: "ui.savesStore" });
     const copy = h("button", { id: "save-manager-copy", class: "btn", type: "button", i18n: "ui.savesCopy" });
     const panel = h("div", { id: "save-manager", class: "save-manager", hidden: "hidden" });
-    const card = h("div", { class: "save-manager-card", role: "dialog", "aria-labelledby": "save-manager-title" }, [
+    const card = h("div", { class: "save-manager-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "save-manager-title", "aria-describedby": "save-manager-lead" }, [
         h("div", { class: "save-manager-head" }, [
             h("h2", { id: "save-manager-title", i18n: "ui.savesTitle" }),
             close
         ]),
-        h("p", { class: "note", i18n: "ui.savesLead" }),
+        h("p", { id: "save-manager-lead", class: "note", i18n: "ui.savesLead" }),
         h("div", { class: "save-manager-actions" }, [store, copy]),
         h("p", { id: "save-manager-empty", class: "note", i18n: "ui.savesEmpty" }),
         h("ul", { id: "save-manager-list", class: "save-list" })
@@ -273,7 +280,11 @@ function mountSaves() {
         if (event.key === "Escape" && panel.hidden === false) toggleSaves(false);
     });
     document.querySelectorAll(".saves-open").forEach(function (button) {
-        button.addEventListener("click", function () { toggleSaves(); });
+        button.setAttribute("aria-expanded", "false");
+        button.addEventListener("click", function () {
+            savesReturn = button;
+            toggleSaves();
+        });
     });
     paintSaves();
 }

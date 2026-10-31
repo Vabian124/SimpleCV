@@ -372,6 +372,8 @@ const I18N_EN = {
         aDutch: "Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.",
         qPdf: "Can the PDF text be selected?",
         aPdf: "Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing.",
+        qSaves: "Can I keep more than one document?",
+        aSaves: "Yes. Saves, in the header, keeps copies in this browser. You can edit one, duplicate it, or download its PDF. Reset clears the open document and every saved copy. Nothing is uploaded.",
         qCode: "What license is the code under?",
         aCode: "The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.",
         examples: "Examples",

@@ -423,6 +423,8 @@ const I18N_NL = {
         aDutch: "Ja. De brief en de CV zijn twee documenten. Open de Nederlandse pagina, of zet deze site op NL. NL verandert de knoppen en de vaste koppen. Tekst die je al typte blijft staan.",
         qPdf: "Is de tekst in de PDF selecteerbaar?",
         aPdf: "Ja. De download is een PDF met echte tekst, geen foto van de pagina. Die PDF kun je opnieuw importeren en verder bewerken.",
+        qSaves: "Kan ik meer dan één document bewaren?",
+        aSaves: "Ja. Opgeslagen, in de kop, houdt kopieën in deze browser. Je kunt er een bewerken, dupliceren of de PDF downloaden. Reset wist het open document en elke kopie. Er wordt niets geüpload.",
         qCode: "Welke licentie heeft de code?",
         aCode: "De eigen code is CC0, zo dicht bij het publieke domein als de wet toelaat. De meegeleverde bibliotheken houden hun eigen licentie.",
         examples: "Voorbeelden",
@@ -806,6 +808,8 @@ const I18N_EN = {
         aDutch: "Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.",
         qPdf: "Can the PDF text be selected?",
         aPdf: "Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing.",
+        qSaves: "Can I keep more than one document?",
+        aSaves: "Yes. Saves, in the header, keeps copies in this browser. You can edit one, duplicate it, or download its PDF. Reset clears the open document and every saved copy. Nothing is uploaded.",
         qCode: "What license is the code under?",
         aCode: "The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.",
         examples: "Examples",
@@ -4515,16 +4519,23 @@ function duplicateSave(id) {
     showStatus(t("ui.savesStored"));
 }
 
+let savesReturn = null;
+
 function toggleSaves(force) {
     const panel = document.getElementById("save-manager");
     if (!panel) return;
     const open = typeof force === "boolean" ? force : panel.hidden;
     panel.hidden = !open;
+    document.querySelectorAll(".saves-open").forEach(function (button) {
+        button.setAttribute("aria-expanded", open ? "true" : "false");
+    });
     if (open) {
         paintSaves();
         const store = document.getElementById("save-manager-store");
         if (store) store.focus();
+        return;
     }
+    if (savesReturn && document.body.contains(savesReturn)) savesReturn.focus();
 }
 
 async function downloadSaved(id, button) {
@@ -4584,12 +4595,12 @@ function mountSaves() {
     const store = h("button", { id: "save-manager-store", class: "btn-primary", type: "button", i18n: "ui.savesStore" });
     const copy = h("button", { id: "save-manager-copy", class: "btn", type: "button", i18n: "ui.savesCopy" });
     const panel = h("div", { id: "save-manager", class: "save-manager", hidden: "hidden" });
-    const card = h("div", { class: "save-manager-card", role: "dialog", "aria-labelledby": "save-manager-title" }, [
+    const card = h("div", { class: "save-manager-card", role: "dialog", "aria-modal": "true", "aria-labelledby": "save-manager-title", "aria-describedby": "save-manager-lead" }, [
         h("div", { class: "save-manager-head" }, [
             h("h2", { id: "save-manager-title", i18n: "ui.savesTitle" }),
             close
         ]),
-        h("p", { class: "note", i18n: "ui.savesLead" }),
+        h("p", { id: "save-manager-lead", class: "note", i18n: "ui.savesLead" }),
         h("div", { class: "save-manager-actions" }, [store, copy]),
         h("p", { id: "save-manager-empty", class: "note", i18n: "ui.savesEmpty" }),
         h("ul", { id: "save-manager-list", class: "save-list" })
@@ -4606,7 +4617,11 @@ function mountSaves() {
         if (event.key === "Escape" && panel.hidden === false) toggleSaves(false);
     });
     document.querySelectorAll(".saves-open").forEach(function (button) {
-        button.addEventListener("click", function () { toggleSaves(); });
+        button.setAttribute("aria-expanded", "false");
+        button.addEventListener("click", function () {
+            savesReturn = button;
+            toggleSaves();
+        });
     });
     paintSaves();
 }
@@ -5071,7 +5086,7 @@ function mountTools() {
         h("div", { class: "spacer" }),
         undoBtn,
         redoBtn,
-        h("button", { type: "button", class: "btn saves-open", id: "saves-open" }, [
+        h("button", { type: "button", class: "btn saves-open", id: "saves-open", "aria-controls": "save-manager", "aria-expanded": "false" }, [
             h("span", { i18n: "ui.saves" }),
             h("span", { class: "saves-count" })
         ]),
