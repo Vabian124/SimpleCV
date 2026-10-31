@@ -37,7 +37,7 @@ are not relicensed:
 
 - SortableJS 1.15.6 — MIT License
   https://github.com/SortableJS/Sortable
-  Reorders blocks when you drag a handle.
+  Shipped in vendor/. The editor reorders blocks with its own pointer code.
 
 - Cropper.js 1.5.13 — MIT License
   https://github.com/fengyuanchen/cropperjs

@@ -3,5 +3,6 @@
 *.pdf
 *.html
 !index.html
+!404.html
 Thumbs.db
 .DS_Store

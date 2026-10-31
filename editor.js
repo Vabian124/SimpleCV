@@ -708,6 +708,11 @@ let saveOk = true;
 let saveTimer = 0;
 let toastTimer = 0;
 let photoReturnFocus = null;
+let documentLive = false;
+let routeLock = false;
+let assetLoads = {};
+let pdfLibsPromise = null;
+let cropperPromise = null;
 
 function t(key) {
     const parts = key.split(".");
@@ -1158,6 +1163,7 @@ function save() {
     if (document.body.dataset.phase === "setup") return;
     try {
         localStorage.setItem(STORAGE_DOC, JSON.stringify(doc));
+        documentLive = true;
         if (!saveOk || document.getElementById("save-state")) markSaved(true);
     } catch (error) {
         if (saveOk) markSaved(false);
@@ -1614,6 +1620,7 @@ function bindLibraryCard(button, type) {
         if (!dragging) {
             if (dx * dx + dy * dy < 36) return;
             dragging = true;
+            if (narrowStudio()) setStudioPane("page");
             document.body.classList.add("is-dragging");
             const bar = document.getElementById("floatbar");
             if (bar) bar.hidden = true;
@@ -3206,7 +3213,70 @@ function resetCrop() {
     syncCropZoom();
 }
 
+
+function loadAsset(src, kind) {
+    if (assetLoads[src]) return assetLoads[src];
+    assetLoads[src] = new Promise(function (resolve, reject) {
+        if (kind === "css") {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = src;
+            link.onload = function () { resolve(); };
+            link.onerror = function () { assetLoads[src] = null; reject(new Error(src)); };
+            document.head.appendChild(link);
+            return;
+        }
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = function () { resolve(); };
+        script.onerror = function () { assetLoads[src] = null; reject(new Error(src)); };
+        document.head.appendChild(script);
+    });
+    return assetLoads[src];
+}
+
+function ensurePdfLibs() {
+    if (window.dompdf && window.PDFLib && typeof FONT_DATA !== "undefined") return Promise.resolve();
+    if (!pdfLibsPromise) {
+        pdfLibsPromise = Promise.all([
+            loadAsset("vendor/dompdf.min.js", "js"),
+            loadAsset("vendor/pdf-lib.min.js", "js"),
+            loadAsset("vendor/fonts.js", "js")
+        ]).catch(function (error) {
+            pdfLibsPromise = null;
+            throw error;
+        });
+    }
+    return pdfLibsPromise;
+}
+
+function ensureCropper() {
+    if (!document.querySelector('link[data-cropper]')) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "vendor/cropper.min.css";
+        link.setAttribute("data-cropper", "1");
+        document.head.appendChild(link);
+    }
+    if (typeof Cropper !== "undefined") return Promise.resolve();
+    if (!cropperPromise) {
+        cropperPromise = loadAsset("vendor/cropper.min.js", "js").catch(function (error) {
+            cropperPromise = null;
+            throw error;
+        });
+    }
+    return cropperPromise;
+}
+
 function openPhotoCrop(id) {
+    ensureCropper().then(function () {
+        openPhotoCropNow(id);
+    }).catch(function () {
+        showError(t("photo.fail"));
+    });
+}
+
+function openPhotoCropNow(id) {
     const item = findBlock(id);
     if (!item) return;
     const src = item.fields.original || item.fields.src;
@@ -3626,6 +3696,7 @@ function installDocument(next, keepTheme) {
     showError("");
     applyLanguage();
     render();
+    documentLive = true;
     save();
 }
 
@@ -3701,6 +3772,7 @@ function mountTools() {
         resetSetup();
         setupReturn = true;
         setPhase("setup");
+        syncRoute("push");
     });
     const wipeMenu = keepSelection(h("button", { id: "reset-all", class: "btn menu-reset", type: "button", i18n: "ui.reset" }));
     wipeMenu.addEventListener("click", function () { resetAll(wipeMenu); });
@@ -4288,6 +4360,7 @@ async function downloadPdf(force) {
     button.textContent = t("ui.working");
     showError("");
     try {
+        await ensurePdfLibs();
         const filename = pdfFilename();
         downloadBlob(await buildPdfBytes(), filename);
         showStatus(t("ui.downloaded").replace("{name}", filename));
@@ -4324,6 +4397,12 @@ async function readAttachment(bytes) {
 }
 
 async function importPdfBytes(bytes) {
+    try {
+        await ensurePdfLibs();
+    } catch (error) {
+        showError(t("ui.libError"));
+        return;
+    }
     let text = "";
     try {
         text = await readAttachment(bytes);
@@ -4353,10 +4432,12 @@ async function importPdfBytes(bytes) {
     applyLanguage();
     render();
     syncFilenameFromPerson();
-    save();
     setupReturn = false;
+    documentLive = true;
     setPhase("studio");
+    save();
     showStatus(t("ui.imported"));
+    syncRoute("push");
 }
 
 function savedLang() {
@@ -4568,9 +4649,12 @@ function resetAll(button) {
     if (llm) llm.value = "";
     showError("");
     showStatus("");
+    documentLive = false;
     resetSetup();
+    setupReturn = false;
     syncHistoryButtons();
     setPhase("setup");
+    syncRoute("push");
 }
 
 function resetSetup() {
@@ -4699,6 +4783,7 @@ function renderGuide() {
             if (step.repeat) commitRepeat(step);
             else storeGuideStep();
             showSetupStep(3);
+            syncRoute("push");
             focusPaletteCard();
             return;
         }
@@ -4735,6 +4820,7 @@ function pressGuidePrimary() {
         if (step.repeat) commitRepeat(step);
         else storeGuideStep();
         showSetupStep(3);
+        syncRoute("push");
         focusPaletteCard();
         return;
     }
@@ -4745,6 +4831,7 @@ function moveGuide(delta) {
     storeGuideStep();
     setupState.guideIndex = (setupState.guideIndex || 0) + delta;
     renderGuide();
+    if (delta > 0) syncRoute("push");
 }
 
 function guideLines(text) {
@@ -4872,26 +4959,33 @@ function openFromText(text) {
     const theme = Object.assign({}, kind === "letter" ? letterTheme() : cvTheme(), activePalette());
     const raw = String(text || "");
     const previous = doc;
+    let built = null;
     try {
         if (raw.indexOf("@@@") >= 0) {
             doc = { version: 1, lang: lang, kind: kind, theme: theme, sidebar: [], main: [] };
             applyMarked(raw);
             doc.theme = theme;
-            applyTheme();
-            save();
         } else {
             const data = parseLoose(raw, kind);
-            const next = kind === "letter" ? buildLetterData(data) : buildCvData(data);
-            next.kind = kind;
-            next.theme = theme;
-            installDocument(next, false);
+            built = kind === "letter" ? buildLetterData(data) : buildCvData(data);
+            built.kind = kind;
+            built.theme = theme;
         }
     } catch (error) {
         doc = previous;
         throw error;
     }
+    setupReturn = false;
     setPhase("studio");
+    if (built) installDocument(built, false);
+    else {
+        applyTheme();
+        render();
+        save();
+    }
+    documentLive = true;
     toggleDrawer(false);
+    syncRoute("push");
 }
 
 function chooseKind(kind) {
@@ -4903,6 +4997,7 @@ function chooseKind(kind) {
     document.getElementById("setup-page").value = palette.page;
     document.getElementById("setup-text").value = palette.text;
     showSetupStep(2);
+    syncRoute("push");
 }
 
 function chooseSource(source) {
@@ -4911,6 +5006,7 @@ function chooseSource(source) {
         setupState.guideIndex = 0;
         setupState.answers = blankGuide();
         showSetupStep(2);
+        syncRoute("push");
         return;
     }
     if (source === "model") {
@@ -4922,15 +5018,20 @@ function chooseSource(source) {
             box.setSelectionRange(0, 0);
             box.scrollTop = 0;
         }
+        syncRoute("push");
         return;
     }
     if (source === "paste") {
         showSetupStep(2);
         const box = document.getElementById("setup-paste");
         if (box) box.focus();
+        syncRoute("push");
         return;
     }
+    showSetupStep(2);
+    syncRoute("replace");
     showSetupStep(3);
+    syncRoute("push");
 }
 
 function choosePalette(name) {
@@ -4942,6 +5043,7 @@ function choosePalette(name) {
         document.getElementById("setup-text").value = PALETTES[name].text;
     }
     showSetupStep(3);
+    syncRoute("replace");
 }
 
 function generateDocument() {
@@ -4970,6 +5072,7 @@ function generateDocument() {
     setPhase("studio");
     installDocument(next, false);
     toggleDrawer(false);
+    syncRoute("push");
 }
 
 function placeSiteFoot(phase) {
@@ -5009,9 +5112,36 @@ function setPhase(phase) {
     });
 }
 
+function narrowStudio() {
+    return window.matchMedia("(max-width: 980px)").matches;
+}
+
+function setStudioPane(name) {
+    const next = name === "library" || name === "settings" ? name : "page";
+    document.body.dataset.pane = next;
+    document.querySelectorAll("#pane-switch [data-pane]").forEach(function (button) {
+        const on = button.dataset.pane === next;
+        button.classList.toggle("is-active", on);
+        button.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    const drawer = document.getElementById("drawer");
+    if (drawer && "inert" in drawer && narrowStudio()) drawer.inert = next !== "settings";
+    requestAnimationFrame(function () {
+        if (document.body.dataset.phase !== "studio") return;
+        if (!zoomTouched) fitStage();
+        else updatePageGuides();
+        positionFloatbar();
+    });
+}
+
 function toggleDrawer(forceOpen) {
     const drawer = document.getElementById("drawer");
     if (!drawer) return;
+    if (narrowStudio()) {
+        const open = typeof forceOpen === "boolean" ? forceOpen : document.body.dataset.pane !== "settings";
+        setStudioPane(open ? "settings" : "page");
+        return;
+    }
     const open = typeof forceOpen === "boolean" ? forceOpen : !drawer.classList.contains("is-open");
     drawer.classList.toggle("is-open", open);
     if ("inert" in drawer) drawer.inert = !open;
@@ -5020,6 +5150,130 @@ function toggleDrawer(forceOpen) {
         else updatePageGuides();
         positionFloatbar();
     });
+}
+
+
+function normalizePath(path) {
+    let value = path || "/";
+    if (value.length > 1 && value.charAt(value.length - 1) === "/") value = value.slice(0, -1);
+    if (value === "/index.html") return "/";
+    return value;
+}
+
+function routePath() {
+    if (document.body.dataset.phase === "studio") return "/editor";
+    const step = setupState.step < 1 ? 1 : setupState.step;
+    if (step === 1) return "/step-1";
+    if (step === 2) return "/step-2";
+    return "/step-3";
+}
+
+function routeState() {
+    const sidebar = document.getElementById("setup-sidebar");
+    return {
+        phase: document.body.dataset.phase || "setup",
+        step: setupState.step || 1,
+        kind: setupState.kind || "",
+        source: setupState.source || "",
+        palette: setupState.palette || "",
+        guideIndex: setupState.guideIndex || 0,
+        colors: sidebar ? {
+            sidebar: sidebar.value,
+            accent: document.getElementById("setup-accent").value,
+            page: document.getElementById("setup-page").value,
+            text: document.getElementById("setup-text").value
+        } : null
+    };
+}
+
+function syncRoute(mode) {
+    if (routeLock) return;
+    try {
+        const path = routePath();
+        const state = routeState();
+        const here = normalizePath(location.pathname);
+        if (mode === "push") {
+            const prev = history.state;
+            if (here === path && prev && prev.phase === state.phase && prev.step === state.step && prev.source === state.source && (prev.guideIndex || 0) === (state.guideIndex || 0) && prev.kind === state.kind) return;
+            history.pushState(state, "", path);
+            return;
+        }
+        history.replaceState(state, "", path);
+    } catch (error) { /* a file URL has no history to replace */ }
+}
+
+function applyRouteColors(colors) {
+    if (!colors) return;
+    const map = {
+        "setup-sidebar": colors.sidebar,
+        "setup-accent": colors.accent,
+        "setup-page": colors.page,
+        "setup-text": colors.text
+    };
+    Object.keys(map).forEach(function (id) {
+        const input = document.getElementById(id);
+        if (input && map[id]) input.value = map[id];
+    });
+}
+
+function applyRouteState(state) {
+    routeLock = true;
+    try {
+        if (!state || state.phase === "studio") {
+            if (!documentLive) {
+                resetSetup();
+                setupReturn = false;
+                setPhase("setup");
+                history.replaceState(routeState(), "", routePath());
+                return;
+            }
+            setupReturn = false;
+            setPhase("studio");
+            return;
+        }
+        let step = state.step || 1;
+        const kind = state.kind || "";
+        const source = state.source || "";
+        if (step > 1 && !kind) step = 1;
+        if (step > 2 && !source) step = 2;
+        setupState.kind = kind;
+        setupState.source = step > 1 ? source : "";
+        setupState.palette = state.palette || "";
+        setupState.guideIndex = state.guideIndex || 0;
+        setupState.step = step;
+        applyRouteColors(state.colors);
+        setupReturn = documentLive;
+        setPhase("setup");
+        if (step !== (state.step || 1) || (step > 1 && !kind) || (step > 2 && !source)) {
+            history.replaceState(routeState(), "", routePath());
+        }
+    } finally {
+        routeLock = false;
+    }
+}
+
+function adoptRoute(fresh) {
+    documentLive = !fresh;
+    const path = normalizePath(location.pathname);
+    routeLock = true;
+    try {
+        if (!fresh && (path === "/" || path === "/editor")) {
+            setupReturn = false;
+            setPhase("studio");
+        } else if (!fresh && path === "/step-1") {
+            resetSetup();
+            setupReturn = true;
+            setPhase("setup");
+        } else {
+            resetSetup();
+            setupReturn = !fresh;
+            setPhase("setup");
+        }
+        history.replaceState(routeState(), "", routePath());
+    } catch (error) { /* keep the screen even if the URL cannot change */ }
+    finally {
+        routeLock = false;
+    }
 }
 
 function boot() {
@@ -5049,7 +5303,7 @@ function boot() {
     filenameCustom = !!(storedName && storedName !== follow);
     name.value = filenameCustom ? storedName : follow;
     applyLanguage();
-    setPhase(fresh ? "setup" : "studio");
+    adoptRoute(fresh);
     toggleDrawer(false);
     render();
     document.querySelectorAll("#view-setup [data-lang]").forEach(function (button) {
@@ -5067,6 +5321,7 @@ function boot() {
     document.getElementById("setup-return").addEventListener("click", function () {
         setupReturn = false;
         setPhase("studio");
+        syncRoute("push");
     });
     document.getElementById("setup-import").addEventListener("click", function () {
         const input = document.getElementById("pdf-file");
@@ -5077,16 +5332,7 @@ function boot() {
         fitStage();
     });
     document.getElementById("setup-back").addEventListener("click", function () {
-        if (setupState.step === 2 && setupState.source === "guided" && setupState.guideIndex > 0) {
-            moveGuide(-1);
-            return;
-        }
-        if (setupState.step === 2 && setupState.source) {
-            setupState.source = "";
-            showSetupStep(2);
-            return;
-        }
-        showSetupStep(setupState.step - 1);
+        history.back();
     });
     document.querySelectorAll("[data-copy]").forEach(function (button) {
         button.addEventListener("click", function () { copyModelText(button.dataset.copy, false); });
@@ -5141,10 +5387,11 @@ function boot() {
         formatWithBrowserModel(text).then(function () {
             doc.theme = theme;
             applyTheme();
-            save();
             setupReturn = false;
             setPhase("studio");
+            save();
             toggleDrawer(false);
+            syncRoute("push");
         }).catch(function () {
             try {
                 openFromText(text);
@@ -5154,12 +5401,16 @@ function boot() {
             }
         });
     });
-    document.getElementById("setup-continue").addEventListener("click", function () { showSetupStep(3); });
+    document.getElementById("setup-continue").addEventListener("click", function () {
+        showSetupStep(3);
+        syncRoute("push");
+    });
     document.getElementById("setup-generate").addEventListener("click", generateDocument);
     ["setup-sidebar", "setup-accent", "setup-page", "setup-text"].forEach(function (id) {
         document.getElementById(id).addEventListener("input", function () {
             setupState.palette = "custom";
             showSetupStep(3);
+            syncRoute("replace");
         });
     });
     document.getElementById("preview").addEventListener("scroll", positionFloatbar, { passive: true });
@@ -5240,6 +5491,11 @@ function boot() {
             event.preventDefault();
             return;
         }
+        if (narrowStudio() && document.body.dataset.pane === "settings") {
+            setStudioPane("page");
+            event.preventDefault();
+            return;
+        }
         const drawer = document.getElementById("drawer");
         if (drawer && drawer.classList.contains("is-open")) {
             toggleDrawer(false);
@@ -5293,11 +5549,24 @@ function boot() {
         if (!menu || !menu.open || menu.contains(event.target)) return;
         menu.open = false;
     }, true);
+    document.querySelectorAll("#pane-switch [data-pane]").forEach(function (button) {
+        button.addEventListener("click", function () { setStudioPane(button.dataset.pane); });
+    });
+    window.addEventListener("popstate", function () {
+        if (document.body.dataset.phase === "setup" && setupState.source === "guided") storeGuideStep();
+        applyRouteState(history.state);
+    });
     window.addEventListener("resize", function () {
+        const drawer = document.getElementById("drawer");
+        if (drawer && "inert" in drawer) {
+            if (narrowStudio()) drawer.inert = document.body.dataset.pane !== "settings";
+            else drawer.inert = !drawer.classList.contains("is-open");
+        }
         if (!zoomTouched) fitStage();
         else updatePageGuides();
         positionFloatbar();
     });
+    setStudioPane("page");
 }
 
 boot();

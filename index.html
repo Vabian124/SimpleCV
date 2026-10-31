@@ -15,9 +15,17 @@
     <meta property="og:title" content="LibreCV — free CV builder, no account">
     <meta property="og:description" content="A free CV and motivation-letter builder. No account, nothing is uploaded, and the code is public domain. Step-by-step, with an on-device AI template.">
     <meta property="og:locale" content="en_US">
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="LibreCV — free CV builder, no account">
     <meta name="twitter:description" content="A free CV and motivation-letter builder. No account, nothing is uploaded, and the code is public domain. Step-by-step, with an on-device AI template.">
+    <meta name="twitter:image" content="https://librecv.org/og.png">
+    <meta name="twitter:image:alt" content="LibreCV, a free CV and motivation-letter builder. No account.">
+    <meta property="og:image" content="https://librecv.org/og.png">
+    <meta property="og:image:secure_url" content="https://librecv.org/og.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="LibreCV, a free CV and motivation-letter builder. No account.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <script type="application/ld+json">
     {
@@ -42,14 +50,13 @@
         "featureList": "No account, document stays in the browser, step-by-step guide, on-device AI template, selectable-text PDF"
     }
     </script>
-    <link rel="stylesheet" href="vendor/cropper.min.css">
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
 </head>
-<body>
-    <noscript>
-        <p class="setup-lead">This editor needs scripts. Allow scripts for this file, then open index.html again. Deze editor heeft scripts nodig. Sta scripts toe voor dit bestand en open index.html opnieuw.</p>
-    </noscript>
+<body data-pane="page">
     <main id="view-setup" class="setup">
+        <noscript>
+            <p class="noscript-note">This page is readable without scripts. The buttons need scripts before they can build a document. Deze pagina is leesbaar zonder scripts. De knoppen hebben scripts nodig om een document te maken.</p>
+        </noscript>
         <a class="skip" href="#setup-title-1" data-i18n="site.skip">Skip to the builder</a>
         <div class="setup-top">
             <p class="kicker" id="setup-kicker">LibreCV. No account.</p>
@@ -238,6 +245,11 @@
 
     <div id="studio" class="studio" hidden>
         <header id="topbar" class="topbar"></header>
+        <div class="pane-switch" id="pane-switch" aria-label="Editor panes">
+            <button type="button" class="btn" data-pane="library" data-i18n="ui.blocks">Blocks</button>
+            <button type="button" class="btn is-active" data-pane="page" data-i18n="ui.main" aria-pressed="true">Page</button>
+            <button type="button" class="btn" data-pane="settings" data-i18n="shell.settings">Settings</button>
+        </div>
         <div class="studio-body">
             <aside id="library" class="library"></aside>
             <div class="preview" id="preview">
@@ -269,7 +281,7 @@
         <div class="crop-card" role="dialog" aria-modal="true" aria-labelledby="crop-title">
             <h2 id="crop-title" data-i18n="photo.title">Frame the photo</h2>
             <p class="setup-lead" data-i18n="photo.hint">Drag the photo inside the frame. Fit shows the whole photo, max fills the frame. Photo size is how large it is on the page.</p>
-            <button type="button" class="btn" id="crop-change" data-i18n="photo.replace">Different photo</button>
+            <button type="button" class="btn btn-accent" id="crop-change" data-i18n="photo.replace">Different photo</button>
             <div class="crop-stage"><img id="crop-image" alt=""></div>
             <div class="crop-row">
                 <span id="crop-page-label" data-i18n="photo.onPage">On the page</span>
@@ -298,11 +310,6 @@
         </div>
     </div>
     <input id="photo-file" type="file" accept="image/*" hidden>
-    <script src="vendor/dompdf.min.js"></script>
-    <script src="vendor/pdf-lib.min.js"></script>
-    <script src="vendor/Sortable.min.js"></script>
-    <script src="vendor/fonts.js"></script>
-    <script src="vendor/cropper.min.js"></script>
-    <script src="editor.js?v=2"></script>
+    <script src="editor.js?v=3" defer></script>
 </body>
 </html>
