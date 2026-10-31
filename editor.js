@@ -407,6 +407,7 @@ const I18N_NL = {
         qCode: "Welke licentie heeft de code?",
         aCode: "De eigen code is CC0, zo dicht bij het publieke domein als de wet toelaat. De meegeleverde bibliotheken houden hun eigen licentie.",
         examples: "Voorbeelden",
+        cli: "PDF-commando",
         letterPage: "Motivatiebrief",
         dutchPage: "Nederlands",
         morePages: "Meer pagina's"
@@ -772,6 +773,7 @@ const I18N_EN = {
         qCode: "What license is the code under?",
         aCode: "The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.",
         examples: "Examples",
+        cli: "PDF command",
         letterPage: "Motivation letter",
         dutchPage: "Nederlands",
         morePages: "More pages"
@@ -5655,6 +5657,49 @@ function applyRouteState(state) {
     }
 }
 
+const CATALOG = {
+    "nursing-cv": "@@@CV\nNAME: Noor<br>El Amrani\nROLE: Registered nurse\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0001\nEMAIL: noor@example.com\nBORN: 01-01-1992 (34)\nLABEL: Registration\nVALUE: Example Nursing Board, number EX-0000\n@@@SKILLS\nPOINT: Handover\nPOINT: Shift notes\nPOINT: Student supervision\n@@@STRENGTHS\nPOINT: Night handover: Leaves a note the next shift can read in two minutes.\nPOINT: Steady lists: Keeps wards and shifts in two short lists, not a slogan.\n@@@PROJECTS\nPOINT: Medical admissions: 28 beds, including the night handover.\nPOINT: Day clinic: Wound reviews, twice a week.\n@@@PROFILE\nNoor El Amrani is a made-up registered nurse from Example City. This CV belongs to nobody. The registration sits in the sidebar. Wards and shifts sit on the page. The number EX-0000 is not a real registration, and this page does not give clinical advice.\n@@@LETTERHEAD\nTITLE:\nDATE: Example City, 31 October 2026\nTO: Example Ward<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a registered nurse, a made-up vacancy\n@@@JOB\nTITLE: Registered nurse\nDATE: 2022 – 2024\nORGANIZATION: Example Medical Ward\nPOINT: Kept the ward list to admissions, beds and the night handover.\nPOINT: Left the day clinic on the list as two sessions a week.\n@@@JOB\nTITLE: Charge nurse\nDATE: 2020 – 2022\nORGANIZATION: Example Day Clinic\nPOINT: Charge nurse on a Sunday, when the team was short.\nPOINT: Student supervision on the early shift.\n@@@STUDY\nTITLE: Nursing\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A classroom placement on a ward that exists only in this CV.\n@@@STUDY\nTITLE: Foundation year\nDATE: 2015 – 2016\nORGANIZATION: Example College\nPOINT: Lists, handover notes and a first practice ward.\n@@@PARAGRAPH\nThe organisations named here exist only in this example.\n@@@LIST\nPOINT: Medical admissions, 28 beds, including the night handover.\nPOINT: A day clinic for wound reviews, twice a week.\nPOINT: Student supervision on the early shift.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nThis example is not a real application.\nSIGN: Noor El Amrani\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "nursing-letter": "@@@LETTER\nNAME: Noor<br>El Amrani\nROLE: Registered nurse\nTITLE: Motivation letter\nDATE: Example City, 31 October 2026\nTO: Example Ward<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a registered nurse, a made-up vacancy\nSUMMARY: Noor El Amrani is a made-up registered nurse. This letter belongs to nobody, the vacancy is invented, and it does not give clinical advice.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0001\nEMAIL: noor@example.com\nBORN:\nLABEL: Registration\nVALUE: Example Nursing Board, number EX-0000\n@@@SKILLS\nPOINT: Handover\nPOINT: Shift notes\nPOINT: Student supervision\n@@@STRENGTHS\nPOINT: Night handover: Leaves a note the next shift can read in two minutes.\nPOINT: Steady lists: Keeps wards and shifts in two short lists, not a slogan.\n@@@PROJECTS\nPOINT: Medical admissions: 28 beds, including the night handover.\nPOINT: Day clinic: Wound reviews, twice a week.\n@@@PARAGRAPH\nDear hiring team,\n@@@SECTION\nHEADING: The ward, then the shift\nBODY: I put the registration on the first lines and the work under it. At Example Medical Ward, which exists only in this letter, the list was admissions, a night handover, and a day clinic twice a week.\n@@@SECTION\nHEADING: When the team is short\nBODY: On a made-up Sunday I was the charge nurse. The example is only here to show a shift line. It is not clinical advice.\n@@@LIST\nPOINT: Admissions, beds and a night handover on one list.\nPOINT: A day clinic twice a week.\nPOINT: A Sunday charge when the team was short.\n@@@JOB\nTITLE: Registered nurse\nDATE: 2022 – 2024\nORGANIZATION: Example Medical Ward\nPOINT: Kept the ward list to admissions, beds and the night handover.\n@@@JOB\nTITLE: Charge nurse\nDATE: 2020 – 2022\nORGANIZATION: Example Day Clinic\nPOINT: Charge nurse on a Sunday, when the team was short.\n@@@STUDY\nTITLE: Nursing\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A classroom placement on a ward that exists only in this letter.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nI will gladly explain this made-up application in a meeting that also does not exist.\nSIGN: Noor El Amrani\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "software-engineer-cv": "@@@CV\nNAME: Rae<br>Okonkwo\nROLE: Software engineer\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0000\nEMAIL: rae@example.com\nBORN: 01-01-1994 (32)\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests and reviews\n@@@STRENGTHS\nPOINT: Clear reviews: Writes the comment once so the next review is shorter.\nPOINT: Structure: Puts a slow query into one sentence a teammate can test.\n@@@PROJECTS\nPOINT: Catalogue search: Stayed under a second after the collection passed a million rows.\nPOINT: Review checklist: Cut the repeat comments on pull requests.\n@@@PROFILE\nRae Okonkwo is a made-up software engineer from Example City. This CV belongs to nobody. Tools sit in the sidebar. Projects, with a result, sit on the page.\n@@@LETTERHEAD\nTITLE:\nDATE: Example City, 31 October 2026\nTO: Example Organisation<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a software engineer, a made-up vacancy\n@@@JOB\nTITLE: Software engineer\nDATE: 2022 – 2024\nORGANIZATION: Example Catalogue Ltd\nPOINT: Shipped a search path that stayed under a second after a million made-up rows.\nPOINT: Tested the slow queries before they reached the night job.\n@@@JOB\nTITLE: Software engineer\nDATE: 2020 – 2022\nORGANIZATION: Example Bureau\nPOINT: Wrote a review checklist that cut the repeat comments on pull requests.\nPOINT: Kept the notes when a made-up team changed the plan the same afternoon.\n@@@STUDY\nTITLE: Computer science\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A graduation project about a search index that never left the classroom.\n@@@STUDY\nTITLE: Foundation year\nDATE: 2015 – 2016\nORGANIZATION: Example College\nPOINT: Type, tests and a first practice site.\n@@@PARAGRAPH\nThe organisations named here exist only in this example.\n@@@LIST\nPOINT: The search result is one sentence a stranger can check.\nPOINT: The review checklist is one page.\nPOINT: The practice site belonged to a team that was never real.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nThis example is not a real application.\nSIGN: Rae Okonkwo\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "software-engineer-letter": "@@@LETTER\nNAME: Rae<br>Okonkwo\nROLE: Software engineer\nTITLE: Motivation letter\nDATE: Example City, 31 October 2026\nTO: Example Organisation<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a software engineer, a made-up vacancy\nSUMMARY: Rae Okonkwo is a made-up software engineer. This letter belongs to nobody and the vacancy is invented.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0000\nEMAIL: rae@example.com\nBORN:\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests and reviews\n@@@STRENGTHS\nPOINT: Clear reviews: Writes the comment once so the next review is shorter.\nPOINT: Structure: Puts a slow query into one sentence a teammate can test.\n@@@PROJECTS\nPOINT: Catalogue search: Stayed under a second after the collection passed a million rows.\nPOINT: Review checklist: Cut the repeat comments on pull requests.\n@@@PARAGRAPH\nDear hiring team,\n@@@SECTION\nHEADING: A question, then the page\nBODY: I start with what was slow or unclear. At Example Catalogue Ltd, a company that exists only in this letter, I shipped a search path that stayed under a second after a million made-up rows.\n@@@SECTION\nHEADING: Reviews a teammate can follow\nBODY: At Example Bureau the checklist was for a team that was never real. Write the comment once, then the repeats get shorter.\n@@@LIST\nPOINT: A search result a stranger can check in one sentence.\nPOINT: A review checklist of one page.\nPOINT: Notes that still match after the page is saved.\n@@@JOB\nTITLE: Software engineer\nDATE: 2022 – 2024\nORGANIZATION: Example Catalogue Ltd\nPOINT: Shipped a search path that stayed under a second after a million made-up rows.\n@@@JOB\nTITLE: Software engineer\nDATE: 2020 – 2022\nORGANIZATION: Example Bureau\nPOINT: Wrote a review checklist that cut the repeat comments on pull requests.\n@@@STUDY\nTITLE: Computer science\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A graduation project about a search index that never left the classroom.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nI will gladly explain this made-up application in a meeting that also does not exist.\nSIGN: Rae Okonkwo\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "softwareontwikkelaar-cv": "@@@CV\nNAME: Pim<br>Vogel\nROLE: Softwareontwikkelaar\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0002\nEMAIL: pim@example.com\nBORN: 01-01-1995 (31)\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests en reviews\n@@@STRENGTHS\nPOINT: Heldere reviews: Schrijft de opmerking één keer, zodat de volgende review korter is.\nPOINT: Structuur: Zet een trage query in één zin die een teamgenoot kan testen.\n@@@PROJECTS\nPOINT: Cataloguszoeken: Bleef onder een seconde nadat de verzameling een miljoen rijen telde.\nPOINT: Reviewlijst: Bracht de herhaalde opmerkingen op pull requests terug.\n@@@PROFILE\nPim Vogel is een verzonnen softwareontwikkelaar uit Voorbeeldstad. Dit cv hoort bij niemand. Het gereedschap staat in de zijbalk. De projecten, met een resultaat, staan op de pagina.\n@@@LETTERHEAD\nTITLE:\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeld Organisatie<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als softwareontwikkelaar, een verzonnen vacature\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldcatalogus BV\nPOINT: Leverde een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.\nPOINT: Testte de trage queries voordat ze in de nachtelijke taak kwamen.\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2020 – 2022\nORGANIZATION: Voorbeeldbureau\nPOINT: Schreef een reviewlijst die de herhaalde opmerkingen op pull requests terugbracht.\nPOINT: Hield de notities bij toen een verzonnen team dezelfde middag het plan wijzigde.\n@@@STUDY\nTITLE: Informatica\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een afstudeerproject over een zoekindex die het lokaal nooit verliet.\n@@@STUDY\nTITLE: Basisjaar\nDATE: 2015 – 2016\nORGANIZATION: Voorbeeld College\nPOINT: Typografie, tests en een eerste oefensite.\n@@@PARAGRAPH\nDe organisaties in dit voorbeeld bestaan alleen hier.\n@@@LIST\nPOINT: Het zoekresultaat is één zin die een buitenstaander kan nagaan.\nPOINT: De reviewlijst is één bladzijde.\nPOINT: De oefensite hoorde bij een team dat nooit heeft bestaan.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nDit voorbeeld is geen echte sollicitatie.\nSIGN: Pim Vogel\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "softwareontwikkelaar-letter": "@@@LETTER\nNAME: Pim<br>Vogel\nROLE: Softwareontwikkelaar\nTITLE: Motivatiebrief\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeld Organisatie<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als softwareontwikkelaar, een verzonnen vacature\nSUMMARY: Pim Vogel is een verzonnen softwareontwikkelaar. Deze brief hoort bij niemand en de vacature is verzonnen.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0002\nEMAIL: pim@example.com\nBORN:\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests en reviews\n@@@STRENGTHS\nPOINT: Heldere reviews: Schrijft de opmerking één keer, zodat de volgende review korter is.\nPOINT: Structuur: Zet een trage query in één zin die een teamgenoot kan testen.\n@@@PROJECTS\nPOINT: Cataloguszoeken: Bleef onder een seconde nadat de verzameling een miljoen rijen telde.\nPOINT: Reviewlijst: Bracht de herhaalde opmerkingen op pull requests terug.\n@@@PARAGRAPH\nBeste team,\n@@@SECTION\nHEADING: Eerst de vraag, dan de pagina\nBODY: Ik begin bij wat traag of onduidelijk was. Bij Voorbeeldcatalogus BV, een bedrijf dat alleen in deze brief bestaat, leverde ik een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.\n@@@SECTION\nHEADING: Reviews die een teamgenoot volgt\nBODY: Bij Voorbeeldbureau was de lijst voor een team dat nooit heeft bestaan. Eén opmerking, daarna minder herhaling.\n@@@LIST\nPOINT: Een zoekresultaat dat een buitenstaander in één zin nagaat.\nPOINT: Een reviewlijst van één bladzijde.\nPOINT: Notities die na het opslaan nog kloppen.\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldcatalogus BV\nPOINT: Leverde een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2020 – 2022\nORGANIZATION: Voorbeeldbureau\nPOINT: Schreef een reviewlijst die de herhaalde opmerkingen op pull requests terugbracht.\n@@@STUDY\nTITLE: Informatica\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een afstudeerproject over een zoekindex die het lokaal nooit verliet.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nIk licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.\nSIGN: Pim Vogel\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "verpleegkundige-cv": "@@@CV\nNAME: Esmee<br>Hof\nROLE: Verpleegkundige\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0003\nEMAIL: esmee@example.com\nBORN: 01-01-1993 (33)\nLABEL: Registratie\nVALUE: Voorbeeldregister, nummer EX-0000\n@@@SKILLS\nPOINT: Overdracht\nPOINT: Dienstnotities\nPOINT: Begeleiding\n@@@STRENGTHS\nPOINT: Nachtelijke overdracht: Laat een notitie achter die de volgende dienst in twee minuten leest.\nPOINT: Korte lijsten: Houdt afdelingen en diensten in twee korte lijsten, niet in een slogan.\n@@@PROJECTS\nPOINT: Opnameafdeling: 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Dagkliniek: Wondcontroles, twee keer per week.\n@@@PROFILE\nEsmee Hof is een verzonnen verpleegkundige uit Voorbeeldstad. Dit cv hoort bij niemand. De registratie staat in de zijbalk. Afdelingen en diensten staan op de pagina. Het nummer EX-0000 is geen echte registratie, en dit cv geeft geen zorgadvies.\n@@@LETTERHEAD\nTITLE:\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeldafdeling<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als verpleegkundige, een verzonnen vacature\n@@@JOB\nTITLE: Verpleegkundige\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldafdeling\nPOINT: Hield de afdelingslijst bij opnames, bedden en de nachtelijke overdracht.\nPOINT: Liet de dagkliniek op de lijst staan als twee sessies per week.\n@@@JOB\nTITLE: Eerste verpleegkundige\nDATE: 2020 – 2022\nORGANIZATION: Voorbeelddagkliniek\nPOINT: Eerste verpleegkundige op een zondag, toen het team krap was.\nPOINT: Begeleiding van een student in de vroege dienst.\n@@@STUDY\nTITLE: Verpleegkunde\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een stage in de klas op een afdeling die alleen in dit cv bestaat.\n@@@STUDY\nTITLE: Basisjaar\nDATE: 2015 – 2016\nORGANIZATION: Voorbeeld College\nPOINT: Lijsten, overdracht en een eerste oefenafdeling.\n@@@PARAGRAPH\nDe organisaties in dit voorbeeld bestaan alleen hier.\n@@@LIST\nPOINT: Opnameafdeling, 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Een dagkliniek voor wondcontroles, twee keer per week.\nPOINT: Begeleiding van een student in de vroege dienst.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nDit voorbeeld is geen echte sollicitatie.\nSIGN: Esmee Hof\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "verpleegkundige-letter": "@@@LETTER\nNAME: Esmee<br>Hof\nROLE: Verpleegkundige\nTITLE: Motivatiebrief\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeldafdeling<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als verpleegkundige, een verzonnen vacature\nSUMMARY: Esmee Hof is een verzonnen verpleegkundige. Deze brief hoort bij niemand, de vacature is verzonnen, en zij geeft geen zorgadvies.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0003\nEMAIL: esmee@example.com\nBORN:\nLABEL: Registratie\nVALUE: Voorbeeldregister, nummer EX-0000\n@@@SKILLS\nPOINT: Overdracht\nPOINT: Dienstnotities\nPOINT: Begeleiding\n@@@STRENGTHS\nPOINT: Nachtelijke overdracht: Laat een notitie achter die de volgende dienst in twee minuten leest.\nPOINT: Korte lijsten: Houdt afdelingen en diensten in twee korte lijsten, niet in een slogan.\n@@@PROJECTS\nPOINT: Opnameafdeling: 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Dagkliniek: Wondcontroles, twee keer per week.\n@@@PARAGRAPH\nBeste team,\n@@@SECTION\nHEADING: Eerst de afdeling, dan de dienst\nBODY: Ik zet de registratie op de eerste regels en het werk daaronder. Op Voorbeeldafdeling, die alleen in deze brief bestaat, stonden de opnames, een nachtelijke overdracht en een dagkliniek twee keer per week.\n@@@SECTION\nHEADING: Als het team krap is\nBODY: Op een verzonnen zondag was ik de eerste verpleegkundige. Het voorbeeld staat hier alleen om een dienstregel te tonen. Het is geen zorgadvies.\n@@@LIST\nPOINT: Opnames, bedden en een nachtelijke overdracht op één lijst.\nPOINT: Een dagkliniek twee keer per week.\nPOINT: Een zondagdienst toen het team krap was.\n@@@JOB\nTITLE: Verpleegkundige\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldafdeling\nPOINT: Hield de afdelingslijst bij opnames, bedden en de nachtelijke overdracht.\n@@@JOB\nTITLE: Eerste verpleegkundige\nDATE: 2020 – 2022\nORGANIZATION: Voorbeelddagkliniek\nPOINT: Eerste verpleegkundige op een zondag, toen het team krap was.\n@@@STUDY\nTITLE: Verpleegkunde\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een stage in de klas op een afdeling die alleen in deze brief bestaat.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nIk licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.\nSIGN: Esmee Hof\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END"
+};
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Named documents. CATALOG is filled from catalog/*.txt when the editor is built. */
+
+function requestedTemplate() {
+    try {
+        const value = new URLSearchParams(location.search).get("template");
+        if (value && Object.prototype.hasOwnProperty.call(CATALOG, value)) return value;
+    } catch (error) { /* a file URL has no search to read */ }
+    return "";
+}
+
+function templateLang(id) {
+    if (id.indexOf("softwareontwikkelaar") === 0 || id.indexOf("verpleegkundige") === 0) return "nl";
+    return "en";
+}
+
+function openRequestedTemplate() {
+    const id = requestedTemplate();
+    if (!id) return false;
+    if (!requestedLang()) lang = templateLang(id);
+    doc = emptyCv();
+    doc.lang = lang;
+    doc.theme = cvTheme();
+    normalize(doc);
+    applyMarked(CATALOG[id]);
+    filenameCustom = false;
+    documentLive = true;
+    const name = document.getElementById("pdf-name");
+    const person = plainName();
+    if (name) name.value = person;
+    try { localStorage.setItem(STORAGE_NAME, person); } catch (error) { /* ignore */ }
+    return true;
+}
 /* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
 /* Startup: the stored document, then the setup and editor controls. */
 
@@ -5958,37 +6003,52 @@ function bindStudio() {
 function boot() {
     try { document.execCommand("styleWithCSS", false, true); } catch (error) { /* ignore */ }
     lang = savedLang();
-    let fresh = false;
-    try {
-        const raw = localStorage.getItem(STORAGE_DOC);
-        if (raw) doc = JSON.parse(raw);
-        else {
+    const requested = requestedLang();
+    if (requested) lang = requested;
+    doc = emptyCv();
+    normalize(doc);
+    mountTools();
+    let fresh = true;
+    let opened = false;
+    if (requestedTemplate()) {
+        try { opened = openRequestedTemplate(); } catch (error) { opened = false; }
+    }
+    if (!opened) {
+        try {
+            const raw = localStorage.getItem(STORAGE_DOC);
+            if (raw) {
+                doc = JSON.parse(raw);
+                fresh = false;
+            } else doc = emptyCv();
+        } catch (error) {
             doc = emptyCv();
             fresh = true;
         }
-    } catch (error) {
-        doc = emptyCv();
-        fresh = true;
-    }
-    if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
-    normalize(doc);
-    if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
-    const requested = requestedLang();
-    if (requested) {
-        lang = requested;
-        doc.lang = requested;
+        if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
+        normalize(doc);
+        if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
+        if (requested) {
+            lang = requested;
+            doc.lang = requested;
+            try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
+        }
+    } else if (requested) {
         try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
     }
-    mountTools();
     const name = document.getElementById("pdf-name");
-    let storedName = "";
-    try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
-    const person = plainName().replace(/\s+/g, " ").trim();
-    const follow = !person || person === t("ph.name") ? "" : person;
-    filenameCustom = !!(storedName && storedName !== follow);
-    name.value = filenameCustom ? storedName : follow;
+    if (opened) {
+        filenameCustom = false;
+        name.value = plainName();
+    } else {
+        let storedName = "";
+        try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
+        const person = plainName().replace(/\s+/g, " ").trim();
+        const follow = !person || person === t("ph.name") ? "" : person;
+        filenameCustom = !!(storedName && storedName !== follow);
+        name.value = filenameCustom ? storedName : follow;
+    }
     applyLanguage();
-    adoptRoute(fresh);
+    adoptRoute(opened ? false : fresh);
     if (requested && document.body.dataset.phase === "studio") save();
     toggleDrawer(false);
     render();

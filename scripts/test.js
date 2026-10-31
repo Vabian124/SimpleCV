@@ -27,7 +27,15 @@ const pages = [
     ["motivation-letter/index.html", "https://librecv.org/motivation-letter/"],
     ["templates/index.html", "https://librecv.org/templates/"],
     ["templates/software-engineer/index.html", "https://librecv.org/templates/software-engineer/"],
-    ["templates/nursing/index.html", "https://librecv.org/templates/nursing/"]
+    ["templates/software-engineer/letter/index.html", "https://librecv.org/templates/software-engineer/letter/"],
+    ["templates/nursing/index.html", "https://librecv.org/templates/nursing/"],
+    ["templates/nursing/letter/index.html", "https://librecv.org/templates/nursing/letter/"],
+    ["nl/sjablonen/softwareontwikkelaar/index.html", "https://librecv.org/nl/sjablonen/softwareontwikkelaar/"],
+    ["nl/sjablonen/softwareontwikkelaar/brief/index.html", "https://librecv.org/nl/sjablonen/softwareontwikkelaar/brief/"],
+    ["nl/sjablonen/verpleegkundige/index.html", "https://librecv.org/nl/sjablonen/verpleegkundige/"],
+    ["nl/sjablonen/verpleegkundige/brief/index.html", "https://librecv.org/nl/sjablonen/verpleegkundige/brief/"],
+    ["cli/index.html", "https://librecv.org/cli/"],
+    ["nl/cli/index.html", "https://librecv.org/nl/cli/"]
 ];
 
 const styleQueries = [];
@@ -238,5 +246,33 @@ if (steering.indexOf("button in the header") === -1) fail("feedback.txt does not
 const guide = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
 if (guide.indexOf("/feedback/desk") !== -1) fail("llms.txt points at the inbox");
 if (guide.indexOf("https://librecv.org/feedback.txt") === -1) fail("llms.txt does not point at the feedback instructions");
+if (guide.indexOf("/cli/") === -1) fail("llms.txt does not mention the PDF command");
 
-console.log("ok");
+const templatePages = require("./template-pages.js");
+const sitemap = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8");
+templatePages.pages.forEach(function (page) {
+    const text = templatePages.readCatalog(page.id);
+    const html = fs.readFileSync(path.join(root, page.out), "utf8");
+    const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    if (html.indexOf(escaped) < 0) fail(page.out + " does not contain its block");
+    if (html.indexOf("/?template=" + page.id + "&amp;lang=") < 0) fail(page.out + " does not open its block");
+    if (sitemap.indexOf(page.url) < 0) fail("sitemap is missing " + page.url);
+    if (editor.indexOf(JSON.stringify(text)) < 0) fail("the editor is missing " + page.id);
+});
+if (sitemap.indexOf("https://librecv.org/cli/") < 0) fail("sitemap is missing the PDF command");
+if (editor.indexOf("function openRequestedTemplate()") < 0) fail("the editor cannot open a named block");
+
+const pdfCli = require("./pdf.js");
+const PDFLib = require(path.join(root, "vendor", "pdf-lib.min.js"));
+pdfCli.renderMarkedPdf(templatePages.readCatalog("nursing-cv"), "en").then(function (bytes) {
+    if (Buffer.from(bytes).slice(0, 5).toString() !== "%PDF-") fail("the PDF command did not write a PDF");
+    return PDFLib.PDFDocument.load(bytes);
+}).then(function (pdf) {
+    const names = pdf.catalog.lookup(PDFLib.PDFName.of("Names"), PDFLib.PDFDict);
+    const embedded = names.lookup(PDFLib.PDFName.of("EmbeddedFiles"), PDFLib.PDFDict);
+    const list = embedded.lookup(PDFLib.PDFName.of("Names"), PDFLib.PDFArray);
+    if (list.lookup(0).decodeText() !== "document.json") fail("the PDF command dropped document.json");
+    console.log("ok");
+}).catch(function (error) {
+    fail(error && error.stack ? error.stack : String(error));
+});

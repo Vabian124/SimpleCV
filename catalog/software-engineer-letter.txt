@@ -1,0 +1,72 @@
+@@@LETTER
+NAME: Rae<br>Okonkwo
+ROLE: Software engineer
+TITLE: Motivation letter
+DATE: Example City, 31 October 2026
+TO: Example Organisation<br>For the hiring team<br>Example Street 1<br>Example City
+SUBJECT: Application as a software engineer, a made-up vacancy
+SUMMARY: Rae Okonkwo is a made-up software engineer. This letter belongs to nobody and the vacancy is invented.
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 64
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Example City
+PHONE: +31 6 0000 0000
+EMAIL: rae@example.com
+BORN:
+@@@SKILLS
+POINT: TypeScript
+POINT: Python
+POINT: Tests and reviews
+@@@STRENGTHS
+POINT: Clear reviews: Writes the comment once so the next review is shorter.
+POINT: Structure: Puts a slow query into one sentence a teammate can test.
+@@@PROJECTS
+POINT: Catalogue search: Stayed under a second after the collection passed a million rows.
+POINT: Review checklist: Cut the repeat comments on pull requests.
+@@@PARAGRAPH
+Dear hiring team,
+@@@SECTION
+HEADING: A question, then the page
+BODY: I start with what was slow or unclear. At Example Catalogue Ltd, a company that exists only in this letter, I shipped a search path that stayed under a second after a million made-up rows.
+@@@SECTION
+HEADING: Reviews a teammate can follow
+BODY: At Example Bureau the checklist was for a team that was never real. Write the comment once, then the repeats get shorter.
+@@@LIST
+POINT: A search result a stranger can check in one sentence.
+POINT: A review checklist of one page.
+POINT: Notes that still match after the page is saved.
+@@@JOB
+TITLE: Software engineer
+DATE: 2022 – 2024
+ORGANIZATION: Example Catalogue Ltd
+POINT: Shipped a search path that stayed under a second after a million made-up rows.
+@@@JOB
+TITLE: Software engineer
+DATE: 2020 – 2022
+ORGANIZATION: Example Bureau
+POINT: Wrote a review checklist that cut the repeat comments on pull requests.
+@@@STUDY
+TITLE: Computer science
+DATE: 2016 – 2020
+ORGANIZATION: Example University
+POINT: A graduation project about a search index that never left the classroom.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+I will gladly explain this made-up application in a meeting that also does not exist.
+SIGN: Rae Okonkwo
+@@@THEME
+SIDEBAR: #1e293b
+SIDEBARTEXT: #f8fafc
+ACCENT: #0284c7
+ACCENTLIGHT: #38bdf8
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END

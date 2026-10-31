@@ -358,6 +358,7 @@ const I18N_EN = {
         qCode: "What license is the code under?",
         aCode: "The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.",
         examples: "Examples",
+        cli: "PDF command",
         letterPage: "Motivation letter",
         dutchPage: "Nederlands",
         morePages: "More pages"

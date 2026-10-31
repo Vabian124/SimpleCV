@@ -301,37 +301,52 @@ function bindStudio() {
 function boot() {
     try { document.execCommand("styleWithCSS", false, true); } catch (error) { /* ignore */ }
     lang = savedLang();
-    let fresh = false;
-    try {
-        const raw = localStorage.getItem(STORAGE_DOC);
-        if (raw) doc = JSON.parse(raw);
-        else {
+    const requested = requestedLang();
+    if (requested) lang = requested;
+    doc = emptyCv();
+    normalize(doc);
+    mountTools();
+    let fresh = true;
+    let opened = false;
+    if (requestedTemplate()) {
+        try { opened = openRequestedTemplate(); } catch (error) { opened = false; }
+    }
+    if (!opened) {
+        try {
+            const raw = localStorage.getItem(STORAGE_DOC);
+            if (raw) {
+                doc = JSON.parse(raw);
+                fresh = false;
+            } else doc = emptyCv();
+        } catch (error) {
             doc = emptyCv();
             fresh = true;
         }
-    } catch (error) {
-        doc = emptyCv();
-        fresh = true;
-    }
-    if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
-    normalize(doc);
-    if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
-    const requested = requestedLang();
-    if (requested) {
-        lang = requested;
-        doc.lang = requested;
+        if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
+        normalize(doc);
+        if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
+        if (requested) {
+            lang = requested;
+            doc.lang = requested;
+            try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
+        }
+    } else if (requested) {
         try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
     }
-    mountTools();
     const name = document.getElementById("pdf-name");
-    let storedName = "";
-    try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
-    const person = plainName().replace(/\s+/g, " ").trim();
-    const follow = !person || person === t("ph.name") ? "" : person;
-    filenameCustom = !!(storedName && storedName !== follow);
-    name.value = filenameCustom ? storedName : follow;
+    if (opened) {
+        filenameCustom = false;
+        name.value = plainName();
+    } else {
+        let storedName = "";
+        try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
+        const person = plainName().replace(/\s+/g, " ").trim();
+        const follow = !person || person === t("ph.name") ? "" : person;
+        filenameCustom = !!(storedName && storedName !== follow);
+        name.value = filenameCustom ? storedName : follow;
+    }
     applyLanguage();
-    adoptRoute(fresh);
+    adoptRoute(opened ? false : fresh);
     if (requested && document.body.dataset.phase === "studio") save();
     toggleDrawer(false);
     render();

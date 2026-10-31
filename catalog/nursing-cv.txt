@@ -1,0 +1,77 @@
+@@@CV
+NAME: Noor<br>El Amrani
+ROLE: Registered nurse
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 92
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Example City
+PHONE: +31 6 0000 0001
+EMAIL: noor@example.com
+BORN: 01-01-1992 (34)
+LABEL: Registration
+VALUE: Example Nursing Board, number EX-0000
+@@@SKILLS
+POINT: Handover
+POINT: Shift notes
+POINT: Student supervision
+@@@STRENGTHS
+POINT: Night handover: Leaves a note the next shift can read in two minutes.
+POINT: Steady lists: Keeps wards and shifts in two short lists, not a slogan.
+@@@PROJECTS
+POINT: Medical admissions: 28 beds, including the night handover.
+POINT: Day clinic: Wound reviews, twice a week.
+@@@PROFILE
+Noor El Amrani is a made-up registered nurse from Example City. This CV belongs to nobody. The registration sits in the sidebar. Wards and shifts sit on the page. The number EX-0000 is not a real registration, and this page does not give clinical advice.
+@@@LETTERHEAD
+TITLE:
+DATE: Example City, 31 October 2026
+TO: Example Ward<br>For the hiring team<br>Example Street 1<br>Example City
+SUBJECT: Application as a registered nurse, a made-up vacancy
+@@@JOB
+TITLE: Registered nurse
+DATE: 2022 – 2024
+ORGANIZATION: Example Medical Ward
+POINT: Kept the ward list to admissions, beds and the night handover.
+POINT: Left the day clinic on the list as two sessions a week.
+@@@JOB
+TITLE: Charge nurse
+DATE: 2020 – 2022
+ORGANIZATION: Example Day Clinic
+POINT: Charge nurse on a Sunday, when the team was short.
+POINT: Student supervision on the early shift.
+@@@STUDY
+TITLE: Nursing
+DATE: 2016 – 2020
+ORGANIZATION: Example University
+POINT: A classroom placement on a ward that exists only in this CV.
+@@@STUDY
+TITLE: Foundation year
+DATE: 2015 – 2016
+ORGANIZATION: Example College
+POINT: Lists, handover notes and a first practice ward.
+@@@PARAGRAPH
+The organisations named here exist only in this example.
+@@@LIST
+POINT: Medical admissions, 28 beds, including the night handover.
+POINT: A day clinic for wound reviews, twice a week.
+POINT: Student supervision on the early shift.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+This example is not a real application.
+SIGN: Noor El Amrani
+@@@THEME
+SIDEBAR: #14532d
+SIDEBARTEXT: #f0fdf4
+ACCENT: #047857
+ACCENTLIGHT: #6ee7b7
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END

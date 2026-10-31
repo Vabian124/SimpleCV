@@ -1,0 +1,75 @@
+@@@CV
+NAME: Pim<br>Vogel
+ROLE: Softwareontwikkelaar
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 92
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Voorbeeldstad
+PHONE: +31 6 0000 0002
+EMAIL: pim@example.com
+BORN: 01-01-1995 (31)
+@@@SKILLS
+POINT: TypeScript
+POINT: Python
+POINT: Tests en reviews
+@@@STRENGTHS
+POINT: Heldere reviews: Schrijft de opmerking één keer, zodat de volgende review korter is.
+POINT: Structuur: Zet een trage query in één zin die een teamgenoot kan testen.
+@@@PROJECTS
+POINT: Cataloguszoeken: Bleef onder een seconde nadat de verzameling een miljoen rijen telde.
+POINT: Reviewlijst: Bracht de herhaalde opmerkingen op pull requests terug.
+@@@PROFILE
+Pim Vogel is een verzonnen softwareontwikkelaar uit Voorbeeldstad. Dit cv hoort bij niemand. Het gereedschap staat in de zijbalk. De projecten, met een resultaat, staan op de pagina.
+@@@LETTERHEAD
+TITLE:
+DATE: Voorbeeldstad, 31 oktober 2026
+TO: Voorbeeld Organisatie<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad
+SUBJECT: Sollicitatie als softwareontwikkelaar, een verzonnen vacature
+@@@JOB
+TITLE: Softwareontwikkelaar
+DATE: 2022 – 2024
+ORGANIZATION: Voorbeeldcatalogus BV
+POINT: Leverde een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.
+POINT: Testte de trage queries voordat ze in de nachtelijke taak kwamen.
+@@@JOB
+TITLE: Softwareontwikkelaar
+DATE: 2020 – 2022
+ORGANIZATION: Voorbeeldbureau
+POINT: Schreef een reviewlijst die de herhaalde opmerkingen op pull requests terugbracht.
+POINT: Hield de notities bij toen een verzonnen team dezelfde middag het plan wijzigde.
+@@@STUDY
+TITLE: Informatica
+DATE: 2016 – 2020
+ORGANIZATION: Voorbeeld Hogeschool
+POINT: Een afstudeerproject over een zoekindex die het lokaal nooit verliet.
+@@@STUDY
+TITLE: Basisjaar
+DATE: 2015 – 2016
+ORGANIZATION: Voorbeeld College
+POINT: Typografie, tests en een eerste oefensite.
+@@@PARAGRAPH
+De organisaties in dit voorbeeld bestaan alleen hier.
+@@@LIST
+POINT: Het zoekresultaat is één zin die een buitenstaander kan nagaan.
+POINT: De reviewlijst is één bladzijde.
+POINT: De oefensite hoorde bij een team dat nooit heeft bestaan.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+Dit voorbeeld is geen echte sollicitatie.
+SIGN: Pim Vogel
+@@@THEME
+SIDEBAR: #1e293b
+SIDEBARTEXT: #f8fafc
+ACCENT: #0284c7
+ACCENTLIGHT: #38bdf8
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END

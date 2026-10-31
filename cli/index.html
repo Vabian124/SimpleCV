@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Make a CV PDF from the command line — LibreCV</title>
+    <meta name="description" content="Turn a LibreCV block into a PDF from the command line. The text can be selected. The PDF carries document.json, so the editor can open it again. No account.">
+    <link rel="canonical" href="https://librecv.org/cli/">
+    <link rel="alternate" hreflang="en" href="https://librecv.org/cli/">
+    <link rel="alternate" hreflang="nl" href="https://librecv.org/nl/cli/">
+    <link rel="alternate" hreflang="x-default" href="https://librecv.org/cli/">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0f172a">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="LibreCV">
+    <meta property="og:title" content="Make a CV PDF from the command line — LibreCV">
+    <meta property="og:description" content="A command that writes a selectable-text PDF from the same block the editor uses. No account. Nothing is uploaded.">
+    <meta property="og:url" content="https://librecv.org/cli/">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Make a CV PDF from the command line — LibreCV">
+    <meta name="twitter:description" content="A command that writes a selectable-text PDF from the same block the editor uses. No account. Nothing is uploaded.">
+    <meta name="twitter:image" content="https://librecv.org/og.png">
+    <meta name="twitter:image:alt" content="LibreCV, a free CV and motivation-letter builder. No account.">
+    <meta property="og:image" content="https://librecv.org/og.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="LibreCV, a free CV and motivation-letter builder. No account.">
+    <link rel="icon" href="/favicon.ico" sizes="96x96" type="image/x-icon">
+    <link rel="icon" href="/favicon.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=20">
+</head>
+<body>
+    <main class="setup">
+        <article class="guide-page">
+            <p class="kicker">LibreCV. No account.</p>
+            <h1>Make a CV PDF from the command line</h1>
+            <p class="setup-lead">The command reads the same block the editor pastes. It writes a PDF whose text can be selected. That PDF carries document.json, so you can open it in the editor again. Nothing is uploaded.</p>
+            <pre class="marked"><code>node scripts/pdf.js catalog/software-engineer-cv.txt -o cv.pdf</code></pre>
+            <h2>What you need</h2>
+            <ol>
+                <li>Node.js, and this repository on the computer.</li>
+                <li>A block that starts with the document marker and ends with the end marker. The files in catalog/ are examples. The names in them are invented.</li>
+                <li>Run the command from the repository folder. -o sets the PDF name. --lang nl uses Dutch headings for a Dutch block.</li>
+            </ol>
+            <h2>Examples</h2>
+            <ul>
+                <li><code>node scripts/pdf.js software-engineer-cv -o cv.pdf</code></li>
+                <li><code>node scripts/pdf.js software-engineer-letter -o letter.pdf</code></li>
+                <li><code>node scripts/pdf.js nursing-cv -o cv.pdf</code></li>
+                <li><code>node scripts/pdf.js nursing-letter -o letter.pdf</code></li>
+                <li><code>node scripts/pdf.js softwareontwikkelaar-cv --lang nl -o cv.pdf</code></li>
+                <li><code>node scripts/pdf.js softwareontwikkelaar-letter --lang nl -o brief.pdf</code></li>
+                <li><code>node scripts/pdf.js verpleegkundige-cv --lang nl -o cv.pdf</code></li>
+                <li><code>node scripts/pdf.js verpleegkundige-letter --lang nl -o brief.pdf</code></li>
+            </ul>
+            <p>An id from that list is enough. A path to your own text file works too. The command-line PDF uses a standard typeface. The download inside the editor uses the typeface on the page. Both files can be imported.</p>
+            <p><a class="btn-primary" href="/templates/">Open the examples</a></p>
+            <p>This LibreCV writes a CV or a motivation letter. It is not the LibreCV computer-vision association, and it is not the SimpleCV Python library.</p>
+            <nav class="guide-links" aria-label="Related pages">
+                <a href="/nl/cli/">Nederlands</a>
+                <a href="/templates/">Examples</a>
+                <a href="https://github.com/Vabian124/LibreCV">Source code on GitHub</a>
+                <button type="button" class="quiet-link" data-feedback>Feedback</button>
+            </nav>
+        </article>
+    </main>
+    <script src="/feedback/open.js?v=2" defer></script>
+</body>
+</html>

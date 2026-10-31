@@ -15,7 +15,8 @@ LibreCV is a visual editor. You design a page with blocks. It is not a markdown 
 - The interface is in English and Dutch. A new visit starts in English. `?lang=nl` opens it in Dutch
 - [Dutch introduction](https://librecv.org/nl/)
 - [Motivation letter](https://librecv.org/motivation-letter/) and [Motivatiebrief](https://librecv.org/nl/motivatiebrief/)
-- [CV examples](https://librecv.org/templates/), including a software engineer layout and a nursing layout
+- [CV examples](https://librecv.org/templates/), including a software engineer CV and letter and a registered nurse CV and letter, in English and Dutch. Each example opens in the editor. The names are invented
+- [PDF command](https://librecv.org/cli/): `node scripts/pdf.js catalog/software-engineer-cv.txt -o cv.pdf` writes a selectable-text PDF from the same block. The PDF carries document.json
 - The names on the example pages are invented
 - Feedback is optional. The button is in the editor header and in the footer of each setup step. Private notes: https://librecv.org/feedback/ . Instructions for an assistant: https://librecv.org/feedback.txt . A public GitHub issue uses https://github.com/Vabian124/LibreCV/issues/new?template=feedback.yml and must not include a CV or letter
 

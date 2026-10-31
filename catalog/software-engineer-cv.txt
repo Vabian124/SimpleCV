@@ -1,0 +1,75 @@
+@@@CV
+NAME: Rae<br>Okonkwo
+ROLE: Software engineer
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 92
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Example City
+PHONE: +31 6 0000 0000
+EMAIL: rae@example.com
+BORN: 01-01-1994 (32)
+@@@SKILLS
+POINT: TypeScript
+POINT: Python
+POINT: Tests and reviews
+@@@STRENGTHS
+POINT: Clear reviews: Writes the comment once so the next review is shorter.
+POINT: Structure: Puts a slow query into one sentence a teammate can test.
+@@@PROJECTS
+POINT: Catalogue search: Stayed under a second after the collection passed a million rows.
+POINT: Review checklist: Cut the repeat comments on pull requests.
+@@@PROFILE
+Rae Okonkwo is a made-up software engineer from Example City. This CV belongs to nobody. Tools sit in the sidebar. Projects, with a result, sit on the page.
+@@@LETTERHEAD
+TITLE:
+DATE: Example City, 31 October 2026
+TO: Example Organisation<br>For the hiring team<br>Example Street 1<br>Example City
+SUBJECT: Application as a software engineer, a made-up vacancy
+@@@JOB
+TITLE: Software engineer
+DATE: 2022 – 2024
+ORGANIZATION: Example Catalogue Ltd
+POINT: Shipped a search path that stayed under a second after a million made-up rows.
+POINT: Tested the slow queries before they reached the night job.
+@@@JOB
+TITLE: Software engineer
+DATE: 2020 – 2022
+ORGANIZATION: Example Bureau
+POINT: Wrote a review checklist that cut the repeat comments on pull requests.
+POINT: Kept the notes when a made-up team changed the plan the same afternoon.
+@@@STUDY
+TITLE: Computer science
+DATE: 2016 – 2020
+ORGANIZATION: Example University
+POINT: A graduation project about a search index that never left the classroom.
+@@@STUDY
+TITLE: Foundation year
+DATE: 2015 – 2016
+ORGANIZATION: Example College
+POINT: Type, tests and a first practice site.
+@@@PARAGRAPH
+The organisations named here exist only in this example.
+@@@LIST
+POINT: The search result is one sentence a stranger can check.
+POINT: The review checklist is one page.
+POINT: The practice site belonged to a team that was never real.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+This example is not a real application.
+SIGN: Rae Okonkwo
+@@@THEME
+SIDEBAR: #1e293b
+SIDEBARTEXT: #f8fafc
+ACCENT: #0284c7
+ACCENTLIGHT: #38bdf8
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END

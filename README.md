@@ -16,7 +16,8 @@ These pages are separate from the editor, and they are listed in `sitemap.xml`:
 
 - [https://librecv.org/nl/](https://librecv.org/nl/) is the Dutch introduction
 - [https://librecv.org/motivation-letter/](https://librecv.org/motivation-letter/) and [https://librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/) are the letter, in English and Dutch
-- [https://librecv.org/templates/](https://librecv.org/templates/) links to a software engineer CV and a nursing CV
+- [https://librecv.org/templates/](https://librecv.org/templates/) links to a software engineer CV and letter and a registered nurse CV and letter, in English and Dutch. A link on each page opens that block in the editor. The names are invented
+- [https://librecv.org/cli/](https://librecv.org/cli/) is the PDF command: `node scripts/pdf.js catalog/software-engineer-cv.txt -o cv.pdf`
 
 `/step-1`, `/step-2`, `/step-3` and `/editor` are the editor itself. They stay out of the sitemap. The canonical URL of the editor is `https://librecv.org/`.
 

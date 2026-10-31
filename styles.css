@@ -1860,6 +1860,29 @@ button.quiet-link {
 
 .desk pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font: inherit; }
 
+.marked {
+    max-height: 28rem;
+    margin: 16px 0;
+    padding: 14px 16px;
+    overflow: auto;
+    border-radius: 12px;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.marked code {
+    color: inherit;
+    font: inherit;
+}
+
+.guide-page code {
+    font-size: 0.95em;
+}
+
 @media (max-width: 520px) {
     .feedback-actions .quiet-link { margin-left: 0; }
 }

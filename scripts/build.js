@@ -30,6 +30,7 @@ const order = [
     "setup.js",
     "shell.js",
     "routes.js",
+    "catalog.js",
     "boot.js"
 ];
 const cssOrder = [
@@ -42,9 +43,24 @@ const cssOrder = [
     "pages.css"
 ];
 
+function catalogSource() {
+    const dir = path.join(root, "catalog");
+    const names = fs.readdirSync(dir).filter(function (name) {
+        return name.endsWith(".txt");
+    }).sort();
+    const lines = names.map(function (name) {
+        const id = name.slice(0, -4);
+        const text = fs.readFileSync(path.join(dir, name), "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\s+$/, "");
+        return "    " + JSON.stringify(id) + ": " + JSON.stringify(text);
+    });
+    return "const CATALOG = {\n" + lines.join(",\n") + "\n};\n";
+}
+
 function joined(dir, names) {
     return names.map(function (name) {
-        return fs.readFileSync(path.join(root, dir, name), "utf8");
+        const source = fs.readFileSync(path.join(root, dir, name), "utf8");
+        if (name === "catalog.js") return catalogSource() + source;
+        return source;
     }).join("");
 }
 

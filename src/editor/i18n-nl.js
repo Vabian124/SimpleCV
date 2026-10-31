@@ -358,6 +358,7 @@ const I18N_NL = {
         qCode: "Welke licentie heeft de code?",
         aCode: "De eigen code is CC0, zo dicht bij het publieke domein als de wet toelaat. De meegeleverde bibliotheken houden hun eigen licentie.",
         examples: "Voorbeelden",
+        cli: "PDF-commando",
         letterPage: "Motivatiebrief",
         dutchPage: "Nederlands",
         morePages: "Meer pagina's"

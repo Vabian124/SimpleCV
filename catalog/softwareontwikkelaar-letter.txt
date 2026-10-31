@@ -1,0 +1,72 @@
+@@@LETTER
+NAME: Pim<br>Vogel
+ROLE: Softwareontwikkelaar
+TITLE: Motivatiebrief
+DATE: Voorbeeldstad, 31 oktober 2026
+TO: Voorbeeld Organisatie<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad
+SUBJECT: Sollicitatie als softwareontwikkelaar, een verzonnen vacature
+SUMMARY: Pim Vogel is een verzonnen softwareontwikkelaar. Deze brief hoort bij niemand en de vacature is verzonnen.
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 64
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Voorbeeldstad
+PHONE: +31 6 0000 0002
+EMAIL: pim@example.com
+BORN:
+@@@SKILLS
+POINT: TypeScript
+POINT: Python
+POINT: Tests en reviews
+@@@STRENGTHS
+POINT: Heldere reviews: Schrijft de opmerking één keer, zodat de volgende review korter is.
+POINT: Structuur: Zet een trage query in één zin die een teamgenoot kan testen.
+@@@PROJECTS
+POINT: Cataloguszoeken: Bleef onder een seconde nadat de verzameling een miljoen rijen telde.
+POINT: Reviewlijst: Bracht de herhaalde opmerkingen op pull requests terug.
+@@@PARAGRAPH
+Beste team,
+@@@SECTION
+HEADING: Eerst de vraag, dan de pagina
+BODY: Ik begin bij wat traag of onduidelijk was. Bij Voorbeeldcatalogus BV, een bedrijf dat alleen in deze brief bestaat, leverde ik een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.
+@@@SECTION
+HEADING: Reviews die een teamgenoot volgt
+BODY: Bij Voorbeeldbureau was de lijst voor een team dat nooit heeft bestaan. Eén opmerking, daarna minder herhaling.
+@@@LIST
+POINT: Een zoekresultaat dat een buitenstaander in één zin nagaat.
+POINT: Een reviewlijst van één bladzijde.
+POINT: Notities die na het opslaan nog kloppen.
+@@@JOB
+TITLE: Softwareontwikkelaar
+DATE: 2022 – 2024
+ORGANIZATION: Voorbeeldcatalogus BV
+POINT: Leverde een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.
+@@@JOB
+TITLE: Softwareontwikkelaar
+DATE: 2020 – 2022
+ORGANIZATION: Voorbeeldbureau
+POINT: Schreef een reviewlijst die de herhaalde opmerkingen op pull requests terugbracht.
+@@@STUDY
+TITLE: Informatica
+DATE: 2016 – 2020
+ORGANIZATION: Voorbeeld Hogeschool
+POINT: Een afstudeerproject over een zoekindex die het lokaal nooit verliet.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+Ik licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.
+SIGN: Pim Vogel
+@@@THEME
+SIDEBAR: #1e293b
+SIDEBARTEXT: #f8fafc
+ACCENT: #0284c7
+ACCENTLIGHT: #38bdf8
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END

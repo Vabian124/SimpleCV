@@ -1,0 +1,74 @@
+@@@LETTER
+NAME: Noor<br>El Amrani
+ROLE: Registered nurse
+TITLE: Motivation letter
+DATE: Example City, 31 October 2026
+TO: Example Ward<br>For the hiring team<br>Example Street 1<br>Example City
+SUBJECT: Application as a registered nurse, a made-up vacancy
+SUMMARY: Noor El Amrani is a made-up registered nurse. This letter belongs to nobody, the vacancy is invented, and it does not give clinical advice.
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 64
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Example City
+PHONE: +31 6 0000 0001
+EMAIL: noor@example.com
+BORN:
+LABEL: Registration
+VALUE: Example Nursing Board, number EX-0000
+@@@SKILLS
+POINT: Handover
+POINT: Shift notes
+POINT: Student supervision
+@@@STRENGTHS
+POINT: Night handover: Leaves a note the next shift can read in two minutes.
+POINT: Steady lists: Keeps wards and shifts in two short lists, not a slogan.
+@@@PROJECTS
+POINT: Medical admissions: 28 beds, including the night handover.
+POINT: Day clinic: Wound reviews, twice a week.
+@@@PARAGRAPH
+Dear hiring team,
+@@@SECTION
+HEADING: The ward, then the shift
+BODY: I put the registration on the first lines and the work under it. At Example Medical Ward, which exists only in this letter, the list was admissions, a night handover, and a day clinic twice a week.
+@@@SECTION
+HEADING: When the team is short
+BODY: On a made-up Sunday I was the charge nurse. The example is only here to show a shift line. It is not clinical advice.
+@@@LIST
+POINT: Admissions, beds and a night handover on one list.
+POINT: A day clinic twice a week.
+POINT: A Sunday charge when the team was short.
+@@@JOB
+TITLE: Registered nurse
+DATE: 2022 – 2024
+ORGANIZATION: Example Medical Ward
+POINT: Kept the ward list to admissions, beds and the night handover.
+@@@JOB
+TITLE: Charge nurse
+DATE: 2020 – 2022
+ORGANIZATION: Example Day Clinic
+POINT: Charge nurse on a Sunday, when the team was short.
+@@@STUDY
+TITLE: Nursing
+DATE: 2016 – 2020
+ORGANIZATION: Example University
+POINT: A classroom placement on a ward that exists only in this letter.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+I will gladly explain this made-up application in a meeting that also does not exist.
+SIGN: Noor El Amrani
+@@@THEME
+SIDEBAR: #14532d
+SIDEBARTEXT: #f0fdf4
+ACCENT: #047857
+ACCENTLIGHT: #6ee7b7
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END

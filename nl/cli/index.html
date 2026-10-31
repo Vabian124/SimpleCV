@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!-- CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ -->
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Een CV-PDF maken vanaf de opdrachtregel — LibreCV</title>
+    <meta name="description" content="Maak een PDF van een LibreCV-blok vanaf de opdrachtregel. De tekst is selecteerbaar. De PDF bevat document.json, zodat de editor hem opnieuw kan openen. Geen account.">
+    <link rel="canonical" href="https://librecv.org/nl/cli/">
+    <link rel="alternate" hreflang="en" href="https://librecv.org/cli/">
+    <link rel="alternate" hreflang="nl" href="https://librecv.org/nl/cli/">
+    <link rel="alternate" hreflang="x-default" href="https://librecv.org/cli/">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0f172a">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="LibreCV">
+    <meta property="og:title" content="Een CV-PDF maken vanaf de opdrachtregel — LibreCV">
+    <meta property="og:description" content="Een commando dat een PDF met selecteerbare tekst schrijft uit hetzelfde blok als de editor. Geen account. Er wordt niets geüpload.">
+    <meta property="og:url" content="https://librecv.org/nl/cli/">
+    <meta property="og:locale" content="nl_NL">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Een CV-PDF maken vanaf de opdrachtregel — LibreCV">
+    <meta name="twitter:description" content="Een commando dat een PDF met selecteerbare tekst schrijft uit hetzelfde blok als de editor. Geen account. Er wordt niets geüpload.">
+    <meta name="twitter:image" content="https://librecv.org/og.png">
+    <meta name="twitter:image:alt" content="LibreCV, een gratis editor voor een CV of motivatiebrief. Geen account.">
+    <meta property="og:image" content="https://librecv.org/og.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="LibreCV, een gratis editor voor een CV of motivatiebrief. Geen account.">
+    <link rel="icon" href="/favicon.ico" sizes="96x96" type="image/x-icon">
+    <link rel="icon" href="/favicon.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=20">
+</head>
+<body>
+    <main class="setup">
+        <article class="guide-page">
+            <p class="kicker">LibreCV. Geen account.</p>
+            <h1>Een CV-PDF maken vanaf de opdrachtregel</h1>
+            <p class="setup-lead">Het commando leest hetzelfde blok als de editor. Het schrijft een PDF waarin de tekst selecteerbaar is. Die PDF bevat document.json, zodat je hem opnieuw in de editor kunt openen. Er wordt niets geüpload.</p>
+            <pre class="marked"><code>node scripts/pdf.js catalog/verpleegkundige-cv.txt --lang nl -o cv.pdf</code></pre>
+            <h2>Wat je nodig hebt</h2>
+            <ol>
+                <li>Node.js, en deze repository op de computer.</li>
+                <li>Een blok met het documentteken aan het begin en het eindteken aan het eind. De bestanden in catalog/ zijn voorbeelden. De namen daarin zijn verzonnen.</li>
+                <li>Voer het commando uit in de map van de repository. -o zet de bestandsnaam. --lang nl zet de vaste koppen in het Nederlands.</li>
+            </ol>
+            <h2>Voorbeelden</h2>
+            <ul>
+                <li><code>node scripts/pdf.js softwareontwikkelaar-cv --lang nl -o cv.pdf</code></li>
+                <li><code>node scripts/pdf.js softwareontwikkelaar-letter --lang nl -o brief.pdf</code></li>
+                <li><code>node scripts/pdf.js verpleegkundige-cv --lang nl -o cv.pdf</code></li>
+                <li><code>node scripts/pdf.js verpleegkundige-letter --lang nl -o brief.pdf</code></li>
+            </ul>
+            <p>Een id uit die lijst is genoeg. Een pad naar je eigen tekstbestand werkt ook. De PDF van de opdrachtregel gebruikt een standaardlettertype. De download in de editor gebruikt het lettertype van de pagina. Beide bestanden kun je importeren.</p>
+            <p><a class="btn-primary" href="/nl/sjablonen/softwareontwikkelaar/">Open de voorbeelden</a></p>
+            <p>Deze LibreCV schrijft een CV of een motivatiebrief. Het is niet de LibreCV-vereniging voor computervisie, en niet de Python-bibliotheek SimpleCV.</p>
+            <nav class="guide-links" aria-label="Meer pagina's">
+                <a href="/cli/">English</a>
+                <a href="/templates/">Voorbeelden</a>
+                <a href="/nl/">Nederlands</a>
+                <a href="https://github.com/Vabian124/LibreCV">Broncode op GitHub</a>
+                <button type="button" class="quiet-link" data-feedback>Feedback</button>
+            </nav>
+        </article>
+    </main>
+    <script src="/feedback/open.js?v=2" defer></script>
+</body>
+</html>

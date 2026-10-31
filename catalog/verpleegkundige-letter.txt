@@ -1,0 +1,74 @@
+@@@LETTER
+NAME: Esmee<br>Hof
+ROLE: Verpleegkundige
+TITLE: Motivatiebrief
+DATE: Voorbeeldstad, 31 oktober 2026
+TO: Voorbeeldafdeling<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad
+SUBJECT: Sollicitatie als verpleegkundige, een verzonnen vacature
+SUMMARY: Esmee Hof is een verzonnen verpleegkundige. Deze brief hoort bij niemand, de vacature is verzonnen, en zij geeft geen zorgadvies.
+@@@PHOTO
+CAPTION:
+ASPECT: 3 / 4
+WIDTH: 64
+FILLED: yes
+URL:
+@@@CONTACT
+CITY: Voorbeeldstad
+PHONE: +31 6 0000 0003
+EMAIL: esmee@example.com
+BORN:
+LABEL: Registratie
+VALUE: Voorbeeldregister, nummer EX-0000
+@@@SKILLS
+POINT: Overdracht
+POINT: Dienstnotities
+POINT: Begeleiding
+@@@STRENGTHS
+POINT: Nachtelijke overdracht: Laat een notitie achter die de volgende dienst in twee minuten leest.
+POINT: Korte lijsten: Houdt afdelingen en diensten in twee korte lijsten, niet in een slogan.
+@@@PROJECTS
+POINT: Opnameafdeling: 28 bedden, inclusief de nachtelijke overdracht.
+POINT: Dagkliniek: Wondcontroles, twee keer per week.
+@@@PARAGRAPH
+Beste team,
+@@@SECTION
+HEADING: Eerst de afdeling, dan de dienst
+BODY: Ik zet de registratie op de eerste regels en het werk daaronder. Op Voorbeeldafdeling, die alleen in deze brief bestaat, stonden de opnames, een nachtelijke overdracht en een dagkliniek twee keer per week.
+@@@SECTION
+HEADING: Als het team krap is
+BODY: Op een verzonnen zondag was ik de eerste verpleegkundige. Het voorbeeld staat hier alleen om een dienstregel te tonen. Het is geen zorgadvies.
+@@@LIST
+POINT: Opnames, bedden en een nachtelijke overdracht op één lijst.
+POINT: Een dagkliniek twee keer per week.
+POINT: Een zondagdienst toen het team krap was.
+@@@JOB
+TITLE: Verpleegkundige
+DATE: 2022 – 2024
+ORGANIZATION: Voorbeeldafdeling
+POINT: Hield de afdelingslijst bij opnames, bedden en de nachtelijke overdracht.
+@@@JOB
+TITLE: Eerste verpleegkundige
+DATE: 2020 – 2022
+ORGANIZATION: Voorbeelddagkliniek
+POINT: Eerste verpleegkundige op een zondag, toen het team krap was.
+@@@STUDY
+TITLE: Verpleegkunde
+DATE: 2016 – 2020
+ORGANIZATION: Voorbeeld Hogeschool
+POINT: Een stage in de klas op een afdeling die alleen in deze brief bestaat.
+@@@SPACER
+SIZE: 12
+@@@CLOSING
+Ik licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.
+SIGN: Esmee Hof
+@@@THEME
+SIDEBAR: #14532d
+SIDEBARTEXT: #f0fdf4
+ACCENT: #047857
+ACCENTLIGHT: #6ee7b7
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: roboto
+@@@END
