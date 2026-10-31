@@ -11,7 +11,7 @@ const ALL_BLOCKS = [
 const I18N = {
     nl: {
         ui: {
-            title: "Blok-editor",
+            title: "LibreCV",
             download: "Download PDF",
             import: "Importeer PDF",
             fileName: "Bestandsnaam",
@@ -74,7 +74,7 @@ const I18N = {
             fontError: "Het lettertype lukte niet.",
             reset: "Reset",
             resetArmed: "Wis alles?",
-            toolName: "Blok-editor",
+            toolName: "LibreCV",
             pageOne: "1 pagina",
             pageMany: "{n} pagina's",
             pageBreak: "Pagina {n}",
@@ -218,7 +218,7 @@ const I18N = {
             copyModel: "Kopieer voor een ander model"
         },
         shell: {
-            kicker: "Lokaal. Geen account.",
+            kicker: "LibreCV. Geen account.",
             title: "Wat maken we vandaag?",
             cv: "CV",
             cvHint: "Een pagina met zijbalk, ervaring en vaardigheden.",
@@ -333,11 +333,18 @@ const I18N = {
             square: "Vierkant",
             wide: "Breed",
             fail: "Deze afbeelding lukte niet."
+        },
+        site: {
+            title: "LibreCV — gratis CV-editor, geen account",
+            skip: "Naar de editor",
+            lead: "LibreCV is een gratis editor voor een CV of een motivatiebrief. Geen account. Het document blijft op deze computer. De eigen code is publiek domein (CC0).",
+            how: "Een stap-voor-stap gids leidt je erdoor. Een AI-sjabloon blijft op dit apparaat, of je plakt een antwoord uit een model terug. Je ontwerpt een pagina, geen markdown-bestand.",
+            github: "Broncode op GitHub"
         }
     },
     en: {
         ui: {
-            title: "Block editor",
+            title: "LibreCV",
             download: "Download PDF",
             import: "Import PDF",
             fileName: "File name",
@@ -400,7 +407,7 @@ const I18N = {
             fontError: "The font failed to load.",
             reset: "Reset",
             resetArmed: "Clear everything?",
-            toolName: "Block editor",
+            toolName: "LibreCV",
             pageOne: "1 page",
             pageMany: "{n} pages",
             pageBreak: "Page {n}",
@@ -544,7 +551,7 @@ const I18N = {
             copyModel: "Copy for another model"
         },
         shell: {
-            kicker: "Local. No account.",
+            kicker: "LibreCV. No account.",
             title: "What are we making today?",
             cv: "CV",
             cvHint: "A page with a sidebar, experience and skills.",
@@ -659,11 +666,18 @@ const I18N = {
             square: "Square",
             wide: "Wide",
             fail: "This image did not work."
+        },
+        site: {
+            title: "LibreCV — free CV builder, no account",
+            skip: "Skip to the builder",
+            lead: "LibreCV is a free CV and motivation-letter builder. No account. The document stays on this computer. The project's own code is public domain (CC0).",
+            how: "A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.",
+            github: "Source code on GitHub"
         }
     }
 };
 
-let lang = "nl";
+let lang = "en";
 let doc = null;
 let selectedId = null;
 let addTarget = "main";
@@ -1170,13 +1184,14 @@ function syncFilenameFromPerson() {
 
 function refreshIdentity() {
     const title = document.getElementById("doc-title");
+    if (document.body.dataset.phase !== "studio") document.title = t("site.title");
     if (!doc) return;
     const kind = doc.kind === "letter" ? t("setup.letter") : t("setup.cv");
     const person = plainName().replace(/\s+/g, " ").trim();
     const named = person && person !== t("ph.name");
     const label = named ? kind + " · " + person : kind;
     if (title) title.textContent = label;
-    document.title = label + " — " + t("ui.title");
+    if (document.body.dataset.phase === "studio") document.title = label + " — " + t("ui.title");
 }
 
 function selectedBlock() {
@@ -4208,7 +4223,7 @@ async function buildPdfBytes() {
         const pdf = await PDFLib.PDFDocument.load(rendered);
         await pdf.attach(new TextEncoder().encode(JSON.stringify(doc)), "document.json", {
             mimeType: "application/json",
-            description: "Block editor document",
+            description: "LibreCV document",
             creationDate: new Date(),
             modificationDate: new Date()
         });
@@ -4342,7 +4357,12 @@ async function importPdfBytes(bytes) {
 }
 
 function savedLang() {
-    try { return localStorage.getItem(STORAGE_LANG) === "en" ? "en" : "nl"; } catch (error) { return "nl"; }
+    try {
+        const stored = localStorage.getItem(STORAGE_LANG);
+        if (stored === "nl") return "nl";
+        if (stored === "en") return "en";
+    } catch (error) { /* keep the English default */ }
+    return "en";
 }
 
 function hexChannels(hex) {
@@ -4949,12 +4969,25 @@ function generateDocument() {
     toggleDrawer(false);
 }
 
+function placeSiteFoot(phase) {
+    const foot = document.getElementById("site-foot");
+    const setup = document.getElementById("view-setup");
+    if (!foot || !setup) return;
+    if (phase === "studio") document.body.appendChild(foot);
+    else setup.appendChild(foot);
+}
+
 function setPhase(phase) {
     document.body.dataset.phase = phase;
     const setup = document.getElementById("view-setup");
     const studio = document.getElementById("studio");
     if (setup) setup.hidden = phase !== "setup";
-    if (studio) studio.hidden = phase !== "studio";
+    placeSiteFoot(phase);
+    if (studio) {
+        studio.hidden = phase !== "studio";
+        if (phase === "studio") studio.setAttribute("role", "main");
+        else studio.removeAttribute("role");
+    }
     const stage = document.getElementById("stage");
     const home = document.getElementById("studio-stage");
     if (stage && home && stage.parentElement !== home) home.appendChild(stage);
@@ -4964,6 +4997,7 @@ function setPhase(phase) {
         if (bar) bar.hidden = true;
     }
     if (phase === "setup") showSetupStep(setupState.step || 1);
+    refreshIdentity();
     bindSortables();
     requestAnimationFrame(function () {
         if (phase === "studio" && !zoomTouched) fitStage();

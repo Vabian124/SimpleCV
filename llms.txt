@@ -1,0 +1,25 @@
+# LibreCV
+
+> LibreCV is a free CV and motivation-letter builder at https://librecv.org/. There is no account. The document stays in the browser. The project's own code is CC0-1.0, as close to the public domain as the law here allows.
+
+LibreCV is a visual editor. You design a page with blocks. It is not a markdown file, and it does not ask you to create an account.
+
+## What it does
+
+- [Open LibreCV](https://librecv.org/): build a CV or a motivation letter in the browser
+- A step-by-step guide, a blank page, pasted text, demo data, or an AI template
+- The AI template is copied on this device. The text is not sent to a LibreCV server
+- Download a PDF whose text can be selected. That PDF can be opened in the editor again
+- The interface is in English and Dutch
+
+## What it does not do
+
+- No account, no login, and no upload of the document to LibreCV
+- It does not add a watermark
+- It does not claim a search ranking
+- The libraries keep their own licenses. See NOTICE in the repository
+
+## Code
+
+- [Source code](https://github.com/Vabian124/SimpleCV): public repository, branch master
+- License: https://creativecommons.org/publicdomain/zero/1.0/
