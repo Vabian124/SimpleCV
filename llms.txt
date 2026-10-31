@@ -17,10 +17,11 @@ LibreCV is a visual editor. You design a page with blocks. It is not a markdown 
 - [Motivation letter](https://librecv.org/motivation-letter/) and [Motivatiebrief](https://librecv.org/nl/motivatiebrief/)
 - [CV examples](https://librecv.org/templates/), including a software engineer layout and a nursing layout
 - The names on the example pages are invented
+- Feedback is optional. Private notes: https://librecv.org/feedback/ . Instructions for an assistant: https://librecv.org/feedback.txt . A public GitHub issue uses https://github.com/Vabian124/SimpleCV/issues/new?template=feedback.yml and must not include a CV or letter
 
 ## What it does not do
 
-- No account, no login, and no upload of the document to LibreCV
+- No account and no login. The document is not uploaded. A feedback note includes the text only when that box is ticked
 - It does not add a watermark
 - It does not claim a search ranking
 - The libraries keep their own licenses. See NOTICE in the repository

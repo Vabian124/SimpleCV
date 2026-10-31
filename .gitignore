@@ -10,6 +10,7 @@
 !templates/index.html
 !templates/software-engineer/index.html
 !templates/nursing/index.html
+!feedback/index.html
 Thumbs.db
 .DS_Store
 node_modules/

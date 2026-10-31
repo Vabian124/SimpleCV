@@ -23,6 +23,18 @@ module.exports = [
         }
     },
     {
+        files: ["feedback/**/*.js"],
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: "script",
+            globals: globals.browser
+        },
+        rules: {
+            "no-empty": ["error", { allowEmptyCatch: true }],
+            "no-unused-vars": ["error", { caughtErrors: "none" }]
+        }
+    },
+    {
         files: ["scripts/**/*.js"],
         languageOptions: {
             ecmaVersion: 2022,

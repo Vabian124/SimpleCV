@@ -122,6 +122,7 @@ const I18N_NL = {
         zoom: "Zoom",
         fit: "Passend",
         more: "Meer",
+        feedback: "Feedback",
         ai: "Gebruik je eigen AI",
         langHint: "NL/EN wisselt de knoppen, de vaste koppen en de spelling. Tekst die je zelf schreef blijft staan.",
         language: "Taal",
@@ -389,12 +390,13 @@ const I18N_NL = {
         lead: "LibreCV is een gratis editor voor een CV of een motivatiebrief. Geen account. Het document blijft op deze computer. De eigen code is publiek domein (CC0).",
         how: "Een stap-voor-stap gids leidt je erdoor. Een AI-sjabloon blijft op dit apparaat, of je plakt een antwoord uit een model terug. Je ontwerpt een pagina, geen markdown-bestand.",
         github: "Broncode op GitHub",
+        feedback: "Feedback",
         seoNote: "Alleen voor zoekmachines.",
         faqTitle: "Vragen",
         qPrice: "Kost LibreCV iets?",
         aPrice: "Nee. Er is geen account en geen betaling bij de PDF. De prijs is nul.",
         qUpload: "Wordt het document geüpload?",
-        aUpload: "Nee. De CV of brief blijft in deze browser. LibreCV heeft geen account en ontvangt het bestand niet.",
+        aUpload: "Nee. De CV of brief blijft in deze browser. LibreCV heeft geen account. De tekst zit alleen in een feedbacknotitie als je dat zelf aanvinkt.",
         qDutch: "Kan ik een Nederlandse motivatiebrief schrijven?",
         aDutch: "Ja. De brief en de CV zijn twee documenten. Open de Nederlandse pagina, of zet deze site op NL. NL verandert de knoppen en de vaste koppen. Tekst die je al typte blijft staan.",
         qPdf: "Is de tekst in de PDF selecteerbaar?",
@@ -482,6 +484,7 @@ const I18N_EN = {
         zoom: "Zoom",
         fit: "Fit",
         more: "More",
+        feedback: "Feedback",
         ai: "Use your own AI",
         langHint: "NL/EN switches the buttons, the fixed headings and the spellcheck. Text you wrote stays as it is.",
         language: "Language",
@@ -749,12 +752,13 @@ const I18N_EN = {
         lead: "LibreCV is a free CV and motivation-letter builder. No account. The document stays on this computer. The project's own code is public domain (CC0).",
         how: "A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.",
         github: "Source code on GitHub",
+        feedback: "Feedback",
         seoNote: "Only here for search engines.",
         faqTitle: "Questions",
         qPrice: "Does LibreCV cost anything?",
         aPrice: "No. There is no account and no charge when you download the PDF. The price is zero.",
         qUpload: "Is the document uploaded?",
-        aUpload: "No. The CV or letter stays in this browser. LibreCV has no account and does not receive the file.",
+        aUpload: "No. The CV or letter stays in this browser. LibreCV has no account. The text is included in a feedback note only if you tick that box.",
         qDutch: "Can I write a Dutch motivation letter?",
         aDutch: "Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.",
         qPdf: "Can the PDF text be selected?",
@@ -4691,7 +4695,8 @@ function mountTools() {
     const summary = document.createElement("summary");
     summary.className = "btn";
     summary.dataset.i18n = "ui.more";
-    more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn]));
+    const feedbackBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.feedback", "data-feedback": "" }));
+    more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn, feedbackBtn]));
     const ai = document.createElement("details");
     ai.className = "ai-menu";
     const aiSummary = document.createElement("summary");

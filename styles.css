@@ -289,6 +289,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .more-panel .btn,
 .more-panel .btn-primary { width: 100%; text-align: left; }
 
+.more-panel [data-feedback] { margin-top: 4px; }
+
 .topbar .spacer { flex: 1; }
 
 .studio-body { flex: 1; min-height: 0; display: flex; }
@@ -1687,4 +1689,144 @@ body.pdf-exporting .site-foot { display: none; }
 @media (max-width: 720px) {
     .sample-split, .sample-cols { grid-template-columns: 1fr; }
     .sample p { overflow-wrap: anywhere; }
+}
+
+button.quiet-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.guide-links button.quiet-link { color: #0f172a; font-weight: 600; }
+
+.site-foot button.quiet-link { margin-left: 14px; }
+
+.feedback-dialog {
+    position: fixed;
+    z-index: 80;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.46);
+}
+
+.feedback-card,
+.desk-card {
+    position: relative;
+    width: min(440px, 100%);
+    max-height: calc(100vh - 48px);
+    overflow: auto;
+    padding: 20px;
+    border-radius: 20px;
+    background: #fff;
+    color: #18181b;
+}
+
+.desk-card { width: 100%; max-height: none; margin-top: 12px; }
+
+.feedback-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+
+.feedback-kicker {
+    margin: 0 0 4px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.feedback-card h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+
+.feedback-lead { margin: 8px 0 14px; color: #334155; font-size: 14px; font-weight: 400; }
+
+.feedback-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.feedback-field input,
+.feedback-field select,
+.feedback-field textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #fff;
+    color: #0f172a;
+    font-weight: 400;
+}
+
+.feedback-field textarea { min-height: 120px; resize: vertical; }
+
+.feedback-checks { display: flex; flex-direction: column; gap: 6px; margin: 0 0 8px; font-size: 13px; }
+
+.feedback-checks label {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-weight: 400;
+}
+
+.feedback-checks input { margin: 2px 0 0; accent-color: #0f172a; }
+
+.feedback-checks label.is-off { color: #64748b; }
+
+.feedback-hint { margin: 0 0 14px; color: #64748b; font-size: 12px; }
+
+.feedback-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.feedback-actions .quiet-link { margin-left: auto; }
+
+.feedback-status { min-height: 1.2em; margin: 10px 0 0; font-size: 13px; }
+
+.feedback-status.is-bad { color: #9f1239; }
+
+.feedback-status.is-good { color: #166534; }
+
+.feedback-trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.desk {
+    width: min(960px, calc(100% - 32px));
+    margin: 28px auto 48px;
+}
+
+.desk h1 { margin: 0 0 8px; font-size: 28px; }
+
+.desk-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 0 0 16px; }
+
+.desk a:not(.btn) { color: #0f172a; }
+
+.desk a.btn { text-decoration: none; }
+
+.desk-list { overflow: auto; background: #fff; border-radius: 16px; }
+
+.desk th,
+.desk td {
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.desk pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font: inherit; }
+
+@media (max-width: 520px) {
+    .feedback-actions .quiet-link { margin-left: 0; }
 }

@@ -221,7 +221,8 @@ function mountTools() {
     const summary = document.createElement("summary");
     summary.className = "btn";
     summary.dataset.i18n = "ui.more";
-    more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn]));
+    const feedbackBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.feedback", "data-feedback": "" }));
+    more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn, feedbackBtn]));
     const ai = document.createElement("details");
     ai.className = "ai-menu";
     const aiSummary = document.createElement("summary");

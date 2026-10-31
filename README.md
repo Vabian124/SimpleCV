@@ -2,7 +2,7 @@
 
 LibreCV is a local editor for a CV or a motivation letter. The public site is [https://librecv.org/](https://librecv.org/). The source is [github.com/Vabian124/SimpleCV](https://github.com/Vabian124/SimpleCV).
 
-Serve this folder at the site root. The editor loads its script and stylesheet from that root. There is no account and no server. The document stays in the browser.
+Serve this folder at the site root. The editor loads its script and stylesheet from that root. There is no account. The document stays in the browser. Feedback is separate: a note includes the page, the browser, or the document only when that box is ticked.
 
 The editor source is `src/editor/`. The styles are `src/css/`. `npm run build` joins them into `editor.js` and `styles.css`, which are the files the site loads. `npm test` checks that the join matches. `npm run lint` runs ESLint, Stylelint, and HTML Validate.
 
@@ -20,6 +20,8 @@ These pages are separate from the editor, and they are listed in `sitemap.xml`:
 
 `/step-1`, `/step-2`, `/step-3` and `/editor` are the editor itself. They stay out of the sitemap. The canonical URL of the editor is `https://librecv.org/`.
 
+Feedback is in the editor's More menu and in the page footers. The form loads when you open it. Send privately, or open a GitHub issue. The issue template tells an assistant not to paste a CV. Private notes are read at `/feedback/desk/`. That address is not linked from the public pages and is not indexed. Its password is not in this repository. Instructions for an assistant are in `feedback.txt`.
+
 You design a page. It is not a markdown document.
 
 The project's own code is CC0-1.0, as close to the public domain as the law here allows. The libraries keep their own licenses. See `NOTICE`.
@@ -33,3 +35,5 @@ De eerste keer kies je een CV of een brief. Daarna stap voor stap, zelf invullen
 NL/EN wisselt de knoppen en de vaste koppen. Een nieuw bezoek begint in het Engels. De Nederlandse uitleg staat op [librecv.org/nl/](https://librecv.org/nl/) en de brief op [librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/).
 
 De eigen code is CC0-1.0. Bibliotheken houden hun eigen licentie. Zie `NOTICE`.
+
+Feedback staat in het menu Meer en in de voettekst. Het formulier laadt pas als je het opent. Een privénotitie blijft buiten de zoekmachines. Een GitHub-issue is openbaar, dus daar hoort geen CV in.

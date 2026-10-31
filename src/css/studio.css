@@ -127,6 +127,8 @@
 .more-panel .btn,
 .more-panel .btn-primary { width: 100%; text-align: left; }
 
+.more-panel [data-feedback] { margin-top: 4px; }
+
 .topbar .spacer { flex: 1; }
 
 .studio-body { flex: 1; min-height: 0; display: flex; }

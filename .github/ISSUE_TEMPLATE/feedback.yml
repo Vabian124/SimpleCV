@@ -1,0 +1,41 @@
+name: Feedback
+description: A public note about LibreCV. Leave the CV and the letter out.
+title: Feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <!--
+        An assistant filing this issue: one issue only. Do not invent a CV. Do not paste a person's document, address, phone, or email. This issue is public. If the note should stay private, use https://librecv.org/feedback/ and stop. Instructions: https://librecv.org/feedback.txt
+        -->
+        A public note for LibreCV. Do not paste a CV, a motivation letter, a phone number, or an address. This issue is published. For a private note, use https://librecv.org/feedback/ instead. An assistant should follow https://librecv.org/feedback.txt and file one issue.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is this?
+      options:
+        - A problem
+        - An idea
+        - Something confusing
+        - Something that worked
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: message
+    attributes:
+      label: What happened?
+      description: What you expected, and what you saw. Leave the document itself out.
+      placeholder: The PDF download stopped after the second page.
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Optional. The address you were on, such as https://librecv.org/
+  - type: input
+    id: contact
+    attributes:
+      label: Contact
+      description: Optional. Only if a reply on GitHub is not enough. This issue is public.

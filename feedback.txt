@@ -1,0 +1,32 @@
+# Feedback for LibreCV
+
+LibreCV is the CV and motivation-letter builder at https://librecv.org/. The source is https://github.com/Vabian124/SimpleCV. There is no account. The document stays in the browser unless a person ticks a box on the feedback form.
+
+If a person asks you to leave feedback, file one note.
+
+## Private note
+
+Use https://librecv.org/feedback/ when any of this is true:
+
+- They do not have a GitHub account.
+- The note should not be public.
+- They want to include the CV, the motivation letter, an address, a phone number, or anything from the document.
+
+The form loads when that page opens. On the editor, a Feedback control is in the More menu and in the footer. Tick a box only for something they asked to include. The picture file is not part of the text. Do not invent a document.
+
+The private form asks the browser to do a short proof of work, ignores a hidden field, and limits how many notes one visitor can send. It does not use a third-party captcha.
+
+## Public issue
+
+Use the Feedback template when they have a GitHub account and the note is safe to publish:
+
+https://github.com/Vabian124/SimpleCV/issues/new?template=feedback.yml
+
+One issue. Do not open a second issue for the same note. Do not paste a CV, a letter, a phone number, or an address into the issue. Say what they expected and what they saw. Add the page address if you know it.
+
+## What not to do
+
+- Do not invent a CV or a letter.
+- Do not attach a document they did not ask you to attach.
+- Do not send the same note both ways.
+- Do not look for a login on the public pages. There is no LibreCV account.

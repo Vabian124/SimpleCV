@@ -21,6 +21,7 @@ if (builtCss() !== css) fail("styles.css does not match src/css. Run npm run bui
 const pages = [
     ["index.html", "https://librecv.org/"],
     ["404.html", null],
+    ["feedback/index.html", "https://librecv.org/feedback/"],
     ["nl/index.html", "https://librecv.org/nl/"],
     ["nl/motivatiebrief/index.html", "https://librecv.org/nl/motivatiebrief/"],
     ["motivation-letter/index.html", "https://librecv.org/motivation-letter/"],
@@ -37,6 +38,10 @@ pages.forEach(function (page) {
     const style = html.match(/href="(\/styles\.css\?v=\d+)"/);
     if (!style) fail(page[0] + " does not load /styles.css?v=");
     styleQueries.push(style[1]);
+    if (html.indexOf("data-feedback") === -1) fail(page[0] + " has no feedback control");
+    if (html.indexOf('src="/feedback/open.js?v=1"') === -1) fail(page[0] + " does not load the feedback opener");
+    if (html.indexOf("form.js") !== -1) fail(page[0] + " loads the feedback form up front");
+    if (html.indexOf("/feedback/desk") !== -1) fail(page[0] + " links the inbox");
     if (page[0] === "404.html") {
         if (html.indexOf('name="robots" content="noindex"') === -1) fail("404.html must stay noindex");
         if (html.indexOf('rel="canonical"') !== -1) fail("404.html must not canonicalize itself to the homepage");
@@ -136,5 +141,36 @@ if (marked.blankEntry({ title: "Prime Minister", date: "", org: "", items: [] })
         fail(file + " fills an empty letter title");
     }
 });
+
+if (editor.indexOf("data-feedback") === -1) fail("the editor has no feedback control");
+
+const opener = fs.readFileSync(path.join(root, "feedback", "open.js"), "utf8");
+if (opener.indexOf('"/feedback/form.js?v=1"') === -1) fail("the feedback form is not loaded on click");
+const form = fs.readFileSync(path.join(root, "feedback", "form.js"), "utf8");
+if (form.indexOf("https://github.com/Vabian124/SimpleCV/issues/new?") === -1) fail("the GitHub issue link is missing");
+if (/ghp_|github_pat_|SPACESHIP_API/.test(form)) fail("the feedback form contains a token");
+["feedback/lib.php", "feedback/submit.php", "feedback/challenge.php", "feedback/desk/index.php"].forEach(function (file) {
+    const source = fs.readFileSync(path.join(root, file), "utf8");
+    if (/\$2y\$|\$2a\$|\$argon2/.test(source)) fail(file + " contains a password hash");
+});
+const desk = fs.readFileSync(path.join(root, "feedback", "desk", "index.php"), "utf8");
+if (desk.indexOf(styleQueries[0]) === -1) fail("the inbox stylesheet cache query does not match");
+if (desk.indexOf("noindex") === -1) fail("the inbox must be noindex");
+const feedbackPage = fs.readFileSync(path.join(root, "feedback", "index.html"), "utf8");
+if (feedbackPage.indexOf("noindex") === -1) fail("the feedback page must be noindex");
+const robots = fs.readFileSync(path.join(root, "robots.txt"), "utf8");
+robots.split("User-agent:").slice(1).forEach(function (block) {
+    if (block.indexOf("Disallow: /feedback/") === -1) fail("a robots group does not hide /feedback/");
+});
+if (fs.readFileSync(path.join(root, "sitemap.xml"), "utf8").indexOf("feedback") !== -1) fail("sitemap lists feedback");
+const template = fs.readFileSync(path.join(root, ".github", "ISSUE_TEMPLATE", "feedback.yml"), "utf8");
+if (template.indexOf("https://librecv.org/feedback/") === -1 || template.indexOf("Do not paste a CV") === -1) {
+    fail("the GitHub feedback template does not steer an assistant");
+}
+const steering = fs.readFileSync(path.join(root, "feedback.txt"), "utf8");
+if (steering.indexOf("Do not invent a CV") === -1) fail("feedback.txt does not tell an assistant to leave the document out");
+const guide = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
+if (guide.indexOf("/feedback/desk") !== -1) fail("llms.txt points at the inbox");
+if (guide.indexOf("https://librecv.org/feedback.txt") === -1) fail("llms.txt does not point at the feedback instructions");
 
 console.log("ok");

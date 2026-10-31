@@ -1,43 +1,57 @@
 User-agent: *
 Allow: /
+Disallow: /feedback/
 
 User-agent: Googlebot
 Allow: /
+Disallow: /feedback/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /feedback/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /feedback/
 
 User-agent: DuckDuckBot
 Allow: /
+Disallow: /feedback/
 
 User-agent: Applebot
 Allow: /
+Disallow: /feedback/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /feedback/
 
 User-agent: GPTBot
 Allow: /
+Disallow: /feedback/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /feedback/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /feedback/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /feedback/
 
 User-agent: Claude-SearchBot
 Allow: /
+Disallow: /feedback/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /feedback/
 
 # The builder, the Dutch page, and the examples are the site.
+# /feedback/ is the note form and its inbox. It is not a page to index.
 # There is no separate preview or print URL to withhold.
 
 Sitemap: https://librecv.org/sitemap.xml

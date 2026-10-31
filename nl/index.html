@@ -24,7 +24,7 @@
     <meta property="og:image:alt" content="LibreCV, een gratis editor voor een CV of motivatiebrief. Geen account.">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles.css?v=16">
+    <link rel="stylesheet" href="/styles.css?v=17">
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -69,7 +69,7 @@
             <h3>Kost LibreCV iets?</h3>
             <p>Nee. Er is geen account en geen betaling bij de PDF. De prijs is nul.</p>
             <h3>Blijft mijn brief op deze computer?</h3>
-            <p>Ja. LibreCV uploadt het document niet. Er is geen account.</p>
+            <p>Ja. LibreCV uploadt het document niet, en er is geen account. De tekst gaat alleen mee met feedback als je dat zelf aanvinkt.</p>
             <h3>Kan ik de tekst in de PDF selecteren?</h3>
             <p>Ja. De PDF bevat echte tekst. Dezelfde PDF kun je later weer openen in de editor.</p>
             <nav class="guide-links" aria-label="Meer pagina's">
@@ -77,8 +77,10 @@
                 <a href="/nl/motivatiebrief/">Motivatiebrief</a>
                 <a href="/templates/">Voorbeelden</a>
                 <a href="https://github.com/Vabian124/SimpleCV">Broncode op GitHub</a>
+                <button type="button" class="quiet-link" data-feedback>Feedback</button>
             </nav>
         </article>
     </main>
+    <script src="/feedback/open.js?v=1" defer></script>
 </body>
 </html>
