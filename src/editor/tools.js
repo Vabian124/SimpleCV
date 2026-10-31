@@ -272,6 +272,7 @@ function mountTools() {
         h("input", { id: "block-bg", type: "color", i18nTitle: "ui.blockBg" }),
         h("input", { id: "block-size", type: "range", min: "8", max: "28", step: "0.5" }),
         h("span", { id: "block-size-value", class: "size-readout" }),
+        h("input", { id: "photo-url", class: "photo-url", type: "text", hidden: "hidden", autocomplete: "off", spellcheck: "false", "data-i18n-placeholder": "photo.url" }),
         addLineBtn,
         duplicateBtn,
         deleteBtn,
@@ -380,6 +381,29 @@ function mountTools() {
         save();
     });
     blockBg.addEventListener("change", function () { blockBgSnapped = false; });
+
+    const photoUrl = document.getElementById("photo-url");
+    function usePhotoUrl() {
+        const item = selectedBlock();
+        if (!item || item.type !== "photo") return;
+        const next = photoUrl.value.trim();
+        if (!next) {
+            if (item.fields.url) {
+                snapshot();
+                item.fields.url = "";
+                save();
+            }
+            return;
+        }
+        if (next === (item.fields.url || "")) return;
+        importPhotoAddress(item, next);
+    }
+    photoUrl.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        usePhotoUrl();
+    });
+    photoUrl.addEventListener("change", usePhotoUrl);
 
     const blockSize = document.getElementById("block-size");
     blockSize.addEventListener("pointerdown", function () { photoWidthSnapped = false; });

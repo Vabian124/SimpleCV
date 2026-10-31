@@ -21,8 +21,74 @@ function nameToHtml(value) {
 }
 
 function fieldValue(text, key) {
-    const match = String(text || "").match(new RegExp("^" + key + ":\\s*(.*)$", "im"));
+    const match = String(text || "").match(new RegExp("^" + key + ":[^\\S\\n]*(.*)$", "im"));
     return match ? match[1].trim() : "";
+}
+
+function photoAspect(value) {
+    const text = String(value || "").toLowerCase().replace(/\s+/g, "");
+    if (text === "1/1") return "1 / 1";
+    if (text === "4/3") return "4 / 3";
+    return "3 / 4";
+}
+
+function photoAddress(value) {
+    const text = String(value || "").trim();
+    if (/^https:\/\//i.test(text)) return text;
+    if (/^data:image\/[a-z0-9.+-]+;base64,/i.test(text) && text.length <= 8000000) return text;
+    return "";
+}
+
+function readPhotoFields(rest) {
+    const width = Number(fieldValue(rest, "WIDTH"));
+    const filled = /^(yes|ja|true|1)$/i.test(fieldValue(rest, "FILLED"));
+    const url = photoAddress(fieldValue(rest, "URL"));
+    const fields = {
+        src: "",
+        original: "",
+        caption: textToHtml(fieldValue(rest, "CAPTION")),
+        aspect: photoAspect(fieldValue(rest, "ASPECT")),
+        url: /^data:image\//i.test(url) ? "" : url
+    };
+    if (width >= 36 && width <= 100) fields.width = Math.round(width);
+    if (filled) fields.src = typeof placeholderPhoto === "function" ? placeholderPhoto() : "";
+    if (/^data:image\//i.test(url)) fields.pending = url;
+    return fields;
+}
+
+function placePhoto(next, rest) {
+    const fields = readPhotoFields(rest);
+    const item = block("photo", fields);
+    if (fieldValue(rest, "COLUMN").toLowerCase() === "main") {
+        next.main.push(item);
+        return item;
+    }
+    const hasSidebarPhoto = next.sidebar.some(function (entry) { return entry.type === "photo"; });
+    if (hasSidebarPhoto) {
+        next.sidebar.push(item);
+        return item;
+    }
+    const roleAt = next.sidebar.findIndex(function (entry) { return entry.type === "role"; });
+    if (roleAt >= 0) {
+        next.sidebar.splice(roleAt, 0, item);
+        return item;
+    }
+    const nameAt = next.sidebar.findIndex(function (entry) { return entry.type === "name"; });
+    if (nameAt >= 0) next.sidebar.splice(nameAt + 1, 0, item);
+    else next.sidebar.unshift(item);
+    return item;
+}
+
+function photoMarkedLines(item) {
+    const fields = item.fields || {};
+    const lines = ["@@@PHOTO", "CAPTION: " + markedText(fields.caption || "")];
+    lines.push("ASPECT: " + (fields.aspect || "3 / 4"));
+    const width = typeof photoWidth === "function" ? photoWidth(item) : (Number(fields.width) || 92);
+    lines.push("WIDTH: " + width);
+    if (fields.src) lines.push("FILLED: yes");
+    if (/^https:\/\//i.test(String(fields.url || ""))) lines.push("URL: " + String(fields.url).trim());
+    if (typeof columnOf === "function" && columnOf(item.id) === "main") lines.push("COLUMN: main");
+    return lines;
 }
 
 function pointBody(line) {
@@ -83,6 +149,28 @@ function exportMarked() {
         }
         lines.push("SUMMARY: " + (intro ? markedText(intro.fields.html).replace(/\n/g, " ") : ""));
     }
+    const sidePhotos = [];
+    let leadPhoto = null;
+    doc.sidebar.forEach(function (item, index) {
+        if (item.type !== "photo") return;
+        if (!leadPhoto) leadPhoto = item;
+        else sidePhotos.push({ item: item, index: index });
+    });
+    let photoAt = 0;
+    function flushSidebarPhotos(before) {
+        while (photoAt < sidePhotos.length && sidePhotos[photoAt].index < before) {
+            photoMarkedLines(sidePhotos[photoAt].item).forEach(function (line) { lines.push(line); });
+            photoAt += 1;
+        }
+    }
+    function sidebarSection(headingKey, type) {
+        const index = doc.sidebar.findIndex(function (item) {
+            if (headingKey && item.type === "heading" && item.fields.key === headingKey) return true;
+            return item.type === type;
+        });
+        return index < 0 ? doc.sidebar.length + 1 : index;
+    }
+    if (leadPhoto) photoMarkedLines(leadPhoto).forEach(function (line) { lines.push(line); });
     lines.push("@@@CONTACT");
     ["city", "phone", "email", "born"].forEach(function (key) {
         const row = doc.sidebar.concat(doc.main).find(function (item) {
@@ -96,18 +184,22 @@ function exportMarked() {
             lines.push("VALUE: " + markedText(item.fields.html));
         }
     });
+    flushSidebarPhotos(sidebarSection("doc.skills", "skill"));
     lines.push("@@@SKILLS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
         if (item.type === "skill") lines.push("POINT: " + markedText(item.fields.html));
     });
+    flushSidebarPhotos(sidebarSection("doc.strengths", "competence"));
     lines.push("@@@STRENGTHS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
         if (item.type === "competence") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
+    flushSidebarPhotos(sidebarSection("doc.projects", "project"));
     lines.push("@@@PROJECTS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
         if (item.type === "project") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
+    flushSidebarPhotos(doc.sidebar.length);
     if (doc.kind !== "letter") {
         lines.push("@@@PROFILE");
         lines.push(intro ? markedText(intro.fields.html) : "");
@@ -150,12 +242,9 @@ function exportMarked() {
         } else if (item.type === "spacer") {
             lines.push("@@@SPACER");
             lines.push("SIZE: " + (Number(item.fields.size) || 12));
+        } else if (item.type === "photo") {
+            photoMarkedLines(item).forEach(function (line) { lines.push(line); });
         }
-    });
-    doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type !== "photo") return;
-        lines.push("@@@PHOTO");
-        lines.push("CAPTION: " + markedText(item.fields.caption || ""));
     });
     if (closing || sign) {
         lines.push("@@@CLOSING");
@@ -195,10 +284,13 @@ function parseMarked(raw) {
     const letterAt = markerIndex(source, "LETTER", false);
     const start = cvAt >= 0 && (letterAt < 0 || cvAt < letterAt) ? cvAt : letterAt;
     if (start < 0 || end < start) throw new Error(t("ui.parseError"));
+    photoLoads = [];
     const kind = /^@@@LETTER(?![A-Za-z])/.test(source.slice(start)) ? "letter" : "cv";
     const chunks = source.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
     return { kind: kind, chunks: chunks };
 }
+
+let photoLoads = [];
 
 function pushTimeline(target, item) {
     target.push(block("timeline", {
@@ -395,12 +487,11 @@ function applyMarked(raw) {
             next.main.push(block("spacer", { size: Math.max(4, Math.min(48, size)) }));
             useful = true;
         } else if (head === "PHOTO") {
-            next.sidebar.push(block("photo", {
-                src: "",
-                original: "",
-                caption: textToHtml(fieldValue(rest, "CAPTION")),
-                aspect: "3 / 4"
-            }));
+            const item = placePhoto(next, rest);
+            if (item.fields.pending) {
+                photoLoads.push([item, item.fields.pending]);
+                delete item.fields.pending;
+            }
             useful = true;
         }
         applyChunkPaint(next, sideBefore, mainBefore, rest);
@@ -418,4 +509,8 @@ function applyMarked(raw) {
     applyLanguage();
     render();
     save();
+    photoLoads.forEach(function (pair) { importPhotoAddress(pair[0], pair[1]); });
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type === "photo" && /^https:\/\//i.test(item.fields.url || "")) importPhotoAddress(item, item.fields.url);
+    });
 }

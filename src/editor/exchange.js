@@ -55,7 +55,7 @@ function markCatalog() {
         { types: ["closing"], key: "closing", shape: "@@@CLOSING\nSIGN: " },
         { types: ["signature"], key: "signature", shape: "SIGN: " },
         { types: ["spacer"], key: "spacer", shape: "@@@SPACER\nSIZE: 12" },
-        { types: ["photo"], key: "photo", shape: "@@@PHOTO\nCAPTION: " }
+        { types: ["photo"], key: "photo", shape: "@@@PHOTO\nCAPTION: \nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL: " }
     ];
 }
 
@@ -115,6 +115,7 @@ function blankMarked() {
     const lines = [letter ? "@@@LETTER" : "@@@CV", "NAME: ", "ROLE: "];
     if (letter) lines.push("TITLE: ", "DATE: ", "TO: ", "SUBJECT: ", "SUMMARY: ");
     lines.push(
+        "@@@PHOTO", "CAPTION: ", "ASPECT: 3 / 4", "WIDTH: " + (letter ? "64" : "92"), "FILLED: yes", "URL: ",
         "@@@CONTACT", "CITY: ", "PHONE: ", "EMAIL: ", "BORN: ",
         "@@@SKILLS", "POINT: ",
         "@@@STRENGTHS", "POINT: ",
@@ -129,7 +130,7 @@ function blankMarked() {
         "@@@LIST", "POINT: "
     );
     if (!letter) lines.push("@@@LETTERHEAD", "TITLE: ", "DATE: ", "TO: ", "SUBJECT: ");
-    lines.push("@@@PHOTO", "CAPTION: ", "@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
+    lines.push("@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
     return lines.join("\n");
 }
 

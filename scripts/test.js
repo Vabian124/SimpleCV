@@ -87,8 +87,11 @@ vm.runInContext(
 const marked = { t: function () { return "parse"; } };
 vm.createContext(marked);
 vm.runInContext(
+    "function placeholderPhoto() { return 'placeholder'; }\n" +
+    "function escapeHtml(value) { return String(value); }\n" +
+    "function block(type, fields) { return { id: 'x', type: type, fields: fields }; }\n" +
     fs.readFileSync(path.join(root, "src", "editor", "marked.js"), "utf8") +
-    "\nthis.stripCodeFence = stripCodeFence;\nthis.parseMarked = parseMarked;\nthis.pointBody = pointBody;\n",
+    "\nthis.stripCodeFence = stripCodeFence;\nthis.parseMarked = parseMarked;\nthis.pointBody = pointBody;\nthis.fieldValue = fieldValue;\nthis.placePhoto = placePhoto;\nthis.photoAddress = photoAddress;\n",
     marked
 );
 const fenced = "Answer:\n```text\n@@@CV\nNAME: A\nPOINT: one\n@@@END\n```\n";
@@ -99,5 +102,25 @@ if (marked.pointBody("POINT: one") !== "one") fail("POINT: was not accepted");
 if (marked.pointBody("- two") !== "two") fail("an old dash point was not accepted");
 if (marked.pointBody("* three") !== "three") fail("an old star point was not accepted");
 if (marked.pointBody("NAME: A") !== null) fail("a field line was read as a point");
+const contact = "CITY: Brussels\nPHONE: \nEMAIL: \nBORN: 14-02-1967";
+if (marked.fieldValue(contact, "PHONE") !== "") fail("an empty phone line took the next field");
+if (marked.fieldValue(contact, "EMAIL") !== "") fail("an empty email line took the next field");
+if (marked.fieldValue(contact, "BORN") !== "14-02-1967") fail("the birth date was not kept");
+if (marked.fieldValue(contact, "CITY") !== "Brussels") fail("a filled contact line was lost");
+if (marked.fieldValue("PHONE: +31 6 12", "PHONE") !== "+31 6 12") fail("a phone number was cut");
+const page = { sidebar: [{ type: "name" }, { type: "role" }], main: [] };
+marked.placePhoto(page, "CAPTION: \nASPECT: 1 / 1\nWIDTH: 80\nFILLED: yes\nURL: ");
+if (page.sidebar.map(function (item) { return item.type; }).join(",") !== "name,photo,role") fail("the photo frame did not stay under the name");
+const frame = page.sidebar[1].fields;
+if (frame.aspect !== "1 / 1" || frame.width !== 80 || frame.src !== "placeholder" || frame.url) fail("the photo frame lost its shape");
+marked.placePhoto(page, "ASPECT: 4 / 3\nCOLUMN: main\nWIDTH: 48");
+if (!page.main.length || page.main[0].type !== "photo" || page.main[0].fields.aspect !== "4 / 3") fail("a main-column photo was moved");
+const later = { sidebar: [{ type: "name" }, { type: "role" }, { type: "skill" }], main: [] };
+marked.placePhoto(later, "FILLED: yes\nASPECT: 3 / 4\nWIDTH: 92");
+if (later.sidebar[1].type !== "photo") fail("the first photo did not stay under the name");
+marked.placePhoto(later, "ASPECT: 4 / 3\nWIDTH: 48");
+if (later.sidebar[later.sidebar.length - 1].type !== "photo") fail("a later photo was not left where it was written");
+if (marked.photoAddress("javascript:alert(1)") || marked.photoAddress("http://example.com/a.jpg")) fail("an unsafe image address was accepted");
+if (marked.photoAddress("https://example.com/a.jpg") !== "https://example.com/a.jpg") fail("an https address was dropped");
 
 console.log("ok");

@@ -340,7 +340,7 @@ function createBlock(type) {
             style: doc && doc.kind === "letter" && addTarget === "main" ? "label" : "bar",
             html: ""
         },
-        photo: { src: "", original: "", caption: "", aspect: "3 / 4" },
+        photo: { src: "", original: "", caption: "", aspect: "3 / 4", url: "" },
         skill: { html: "" },
         competence: { title: "", body: "" },
         project: { title: "", body: "" },

@@ -260,6 +260,7 @@ function readPhotoFile(file) {
             if (!item) return;
             snapshot();
             item.fields.original = downscaleImage(image, 1600);
+            item.fields.url = "";
             render();
             save();
             openPhotoCrop(item.id);
@@ -267,5 +268,53 @@ function readPhotoFile(file) {
     };
     reader.onerror = function () { showError(t("photo.fail")); };
     reader.readAsDataURL(file);
+}
+
+function rememberPhotoAddress(item, address) {
+    item.fields.url = /^https:\/\//i.test(address) ? address : "";
+}
+
+function storePhotoImage(item, dataUrl, address) {
+    return loadImage(dataUrl).then(function (image) {
+        const stored = downscaleImage(image, 1600);
+        snapshot();
+        item.fields.original = stored;
+        item.fields.src = stored;
+        rememberPhotoAddress(item, address);
+        render();
+        save();
+        return true;
+    });
+}
+
+function importPhotoAddress(item, address) {
+    const url = photoAddress(address);
+    if (!item || item.type !== "photo" || !url) {
+        if (address && String(address).trim()) showError(t("photo.fail"));
+        return Promise.resolve(false);
+    }
+    if (/^data:image\//i.test(url)) {
+        return storePhotoImage(item, url, "").catch(function () {
+            showError(t("photo.fail"));
+            return false;
+        });
+    }
+    return fetch(url, { mode: "cors", credentials: "omit" }).then(function (response) {
+        if (!response.ok) throw new Error("photo");
+        return response.blob();
+    }).then(function (blob) {
+        if (blob.type && !/^image\//i.test(blob.type)) throw new Error("photo");
+        return new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+            reader.onload = function () { resolve(String(reader.result || "")); };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }).then(function (dataUrl) {
+        return storePhotoImage(item, dataUrl, url);
+    }).catch(function () {
+        showError(t("photo.fail"));
+        return false;
+    });
 }
 

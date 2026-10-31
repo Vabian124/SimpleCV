@@ -312,7 +312,7 @@ const I18N_EN = {
         closing: "The sign-off, then SIGN: with the name.",
         signature: "SIGN: is the name under the sign-off.",
         spacer: "SIZE is the height in points, for example 12.",
-        photo: "CAPTION is a short line under the picture. Leave the picture itself out."
+        photo: "CAPTION is a short line under the picture. ASPECT is 3 / 4, 1 / 1, or 4 / 3. WIDTH is the frame on the page, from 36 to 100. FILLED: yes keeps that frame when the picture itself stays out. URL, when you have one, is an https address for the picture."
     },
     photo: {
         pick: "Choose a photo",
@@ -331,7 +331,8 @@ const I18N_EN = {
         portrait: "Portrait",
         square: "Square",
         wide: "Wide",
-        fail: "This image did not work."
+        fail: "This image did not work.",
+        url: "https address of a picture"
     },
     site: {
         title: "LibreCV — free CV builder, no account",

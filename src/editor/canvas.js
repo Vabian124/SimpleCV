@@ -345,6 +345,12 @@ function renderBlock(item) {
             else pickPhoto(item.id);
         });
         node.appendChild(frame);
+        if (fields.caption) {
+            node.appendChild(editable("photo-caption", fields.caption, function (html) {
+                fields.caption = html;
+                save();
+            }, t("ph.text")));
+        }
     } else if (item.type === "heading") {
         if (headingStyle(item) === "label") node.classList.add("is-label");
         node.appendChild(editable("", fields.key ? escapeHtml(t(fields.key)) : (fields.html || ""), function (html) {

@@ -368,6 +368,21 @@ body.is-dragging .library-card { cursor: grabbing; }
 
 .floatbar input[type="range"] { width: 104px; accent-color: #fff; }
 
+.floatbar .photo-url {
+    width: 11rem;
+    height: 32px;
+    margin: 0 4px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    font: inherit;
+    font-size: 12px;
+}
+
+.floatbar .photo-url::placeholder { color: rgba(248, 250, 252, 0.62); }
+
 .floatbar .size-readout { font-size: 11px; min-width: 46px; opacity: 0.8; }
 
 .sheet-zoom { position: relative; width: 210mm; margin: 0 auto; }

@@ -312,7 +312,7 @@ const I18N_NL = {
         closing: "De groet, en daarna SIGN: met de naam.",
         signature: "SIGN: is de naam onder de groet.",
         spacer: "SIZE is de hoogte in punten, bijvoorbeeld 12.",
-        photo: "CAPTION is een kort bijschrift. Laat de foto zelf weg."
+        photo: "CAPTION is een kort bijschrift onder de foto. ASPECT is 3 / 4, 1 / 1 of 4 / 3. WIDTH is het kader op de pagina, van 36 tot 100. FILLED: yes houdt dat kader als de foto zelf weg blijft. URL is, als je die hebt, een https-adres van de foto."
     },
     photo: {
         pick: "Kies een foto",
@@ -331,7 +331,8 @@ const I18N_NL = {
         portrait: "Portret",
         square: "Vierkant",
         wide: "Breed",
-        fail: "Deze afbeelding lukte niet."
+        fail: "Deze afbeelding lukte niet.",
+        url: "https-adres van een foto"
     },
     site: {
         title: "LibreCV — gratis CV-editor, geen account",

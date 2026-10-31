@@ -361,7 +361,7 @@ const I18N_NL = {
         closing: "De groet, en daarna SIGN: met de naam.",
         signature: "SIGN: is de naam onder de groet.",
         spacer: "SIZE is de hoogte in punten, bijvoorbeeld 12.",
-        photo: "CAPTION is een kort bijschrift. Laat de foto zelf weg."
+        photo: "CAPTION is een kort bijschrift onder de foto. ASPECT is 3 / 4, 1 / 1 of 4 / 3. WIDTH is het kader op de pagina, van 36 tot 100. FILLED: yes houdt dat kader als de foto zelf weg blijft. URL is, als je die hebt, een https-adres van de foto."
     },
     photo: {
         pick: "Kies een foto",
@@ -380,7 +380,8 @@ const I18N_NL = {
         portrait: "Portret",
         square: "Vierkant",
         wide: "Breed",
-        fail: "Deze afbeelding lukte niet."
+        fail: "Deze afbeelding lukte niet.",
+        url: "https-adres van een foto"
     },
     site: {
         title: "LibreCV — gratis CV-editor, geen account",
@@ -720,7 +721,7 @@ const I18N_EN = {
         closing: "The sign-off, then SIGN: with the name.",
         signature: "SIGN: is the name under the sign-off.",
         spacer: "SIZE is the height in points, for example 12.",
-        photo: "CAPTION is a short line under the picture. Leave the picture itself out."
+        photo: "CAPTION is a short line under the picture. ASPECT is 3 / 4, 1 / 1, or 4 / 3. WIDTH is the frame on the page, from 36 to 100. FILLED: yes keeps that frame when the picture itself stays out. URL, when you have one, is an https address for the picture."
     },
     photo: {
         pick: "Choose a photo",
@@ -739,7 +740,8 @@ const I18N_EN = {
         portrait: "Portrait",
         square: "Square",
         wide: "Wide",
-        fail: "This image did not work."
+        fail: "This image did not work.",
+        url: "https address of a picture"
     },
     site: {
         title: "LibreCV — free CV builder, no account",
@@ -1111,7 +1113,7 @@ function createBlock(type) {
             style: doc && doc.kind === "letter" && addTarget === "main" ? "label" : "bar",
             html: ""
         },
-        photo: { src: "", original: "", caption: "", aspect: "3 / 4" },
+        photo: { src: "", original: "", caption: "", aspect: "3 / 4", url: "" },
         skill: { html: "" },
         competence: { title: "", body: "" },
         project: { title: "", body: "" },
@@ -1570,8 +1572,74 @@ function nameToHtml(value) {
 }
 
 function fieldValue(text, key) {
-    const match = String(text || "").match(new RegExp("^" + key + ":\\s*(.*)$", "im"));
+    const match = String(text || "").match(new RegExp("^" + key + ":[^\\S\\n]*(.*)$", "im"));
     return match ? match[1].trim() : "";
+}
+
+function photoAspect(value) {
+    const text = String(value || "").toLowerCase().replace(/\s+/g, "");
+    if (text === "1/1") return "1 / 1";
+    if (text === "4/3") return "4 / 3";
+    return "3 / 4";
+}
+
+function photoAddress(value) {
+    const text = String(value || "").trim();
+    if (/^https:\/\//i.test(text)) return text;
+    if (/^data:image\/[a-z0-9.+-]+;base64,/i.test(text) && text.length <= 8000000) return text;
+    return "";
+}
+
+function readPhotoFields(rest) {
+    const width = Number(fieldValue(rest, "WIDTH"));
+    const filled = /^(yes|ja|true|1)$/i.test(fieldValue(rest, "FILLED"));
+    const url = photoAddress(fieldValue(rest, "URL"));
+    const fields = {
+        src: "",
+        original: "",
+        caption: textToHtml(fieldValue(rest, "CAPTION")),
+        aspect: photoAspect(fieldValue(rest, "ASPECT")),
+        url: /^data:image\//i.test(url) ? "" : url
+    };
+    if (width >= 36 && width <= 100) fields.width = Math.round(width);
+    if (filled) fields.src = typeof placeholderPhoto === "function" ? placeholderPhoto() : "";
+    if (/^data:image\//i.test(url)) fields.pending = url;
+    return fields;
+}
+
+function placePhoto(next, rest) {
+    const fields = readPhotoFields(rest);
+    const item = block("photo", fields);
+    if (fieldValue(rest, "COLUMN").toLowerCase() === "main") {
+        next.main.push(item);
+        return item;
+    }
+    const hasSidebarPhoto = next.sidebar.some(function (entry) { return entry.type === "photo"; });
+    if (hasSidebarPhoto) {
+        next.sidebar.push(item);
+        return item;
+    }
+    const roleAt = next.sidebar.findIndex(function (entry) { return entry.type === "role"; });
+    if (roleAt >= 0) {
+        next.sidebar.splice(roleAt, 0, item);
+        return item;
+    }
+    const nameAt = next.sidebar.findIndex(function (entry) { return entry.type === "name"; });
+    if (nameAt >= 0) next.sidebar.splice(nameAt + 1, 0, item);
+    else next.sidebar.unshift(item);
+    return item;
+}
+
+function photoMarkedLines(item) {
+    const fields = item.fields || {};
+    const lines = ["@@@PHOTO", "CAPTION: " + markedText(fields.caption || "")];
+    lines.push("ASPECT: " + (fields.aspect || "3 / 4"));
+    const width = typeof photoWidth === "function" ? photoWidth(item) : (Number(fields.width) || 92);
+    lines.push("WIDTH: " + width);
+    if (fields.src) lines.push("FILLED: yes");
+    if (/^https:\/\//i.test(String(fields.url || ""))) lines.push("URL: " + String(fields.url).trim());
+    if (typeof columnOf === "function" && columnOf(item.id) === "main") lines.push("COLUMN: main");
+    return lines;
 }
 
 function pointBody(line) {
@@ -1632,6 +1700,28 @@ function exportMarked() {
         }
         lines.push("SUMMARY: " + (intro ? markedText(intro.fields.html).replace(/\n/g, " ") : ""));
     }
+    const sidePhotos = [];
+    let leadPhoto = null;
+    doc.sidebar.forEach(function (item, index) {
+        if (item.type !== "photo") return;
+        if (!leadPhoto) leadPhoto = item;
+        else sidePhotos.push({ item: item, index: index });
+    });
+    let photoAt = 0;
+    function flushSidebarPhotos(before) {
+        while (photoAt < sidePhotos.length && sidePhotos[photoAt].index < before) {
+            photoMarkedLines(sidePhotos[photoAt].item).forEach(function (line) { lines.push(line); });
+            photoAt += 1;
+        }
+    }
+    function sidebarSection(headingKey, type) {
+        const index = doc.sidebar.findIndex(function (item) {
+            if (headingKey && item.type === "heading" && item.fields.key === headingKey) return true;
+            return item.type === type;
+        });
+        return index < 0 ? doc.sidebar.length + 1 : index;
+    }
+    if (leadPhoto) photoMarkedLines(leadPhoto).forEach(function (line) { lines.push(line); });
     lines.push("@@@CONTACT");
     ["city", "phone", "email", "born"].forEach(function (key) {
         const row = doc.sidebar.concat(doc.main).find(function (item) {
@@ -1645,18 +1735,22 @@ function exportMarked() {
             lines.push("VALUE: " + markedText(item.fields.html));
         }
     });
+    flushSidebarPhotos(sidebarSection("doc.skills", "skill"));
     lines.push("@@@SKILLS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
         if (item.type === "skill") lines.push("POINT: " + markedText(item.fields.html));
     });
+    flushSidebarPhotos(sidebarSection("doc.strengths", "competence"));
     lines.push("@@@STRENGTHS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
         if (item.type === "competence") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
+    flushSidebarPhotos(sidebarSection("doc.projects", "project"));
     lines.push("@@@PROJECTS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
         if (item.type === "project") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
+    flushSidebarPhotos(doc.sidebar.length);
     if (doc.kind !== "letter") {
         lines.push("@@@PROFILE");
         lines.push(intro ? markedText(intro.fields.html) : "");
@@ -1699,12 +1793,9 @@ function exportMarked() {
         } else if (item.type === "spacer") {
             lines.push("@@@SPACER");
             lines.push("SIZE: " + (Number(item.fields.size) || 12));
+        } else if (item.type === "photo") {
+            photoMarkedLines(item).forEach(function (line) { lines.push(line); });
         }
-    });
-    doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type !== "photo") return;
-        lines.push("@@@PHOTO");
-        lines.push("CAPTION: " + markedText(item.fields.caption || ""));
     });
     if (closing || sign) {
         lines.push("@@@CLOSING");
@@ -1744,10 +1835,13 @@ function parseMarked(raw) {
     const letterAt = markerIndex(source, "LETTER", false);
     const start = cvAt >= 0 && (letterAt < 0 || cvAt < letterAt) ? cvAt : letterAt;
     if (start < 0 || end < start) throw new Error(t("ui.parseError"));
+    photoLoads = [];
     const kind = /^@@@LETTER(?![A-Za-z])/.test(source.slice(start)) ? "letter" : "cv";
     const chunks = source.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
     return { kind: kind, chunks: chunks };
 }
+
+let photoLoads = [];
 
 function pushTimeline(target, item) {
     target.push(block("timeline", {
@@ -1944,12 +2038,11 @@ function applyMarked(raw) {
             next.main.push(block("spacer", { size: Math.max(4, Math.min(48, size)) }));
             useful = true;
         } else if (head === "PHOTO") {
-            next.sidebar.push(block("photo", {
-                src: "",
-                original: "",
-                caption: textToHtml(fieldValue(rest, "CAPTION")),
-                aspect: "3 / 4"
-            }));
+            const item = placePhoto(next, rest);
+            if (item.fields.pending) {
+                photoLoads.push([item, item.fields.pending]);
+                delete item.fields.pending;
+            }
             useful = true;
         }
         applyChunkPaint(next, sideBefore, mainBefore, rest);
@@ -1967,6 +2060,10 @@ function applyMarked(raw) {
     applyLanguage();
     render();
     save();
+    photoLoads.forEach(function (pair) { importPhotoAddress(pair[0], pair[1]); });
+    doc.sidebar.concat(doc.main).forEach(function (item) {
+        if (item.type === "photo" && /^https:\/\//i.test(item.fields.url || "")) importPhotoAddress(item, item.fields.url);
+    });
 }
 /* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
 /* Reorder blocks with the pointer. Escape puts a drag back. */
@@ -2585,6 +2682,12 @@ function renderBlock(item) {
             else pickPhoto(item.id);
         });
         node.appendChild(frame);
+        if (fields.caption) {
+            node.appendChild(editable("photo-caption", fields.caption, function (html) {
+                fields.caption = html;
+                save();
+            }, t("ph.text")));
+        }
     } else if (item.type === "heading") {
         if (headingStyle(item) === "label") node.classList.add("is-label");
         node.appendChild(editable("", fields.key ? escapeHtml(t(fields.key)) : (fields.html || ""), function (html) {
@@ -2769,6 +2872,12 @@ function updateInspector() {
             sizeInput.title = t("ui.blockSize");
             sizeLabel.textContent = size + " pt";
         }
+    }
+    const photoUrl = document.getElementById("photo-url");
+    if (photoUrl) {
+        const showUrl = item.type === "photo";
+        photoUrl.hidden = !showUrl;
+        if (showUrl && document.activeElement !== photoUrl) photoUrl.value = item.fields.url || "";
     }
     const lines = item.type === "list" || item.type === "timeline" || item.type === "closing";
     const addLine = document.getElementById("add-line");
@@ -3090,7 +3199,7 @@ function markCatalog() {
         { types: ["closing"], key: "closing", shape: "@@@CLOSING\nSIGN: " },
         { types: ["signature"], key: "signature", shape: "SIGN: " },
         { types: ["spacer"], key: "spacer", shape: "@@@SPACER\nSIZE: 12" },
-        { types: ["photo"], key: "photo", shape: "@@@PHOTO\nCAPTION: " }
+        { types: ["photo"], key: "photo", shape: "@@@PHOTO\nCAPTION: \nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL: " }
     ];
 }
 
@@ -3150,6 +3259,7 @@ function blankMarked() {
     const lines = [letter ? "@@@LETTER" : "@@@CV", "NAME: ", "ROLE: "];
     if (letter) lines.push("TITLE: ", "DATE: ", "TO: ", "SUBJECT: ", "SUMMARY: ");
     lines.push(
+        "@@@PHOTO", "CAPTION: ", "ASPECT: 3 / 4", "WIDTH: " + (letter ? "64" : "92"), "FILLED: yes", "URL: ",
         "@@@CONTACT", "CITY: ", "PHONE: ", "EMAIL: ", "BORN: ",
         "@@@SKILLS", "POINT: ",
         "@@@STRENGTHS", "POINT: ",
@@ -3164,7 +3274,7 @@ function blankMarked() {
         "@@@LIST", "POINT: "
     );
     if (!letter) lines.push("@@@LETTERHEAD", "TITLE: ", "DATE: ", "TO: ", "SUBJECT: ");
-    lines.push("@@@PHOTO", "CAPTION: ", "@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
+    lines.push("@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
     return lines.join("\n");
 }
 
@@ -3492,6 +3602,7 @@ function readPhotoFile(file) {
             if (!item) return;
             snapshot();
             item.fields.original = downscaleImage(image, 1600);
+            item.fields.url = "";
             render();
             save();
             openPhotoCrop(item.id);
@@ -3499,6 +3610,54 @@ function readPhotoFile(file) {
     };
     reader.onerror = function () { showError(t("photo.fail")); };
     reader.readAsDataURL(file);
+}
+
+function rememberPhotoAddress(item, address) {
+    item.fields.url = /^https:\/\//i.test(address) ? address : "";
+}
+
+function storePhotoImage(item, dataUrl, address) {
+    return loadImage(dataUrl).then(function (image) {
+        const stored = downscaleImage(image, 1600);
+        snapshot();
+        item.fields.original = stored;
+        item.fields.src = stored;
+        rememberPhotoAddress(item, address);
+        render();
+        save();
+        return true;
+    });
+}
+
+function importPhotoAddress(item, address) {
+    const url = photoAddress(address);
+    if (!item || item.type !== "photo" || !url) {
+        if (address && String(address).trim()) showError(t("photo.fail"));
+        return Promise.resolve(false);
+    }
+    if (/^data:image\//i.test(url)) {
+        return storePhotoImage(item, url, "").catch(function () {
+            showError(t("photo.fail"));
+            return false;
+        });
+    }
+    return fetch(url, { mode: "cors", credentials: "omit" }).then(function (response) {
+        if (!response.ok) throw new Error("photo");
+        return response.blob();
+    }).then(function (blob) {
+        if (blob.type && !/^image\//i.test(blob.type)) throw new Error("photo");
+        return new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+            reader.onload = function () { resolve(String(reader.result || "")); };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }).then(function (dataUrl) {
+        return storePhotoImage(item, dataUrl, url);
+    }).catch(function () {
+        showError(t("photo.fail"));
+        return false;
+    });
 }
 
 /* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
@@ -4556,6 +4715,7 @@ function mountTools() {
         h("input", { id: "block-bg", type: "color", i18nTitle: "ui.blockBg" }),
         h("input", { id: "block-size", type: "range", min: "8", max: "28", step: "0.5" }),
         h("span", { id: "block-size-value", class: "size-readout" }),
+        h("input", { id: "photo-url", class: "photo-url", type: "text", hidden: "hidden", autocomplete: "off", spellcheck: "false", "data-i18n-placeholder": "photo.url" }),
         addLineBtn,
         duplicateBtn,
         deleteBtn,
@@ -4664,6 +4824,29 @@ function mountTools() {
         save();
     });
     blockBg.addEventListener("change", function () { blockBgSnapped = false; });
+
+    const photoUrl = document.getElementById("photo-url");
+    function usePhotoUrl() {
+        const item = selectedBlock();
+        if (!item || item.type !== "photo") return;
+        const next = photoUrl.value.trim();
+        if (!next) {
+            if (item.fields.url) {
+                snapshot();
+                item.fields.url = "";
+                save();
+            }
+            return;
+        }
+        if (next === (item.fields.url || "")) return;
+        importPhotoAddress(item, next);
+    }
+    photoUrl.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        usePhotoUrl();
+    });
+    photoUrl.addEventListener("change", usePhotoUrl);
 
     const blockSize = document.getElementById("block-size");
     blockSize.addEventListener("pointerdown", function () { photoWidthSnapped = false; });

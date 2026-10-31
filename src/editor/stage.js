@@ -106,6 +106,12 @@ function updateInspector() {
             sizeLabel.textContent = size + " pt";
         }
     }
+    const photoUrl = document.getElementById("photo-url");
+    if (photoUrl) {
+        const showUrl = item.type === "photo";
+        photoUrl.hidden = !showUrl;
+        if (showUrl && document.activeElement !== photoUrl) photoUrl.value = item.fields.url || "";
+    }
     const lines = item.type === "list" || item.type === "timeline" || item.type === "closing";
     const addLine = document.getElementById("add-line");
     if (addLine) addLine.hidden = !lines;
