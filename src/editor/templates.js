@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Empty documents, the demo, and a new block of each type. */
+
 function t(key) {
     const parts = key.split(".");
     let node = I18N[lang] || I18N.nl;

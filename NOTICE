@@ -35,10 +35,6 @@ are not relicensed:
   https://github.com/lucide-icons/lucide
   The stroke icons on the setup cards.
 
-- SortableJS 1.15.6 — MIT License
-  https://github.com/SortableJS/Sortable
-  Shipped in vendor/. The editor reorders blocks with its own pointer code.
-
 - Cropper.js 1.5.13 — MIT License
   https://github.com/fengyuanchen/cropperjs
   Frames and crops a photo inside the editor. vendor/cropper.min.js

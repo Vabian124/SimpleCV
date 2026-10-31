@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Use your own AI: copy a template, paste an answer, and refill when the mode changes. */
+
 function showToast(message, tone, actions) {
     const toast = document.getElementById("toast");
     if (!toast) return;

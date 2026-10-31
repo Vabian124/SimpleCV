@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* The homepage, the editor, and which pane is open on a narrow screen. */
+
 function placeSiteFoot(phase) {
     const foot = document.getElementById("site-foot");
     const setup = document.getElementById("view-setup");

@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Mutable editor state: the open document, language, and lazy-load promises. */
+
 let lang = "en";
 let doc = null;
 let selectedId = null;

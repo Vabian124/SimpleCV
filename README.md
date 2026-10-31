@@ -2,9 +2,9 @@
 
 LibreCV is a local editor for a CV or a motivation letter. The public site is [https://librecv.org/](https://librecv.org/). The source is [github.com/Vabian124/SimpleCV](https://github.com/Vabian124/SimpleCV).
 
-Open `index.html` in a browser, or host this folder as a static site. There is no account and no server. The document stays in the browser.
+Serve this folder at the site root. The editor loads its script and stylesheet from that root. There is no account and no server. The document stays in the browser.
 
-The editor is written as several files in `src/editor/`. `npm run build` joins them into `editor.js`, which is the file the site loads. `npm test` checks that the join matches. `npm run lint` runs ESLint, Stylelint, and HTML Validate.
+The editor source is `src/editor/`. The styles are `src/css/`. `npm run build` joins them into `editor.js` and `styles.css`, which are the files the site loads. `npm test` checks that the join matches. `npm run lint` runs ESLint, Stylelint, and HTML Validate.
 
 The first visit asks whether you want a CV or a motivation letter. Then you can walk through it step by step, start from a blank page, paste text, load demo data, or copy an AI template. Paste text uses Chrome's on-device model. Another browser warns first, and you can continue. Make blocks, in settings, sorts text in any browser. The template stays on this device: no account, no key, and the text is not sent to a server. In the studio, formatting appears above the block you touch. Settings, paste, colours and the typeface live in the panel on the right. Use your own AI, in the top bar, copies a template. Paste that into any model. An old CV and the job are optional. The model should answer with one code block, which pastes back onto the page. Download a PDF whose text can be selected.
 
@@ -26,7 +26,7 @@ The project's own code is CC0-1.0, as close to the public domain as the law here
 
 ## Nederlands
 
-Een lokale editor voor een CV of een motivatiebrief. De site is [librecv.org](https://librecv.org/). Open `index.html`, of zet deze map neer als statische site. Geen account en geen server. Het document blijft in de browser. De bron van de editor staat in `src/editor/`. `npm run build` voegt die bestanden samen tot `editor.js`.
+Een lokale editor voor een CV of een motivatiebrief. De site is [librecv.org](https://librecv.org/). Zet deze map neer als statische site, met de map als de root. Geen account en geen server. Het document blijft in de browser. De bron van de editor staat in `src/editor/`, de stijl in `src/css/`. `npm run build` voegt die bestanden samen tot `editor.js` en `styles.css`.
 
 De eerste keer kies je een CV of een brief. Daarna stap voor stap, zelf invullen, tekst plakken, demodata, of Gebruik je eigen AI. Plak het sjabloon in een model. Een oud CV en de vacature zijn optioneel. Het antwoord hoort één codeblok te zijn, en dat plak je terug. Het sjabloon blijft op dit apparaat. Download een PDF waarin de tekst selecteerbaar is.
 

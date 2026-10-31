@@ -1,0 +1,162 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+
+@font-face {
+    font-family: Inter;
+    src: url("vendor/fonts/inter-400.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Inter;
+    src: url("vendor/fonts/inter-600.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Roboto;
+    src: url("vendor/fonts/roboto-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Roboto;
+    src: url("vendor/fonts/roboto-700.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Roboto;
+    src: url("vendor/fonts/roboto-400i.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Roboto;
+    src: url("vendor/fonts/roboto-700i.ttf") format("truetype");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Merriweather;
+    src: url("vendor/fonts/merriweather-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Merriweather;
+    src: url("vendor/fonts/merriweather-700.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Merriweather;
+    src: url("vendor/fonts/merriweather-400i.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Merriweather;
+    src: url("vendor/fonts/merriweather-700i.ttf") format("truetype");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Lora;
+    src: url("vendor/fonts/lora-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Lora;
+    src: url("vendor/fonts/lora-700.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Lora;
+    src: url("vendor/fonts/lora-400i.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Lora;
+    src: url("vendor/fonts/lora-700i.ttf") format("truetype");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+:root {
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --panel: rgba(255, 255, 255, 0.86);
+    --stage: #d5dee8;
+    --accent-ui: #2563eb;
+    --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    --font-ui: Inter, "Segoe UI", sans-serif;
+    --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+    margin: 0;
+    font-family: var(--font-ui);
+    color: var(--ink);
+    background: #e8eef5;
+}
+
+button, input, select, textarea { font: inherit; }
+
+button, .btn, .btn-primary {
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent-ui);
+    outline-offset: 2px;
+}
+
+.kicker {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.card-kicker { display: block; font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+
+.card-copy { display: block; color: var(--muted); line-height: 1.5; }

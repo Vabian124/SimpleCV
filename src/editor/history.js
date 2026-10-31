@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Undo, redo, and saving the document in this browser. */
+
 function normalize(data) {
     data.version = 1;
     data.sidebar = Array.isArray(data.sidebar) ? data.sidebar : [];

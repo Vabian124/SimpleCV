@@ -1,4 +1,5 @@
 /* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Storage keys and the block types the editor can place. */
 
 const STORAGE_DOC = "cv-tool-document";
 const STORAGE_LANG = "cv-tool-lang";

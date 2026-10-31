@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* The step URLs and the back button. */
+
 function normalizePath(path) {
     let value = path || "/";
     if (value.length > 1 && value.charAt(value.length - 1) === "/") value = value.slice(0, -1);

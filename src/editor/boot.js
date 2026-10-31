@@ -1,3 +1,6 @@
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Startup: the stored document, then the setup and editor controls. */
+
 function adoptRoute(fresh) {
     documentLive = !fresh;
     const path = normalizePath(location.pathname);
@@ -21,44 +24,7 @@ function adoptRoute(fresh) {
         routeLock = false;
     }
 }
-
-function boot() {
-    try { document.execCommand("styleWithCSS", false, true); } catch (error) { /* ignore */ }
-    lang = savedLang();
-    let fresh = false;
-    try {
-        const raw = localStorage.getItem(STORAGE_DOC);
-        if (raw) doc = JSON.parse(raw);
-        else {
-            doc = emptyCv();
-            fresh = true;
-        }
-    } catch (error) {
-        doc = emptyCv();
-        fresh = true;
-    }
-    if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
-    normalize(doc);
-    if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
-    const requested = requestedLang();
-    if (requested) {
-        lang = requested;
-        doc.lang = requested;
-        try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
-    }
-    mountTools();
-    const name = document.getElementById("pdf-name");
-    let storedName = "";
-    try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
-    const person = plainName().replace(/\s+/g, " ").trim();
-    const follow = !person || person === t("ph.name") ? "" : person;
-    filenameCustom = !!(storedName && storedName !== follow);
-    name.value = filenameCustom ? storedName : follow;
-    applyLanguage();
-    adoptRoute(fresh);
-    if (requested && document.body.dataset.phase === "studio") save();
-    toggleDrawer(false);
-    render();
+function bindSetup() {
     document.querySelectorAll("#view-setup [data-lang]").forEach(function (button) {
         button.addEventListener("click", function () { setLanguage(button.dataset.lang); });
     });
@@ -172,21 +138,6 @@ function boot() {
             syncRoute("replace");
         });
     });
-    document.getElementById("preview").addEventListener("scroll", positionFloatbar, { passive: true });
-    document.addEventListener("pointerdown", function (event) {
-        if (document.body.dataset.phase !== "studio") return;
-        const target = event.target;
-        if (!target || !target.closest) return;
-        if (target.closest(".editable, #floatbar, .library-card, .topbar, .drawer, .crop-dialog, button, input, textarea, select, a, .drag-handle, .line-x")) return;
-        if (target.closest(".block")) {
-            blurField();
-            return;
-        }
-        clearFocus();
-    }, true);
-    document.addEventListener("focusout", function (event) {
-        if (event.target && event.target.isContentEditable) snapArmed = false;
-    });
     document.addEventListener("keydown", function (event) {
         if (document.body.dataset.phase !== "setup" || event.key !== "Enter" || event.altKey || event.isComposing || event.keyCode === 229) return;
         const target = event.target;
@@ -221,6 +172,24 @@ function boot() {
             }
         }
     }, true);
+}
+
+function bindStudio() {
+    document.getElementById("preview").addEventListener("scroll", positionFloatbar, { passive: true });
+    document.addEventListener("pointerdown", function (event) {
+        if (document.body.dataset.phase !== "studio") return;
+        const target = event.target;
+        if (!target || !target.closest) return;
+        if (target.closest(".editable, #floatbar, .library-card, .topbar, .drawer, .crop-dialog, button, input, textarea, select, a, .drag-handle, .line-x")) return;
+        if (target.closest(".block")) {
+            blurField();
+            return;
+        }
+        clearFocus();
+    }, true);
+    document.addEventListener("focusout", function (event) {
+        if (event.target && event.target.isContentEditable) snapArmed = false;
+    });
     document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") return;
         if (closePhotoCrop()) {
@@ -326,6 +295,47 @@ function boot() {
         else updatePageGuides();
         positionFloatbar();
     });
+}
+
+function boot() {
+    try { document.execCommand("styleWithCSS", false, true); } catch (error) { /* ignore */ }
+    lang = savedLang();
+    let fresh = false;
+    try {
+        const raw = localStorage.getItem(STORAGE_DOC);
+        if (raw) doc = JSON.parse(raw);
+        else {
+            doc = emptyCv();
+            fresh = true;
+        }
+    } catch (error) {
+        doc = emptyCv();
+        fresh = true;
+    }
+    if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
+    normalize(doc);
+    if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
+    const requested = requestedLang();
+    if (requested) {
+        lang = requested;
+        doc.lang = requested;
+        try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
+    }
+    mountTools();
+    const name = document.getElementById("pdf-name");
+    let storedName = "";
+    try { storedName = localStorage.getItem(STORAGE_NAME) || ""; } catch (error) { storedName = ""; }
+    const person = plainName().replace(/\s+/g, " ").trim();
+    const follow = !person || person === t("ph.name") ? "" : person;
+    filenameCustom = !!(storedName && storedName !== follow);
+    name.value = filenameCustom ? storedName : follow;
+    applyLanguage();
+    adoptRoute(fresh);
+    if (requested && document.body.dataset.phase === "studio") save();
+    toggleDrawer(false);
+    render();
+    bindSetup();
+    bindStudio();
     setStudioPane("page");
 }
 
