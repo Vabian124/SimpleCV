@@ -54,7 +54,7 @@ const I18N = {
             file: "Bestand",
             thisBlock: "Dit blok",
             model: "Kopiëren naar een AI",
-            modelHint: "Dit vak begint met je pagina, in de vorm die een AI kan invullen. Tekst ophalen kopieert hem. Plak het antwoord over deze tekst, en Tekst plakken zet hem op de pagina. Laat de namen van de blokken staan. Er gaat niets naar een server.",
+            modelHint: "Tekst ophalen kopieert een sjabloon. Plak het in je AI, en plak daarna je oude CV en de vacature eronder. Kopieer het codeblok dat je terugkrijgt, zet dat hier, en druk op Tekst plakken. Er gaat niets naar een server.",
             copy: "Tekst ophalen",
             copied: "Gekopieerd",
             applyText: "Tekst plakken",
@@ -267,7 +267,7 @@ const I18N = {
             model: "Laat een AI het invullen",
             modelHint: "Kopieer een sjabloon, laat een AI je CV of brief schrijven, en plak het antwoord terug.",
             modelLead: "Kies wat je kopieert. De uitleg noemt elk blok van deze editor, dus een nieuw blok komt vanzelf mee.",
-            modelBox: "Het sjabloon staat hier. Kopieer het naar een AI, en plak het antwoord over deze tekst heen.",
+            modelBox: "Het sjabloon staat hier. Plak het in een AI, en voeg je oude CV en de vacature toe. Kopieer het codeblok dat je terugkrijgt, en plak dat over deze tekst.",
             fast: "Snelste",
             copyGuide: "Kopieer met uitleg",
             copyGuideHint: "Elk blok, met de vorm die de AI moet aanhouden.",
@@ -301,21 +301,21 @@ const I18N = {
             step: "Stap {n} van 3"
         },
         mark: {
-            preamble: "Geef ALLEEN het document terug, van {doc} tot en met @@@END. Laat elke marker exact zo staan. Schrijf de inhoud in het {lang}. Verzin geen foto en geen URL: een foto voegt de gebruiker zelf toe in de editor.",
-            keep: "Laat lege velden leeg als je ze niet weet. Herhaal @@@JOB en @@@STUDY voor elke baan of opleiding.",
-            advanced: "Geavanceerd, optioneel. Op elke sectie mogen COLOR: #112233, BACKGROUND: #e0f2fe en SIZE: 11 staan. SIZE is de tekstgrootte in punten, tussen 8 en 28. @@@THEME zet de pagina: SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE, TEXT als #rrggbb, SIZE als basisgrootte, COLUMN als percentage van de zijbalk, FONT als roboto, merriweather of lora.",
+            preamble: "Opdracht. Vul het document onderaan in. Dit is een {kind}. De gebruiker plakt daarna ook een bestaand CV en de vacature. Ontbreekt een van die twee, vraag ernaar en wacht. Verzin geen werkgever, datum, vaardigheid of diploma. Het oude CV is de enige bron van feiten. De vacature bepaalt de nadruk, de volgorde en de formulering. Laat een veld leeg als je het niet weet. Schrijf de tekst in het {lang}. Antwoord met één codeblok en geen andere tekst, zodat het in één klik te kopiëren is. In het codeblok staat alleen het document. Gebruik daar geen markdown: geen sterretjes, geen koppen met een hekje, geen tabellen en geen lijsten met een streepje. Een punt is een regel die begint met POINT: . In NAME en TO is een nieuwe regel het teken <br>, vier tekens, niet omgezet naar een echte regel.",
+            keep: "Herhaal @@@JOB één keer per baan en @@@STUDY één keer per opleiding. Laat elke regel die met @@@ begint exact staan, tot en met @@@END.",
+            advanced: "Optioneel. Een sectie mag ook COLOR, BACKGROUND en SIZE hebben. COLOR en BACKGROUND zijn een hekje en dan zes hexadecimale tekens. SIZE is de tekstgrootte in punten, van 8 tot 28. @@@THEME zet de pagina. SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE en TEXT zijn een hekje plus zes hexadecimale tekens. SIZE is de basisgrootte. COLUMN is het percentage van de zijbalk. FONT is roboto, merriweather of lora.",
             fallback: "Blok {type} hoort ook in het document. Velden: {fields}.",
             name: "NAME is de naam. Zet <br> waar de naam in de zijbalk op een nieuwe regel moet.",
             role: "ROLE is één regel, bijvoorbeeld de functie.",
             contact: "CITY, PHONE, EMAIL en BORN zijn contactregels. Een extra regel is LABEL: op de ene regel en VALUE: op de volgende.",
-            skill: "Eén vaardigheid per regel, elke regel begint met - .",
-            competence: "Eén competentie per regel: - titel: korte tekst.",
-            project: "Eén project per regel: - titel: korte tekst.",
+            skill: "Eén vaardigheid per regel. Elke regel begint met POINT: .",
+            competence: "Eén competentie per regel. POINT: titel: korte tekst.",
+            project: "Eén project per regel. POINT: titel: korte tekst.",
             intro: "Bij een CV staat de intro onder @@@PROFILE. Bij een brief staat hij als SUMMARY in de kop.",
-            timeline: "@@@JOB is werk, @@@STUDY is opleiding. TITLE, DATE en ORGANIZATION, daarna één punt per regel met - .",
+            timeline: "@@@JOB is werk, @@@STUDY is opleiding. TITLE, DATE en ORGANIZATION, daarna één POINT: per regel.",
             heading: "TEXT is de kop. STYLE is bar of label. bar heeft een lijn, label niet.",
             paragraph: "Vrije alinea. Een lege regel begint een nieuwe alinea.",
-            list: "Eén punt per regel, elke regel begint met - .",
+            list: "Eén punt per regel. Elke regel begint met POINT: .",
             letterhead: "Bij een brief staan TITLE, DATE, TO en SUBJECT in de kop. Bij een CV gebruik je @@@LETTERHEAD. In TO mag <br> een nieuwe regel zijn.",
             closing: "De groet, en daarna SIGN: met de naam.",
             signature: "SIGN: is de naam onder de groet.",
@@ -410,7 +410,7 @@ const I18N = {
             file: "File",
             thisBlock: "This block",
             model: "Copy to an AI",
-            modelHint: "This box starts with your page, in the shape an AI can fill in. Get text copies it. Paste the answer back over this text, then Paste text puts it on the page. Keep the names of the blocks. Nothing is sent to a server.",
+            modelHint: "Get text copies a template. Paste it into your AI, then paste your old CV and the job under it. Copy the code block it returns, put that here, and press Paste text. Nothing is sent to a server.",
             copy: "Get text",
             copied: "Copied",
             applyText: "Paste text",
@@ -623,7 +623,7 @@ const I18N = {
             model: "Let an AI fill it in",
             modelHint: "Copy a template, let an AI write your CV or letter, and paste the answer back.",
             modelLead: "Choose what you copy. The guide names every block in this editor, so a new block is included on its own.",
-            modelBox: "The template is here. Copy it to an AI, then paste the answer over this text.",
+            modelBox: "The template is here. Paste it into an AI, then add your old CV and the job. Copy the code block it returns and paste it over this text.",
             fast: "Fastest",
             copyGuide: "Copy with a guide",
             copyGuideHint: "Every block, with the shape the AI should follow.",
@@ -657,21 +657,21 @@ const I18N = {
             step: "Step {n} of 3"
         },
         mark: {
-            preamble: "Return ONLY the document, from {doc} through @@@END. Keep every marker exactly. Write the content in {lang}. Do not invent a photo or a URL: the user adds the picture in the editor.",
-            keep: "Leave a field empty when you do not know it. Repeat @@@JOB and @@@STUDY for each job or course.",
-            advanced: "Advanced, optional. Any section may include COLOR: #112233, BACKGROUND: #e0f2fe and SIZE: 11. SIZE is the type size in points, from 8 to 28. @@@THEME sets the page: SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE and TEXT as #rrggbb, SIZE as the base size, COLUMN as the sidebar percentage, FONT as roboto, merriweather or lora.",
+            preamble: "Task. Fill in the document at the end. This is a {kind}. The user will also paste their current CV and the job they want. If either is missing, ask for it and wait. Do not invent an employer, a date, a skill, or a degree. The old CV is the only source of facts. The job text decides the emphasis, the order, and the wording. Leave a field empty when you do not know it. Write the words in {lang}. Reply with one code block and no other text, so it can be copied in one click. The code block is the document only. Inside it, do not use markdown: no asterisks, no hash headings, no tables, and no dash lists. A point is a line that starts with POINT: . Inside NAME and TO, a new line is the token <br>, four characters, not a real line break.",
+            keep: "Repeat @@@JOB once for each job and @@@STUDY once for each course. Keep every line that starts with @@@ exactly, through @@@END.",
+            advanced: "Optional. A section may also have COLOR, BACKGROUND and SIZE. COLOR and BACKGROUND are a hash followed by six hex digits. SIZE is the type size in points, from 8 to 28. @@@THEME sets the page. SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE and TEXT are a hash plus six hex digits. SIZE is the base size. COLUMN is the sidebar percentage. FONT is roboto, merriweather or lora.",
             fallback: "The {type} block belongs in the document too. Fields: {fields}.",
             name: "NAME is the name. Use <br> where the name should break onto a new line in the sidebar.",
             role: "ROLE is one line, for example the job title.",
             contact: "CITY, PHONE, EMAIL and BORN are contact lines. An extra line is LABEL: on one line and VALUE: on the next.",
-            skill: "One skill on each line. Each line starts with - .",
-            competence: "One strength on each line: - title: short text.",
-            project: "One project on each line: - title: short text.",
+            skill: "One skill on each line. Each line starts with POINT: .",
+            competence: "One strength on each line. POINT: title: short text.",
+            project: "One project on each line. POINT: title: short text.",
             intro: "On a CV the intro sits under @@@PROFILE. On a letter it is SUMMARY in the header.",
-            timeline: "@@@JOB is work, @@@STUDY is education. TITLE, DATE and ORGANIZATION, then one point on each line starting with - .",
+            timeline: "@@@JOB is work, @@@STUDY is education. TITLE, DATE and ORGANIZATION, then one POINT: on each line.",
             heading: "TEXT is the heading. STYLE is bar or label. bar has a line under it, label does not.",
             paragraph: "A free paragraph. A blank line starts another paragraph.",
-            list: "One point on each line. Each line starts with - .",
+            list: "One point on each line. Each line starts with POINT: .",
             letterhead: "On a letter, TITLE, DATE, TO and SUBJECT sit in the header. On a CV use @@@LETTERHEAD. In TO, <br> starts a new line.",
             closing: "The sign-off, then SIGN: with the name.",
             signature: "SIGN: is the name under the sign-off.",
@@ -2508,10 +2508,15 @@ function fieldValue(text, key) {
     return match ? match[1].trim() : "";
 }
 
+function pointBody(line) {
+    const trimmed = String(line || "").trim();
+    if (trimmed.indexOf("POINT:") === 0) return trimmed.slice(6).trim();
+    if (trimmed.indexOf("- ") === 0 || trimmed.indexOf("* ") === 0) return trimmed.slice(2).trim();
+    return null;
+}
+
 function bulletLines(text) {
-    return String(text || "").split(/\r?\n/).map(function (line) { return line.trim(); }).filter(function (line) {
-        return line.indexOf("- ") === 0;
-    }).map(function (line) { return line.slice(2).trim(); }).filter(Boolean);
+    return String(text || "").split(/\r?\n/).map(pointBody).filter(function (line) { return line; });
 }
 
 function titledLines(text) {
@@ -2528,8 +2533,9 @@ function entryFrom(text) {
     const fields = {};
     String(text || "").split(/\r?\n/).forEach(function (line) {
         const trimmed = line.trim();
-        if (trimmed.indexOf("- ") === 0) {
-            bullets.push(trimmed.slice(2).trim());
+        const point = pointBody(trimmed);
+        if (point !== null) {
+            if (point) bullets.push(point);
             return;
         }
         const match = trimmed.match(/^(TITLE|DATE|ORGANIZATION):\s*(.*)$/i);
@@ -2575,15 +2581,15 @@ function exportMarked() {
     });
     lines.push("@@@SKILLS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type === "skill") lines.push("- " + markedText(item.fields.html));
+        if (item.type === "skill") lines.push("POINT: " + markedText(item.fields.html));
     });
     lines.push("@@@STRENGTHS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type === "competence") lines.push("- " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
+        if (item.type === "competence") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
     lines.push("@@@PROJECTS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type === "project") lines.push("- " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
+        if (item.type === "project") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
     if (doc.kind !== "letter") {
         lines.push("@@@PROFILE");
@@ -2607,7 +2613,7 @@ function exportMarked() {
             lines.push("TITLE: " + markedText(item.fields.title));
             lines.push("DATE: " + markedText(item.fields.date));
             lines.push("ORGANIZATION: " + markedText(item.fields.org));
-            (item.fields.items || []).forEach(function (bullet) { lines.push("- " + markedText(bullet)); });
+            (item.fields.items || []).forEach(function (bullet) { lines.push("POINT: " + markedText(bullet)); });
         } else if (item.type === "paragraph") {
             lines.push("@@@PARAGRAPH");
             lines.push(markedText(item.fields.html));
@@ -2619,7 +2625,7 @@ function exportMarked() {
             lines.push("SUBJECT: " + markedText(item.fields.subject));
         } else if (item.type === "list") {
             lines.push("@@@LIST");
-            (item.fields.items || []).forEach(function (bullet) { lines.push("- " + markedText(bullet)); });
+            (item.fields.items || []).forEach(function (bullet) { lines.push("POINT: " + markedText(bullet)); });
         } else if (item.type === "closing") {
             closing = item;
         } else if (item.type === "signature") {
@@ -2643,14 +2649,37 @@ function exportMarked() {
     return lines.join("\n");
 }
 
+function stripCodeFence(raw) {
+    const text = String(raw || "").replace(/^\uFEFF/, "");
+    const re = /```[a-zA-Z0-9_-]*[ \t]*\r?\n?([\s\S]*?)```/g;
+    let found = "";
+    let match;
+    while ((match = re.exec(text))) {
+        if (match[1].indexOf("@@@") >= 0) found = match[1];
+    }
+    return found || text;
+}
+
+function markerIndex(source, name, last) {
+    const re = new RegExp("@@@" + name + "(?![A-Za-z])", "g");
+    let at = -1;
+    let match;
+    while ((match = re.exec(source))) {
+        at = match.index;
+        if (!last) break;
+    }
+    return at;
+}
+
 function parseMarked(raw) {
-    const end = String(raw || "").lastIndexOf("@@@END");
-    const cvAt = String(raw || "").indexOf("@@@CV");
-    const letterAt = String(raw || "").indexOf("@@@LETTER");
+    const source = stripCodeFence(raw);
+    const end = markerIndex(source, "END", true);
+    const cvAt = markerIndex(source, "CV", false);
+    const letterAt = markerIndex(source, "LETTER", false);
     const start = cvAt >= 0 && (letterAt < 0 || cvAt < letterAt) ? cvAt : letterAt;
     if (start < 0 || end < start) throw new Error(t("ui.parseError"));
-    const kind = raw.startsWith("@@@LETTER", start) ? "letter" : "cv";
-    const chunks = raw.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
+    const kind = /^@@@LETTER(?![A-Za-z])/.test(source.slice(start)) ? "letter" : "cv";
+    const chunks = source.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
     return { kind: kind, chunks: chunks };
 }
 
@@ -2916,14 +2945,14 @@ function markCatalog() {
         { types: ["name"], key: "name", shape: "NAME: Voornaam<br>Achternaam" },
         { types: ["role"], key: "role", shape: "ROLE: " },
         { types: ["contact"], key: "contact", shape: "@@@CONTACT\nCITY: \nPHONE: \nEMAIL: \nBORN: \nLABEL: \nVALUE: " },
-        { types: ["skill"], key: "skill", shape: "@@@SKILLS\n- " },
-        { types: ["competence"], key: "competence", shape: "@@@STRENGTHS\n- titel: tekst" },
-        { types: ["project"], key: "project", shape: "@@@PROJECTS\n- titel: tekst" },
+        { types: ["skill"], key: "skill", shape: "@@@SKILLS\nPOINT: " },
+        { types: ["competence"], key: "competence", shape: "@@@STRENGTHS\nPOINT: titel: tekst" },
+        { types: ["project"], key: "project", shape: "@@@PROJECTS\nPOINT: titel: tekst" },
         { types: ["intro"], key: "intro", shape: "@@@PROFILE\nSUMMARY: " },
-        { types: ["timeline"], key: "timeline", shape: "@@@JOB\nTITLE: \nDATE: \nORGANIZATION: \n- \n@@@STUDY" },
+        { types: ["timeline"], key: "timeline", shape: "@@@JOB\nTITLE: \nDATE: \nORGANIZATION: \nPOINT: \n@@@STUDY" },
         { types: ["heading"], key: "heading", shape: "@@@HEADING\nTEXT: \nSTYLE: bar" },
         { types: ["paragraph"], key: "paragraph", shape: "@@@PARAGRAPH" },
-        { types: ["list"], key: "list", shape: "@@@LIST\n- " },
+        { types: ["list"], key: "list", shape: "@@@LIST\nPOINT: " },
         { types: ["letterhead"], key: "letterhead", shape: "@@@LETTERHEAD\nTITLE: \nDATE: \nTO: \nSUBJECT: " },
         { types: ["closing"], key: "closing", shape: "@@@CLOSING\nSIGN: " },
         { types: ["signature"], key: "signature", shape: "SIGN: " },
@@ -2967,15 +2996,12 @@ function themeBlock(theme) {
 }
 
 function modelInstructions(mode, kind) {
-    const letter = (kind || setupState.kind) === "letter";
     const lines = [t("mark.preamble")
-        .replace("{doc}", letter ? "@@@LETTER" : "@@@CV")
-        .replace("{lang}", lang === "en" ? "English" : "Nederlands")];
+        .replace("{lang}", lang === "en" ? "English" : "Nederlands")
+        .replace("{kind}", (kind || setupState.kind) === "letter" ? t("setup.letter") : t("setup.cv"))];
     markCatalog().forEach(function (entry) {
-        const title = entry.types.map(function (type) { return t("type." + type); }).join(", ");
-        lines.push("", title, entry.shape);
         const say = t("mark." + entry.key);
-        if (say && say !== "mark." + entry.key) lines.push(say);
+        if (say && say !== "mark." + entry.key) lines.push("", say);
     });
     uncoveredBlocks().forEach(function (type) {
         const fields = fieldSketch(type);
@@ -2992,17 +3018,17 @@ function blankMarked() {
     if (letter) lines.push("TITLE: ", "DATE: ", "TO: ", "SUBJECT: ", "SUMMARY: ");
     lines.push(
         "@@@CONTACT", "CITY: ", "PHONE: ", "EMAIL: ", "BORN: ",
-        "@@@SKILLS", "- ",
-        "@@@STRENGTHS", "- : ",
-        "@@@PROJECTS", "- : "
+        "@@@SKILLS", "POINT: ",
+        "@@@STRENGTHS", "POINT: ",
+        "@@@PROJECTS", "POINT: "
     );
     if (!letter) lines.push("@@@PROFILE", "");
     lines.push(
-        "@@@JOB", "TITLE: ", "DATE: ", "ORGANIZATION: ", "- ",
-        "@@@STUDY", "TITLE: ", "DATE: ", "ORGANIZATION: ", "- ",
+        "@@@JOB", "TITLE: ", "DATE: ", "ORGANIZATION: ", "POINT: ",
+        "@@@STUDY", "TITLE: ", "DATE: ", "ORGANIZATION: ", "POINT: ",
         "@@@HEADING", "TEXT: ", "STYLE: bar",
         "@@@PARAGRAPH", "",
-        "@@@LIST", "- "
+        "@@@LIST", "POINT: "
     );
     if (!letter) lines.push("@@@LETTERHEAD", "TITLE: ", "DATE: ", "TO: ", "SUBJECT: ");
     lines.push("@@@PHOTO", "CAPTION: ", "@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
@@ -3741,7 +3767,7 @@ async function formatWithBrowserModel(text) {
     const session = await api.create(Object.assign({}, options, {
         initialPrompts: [{
             role: "system",
-            content: "Turn the user's CV or motivation letter into marked text. Output only the block from @@@CV or @@@LETTER through @@@END. Keep these English field names: NAME, ROLE, CITY, PHONE, EMAIL, BORN, TITLE, DATE, ORGANIZATION, SUMMARY, SUBJECT, TO, SIGN, HEADING, BODY. Write the person's own words in the same language as the input. Use @@@CONTACT, @@@SKILLS, @@@STRENGTHS, @@@PROJECTS, @@@PROFILE, @@@JOB, @@@STUDY, @@@PARAGRAPH, @@@OPENING, @@@SECTION and @@@CLOSING where they fit."
+            content: "Turn the user's CV or motivation letter into marked text. Output only the block from @@@CV or @@@LETTER through @@@END, with no markdown. Keep these English field names: NAME, ROLE, CITY, PHONE, EMAIL, BORN, TITLE, DATE, ORGANIZATION, SUMMARY, SUBJECT, TO, SIGN, HEADING, BODY. A point is a line starting with POINT: . Write the person's own words in the same language as the input. Use @@@CONTACT, @@@SKILLS, @@@STRENGTHS, @@@PROJECTS, @@@PROFILE, @@@JOB, @@@STUDY, @@@PARAGRAPH, @@@OPENING, @@@SECTION and @@@CLOSING where they fit."
         }]
     }));
     try {

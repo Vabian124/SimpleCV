@@ -391,10 +391,15 @@ function fieldValue(text, key) {
     return match ? match[1].trim() : "";
 }
 
+function pointBody(line) {
+    const trimmed = String(line || "").trim();
+    if (trimmed.indexOf("POINT:") === 0) return trimmed.slice(6).trim();
+    if (trimmed.indexOf("- ") === 0 || trimmed.indexOf("* ") === 0) return trimmed.slice(2).trim();
+    return null;
+}
+
 function bulletLines(text) {
-    return String(text || "").split(/\r?\n/).map(function (line) { return line.trim(); }).filter(function (line) {
-        return line.indexOf("- ") === 0;
-    }).map(function (line) { return line.slice(2).trim(); }).filter(Boolean);
+    return String(text || "").split(/\r?\n/).map(pointBody).filter(function (line) { return line; });
 }
 
 function titledLines(text) {
@@ -411,8 +416,9 @@ function entryFrom(text) {
     const fields = {};
     String(text || "").split(/\r?\n/).forEach(function (line) {
         const trimmed = line.trim();
-        if (trimmed.indexOf("- ") === 0) {
-            bullets.push(trimmed.slice(2).trim());
+        const point = pointBody(trimmed);
+        if (point !== null) {
+            if (point) bullets.push(point);
             return;
         }
         const match = trimmed.match(/^(TITLE|DATE|ORGANIZATION):\s*(.*)$/i);
@@ -458,15 +464,15 @@ function exportMarked() {
     });
     lines.push("@@@SKILLS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type === "skill") lines.push("- " + markedText(item.fields.html));
+        if (item.type === "skill") lines.push("POINT: " + markedText(item.fields.html));
     });
     lines.push("@@@STRENGTHS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type === "competence") lines.push("- " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
+        if (item.type === "competence") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
     lines.push("@@@PROJECTS");
     doc.sidebar.concat(doc.main).forEach(function (item) {
-        if (item.type === "project") lines.push("- " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
+        if (item.type === "project") lines.push("POINT: " + markedText(item.fields.title) + ": " + markedText(item.fields.body));
     });
     if (doc.kind !== "letter") {
         lines.push("@@@PROFILE");
@@ -490,7 +496,7 @@ function exportMarked() {
             lines.push("TITLE: " + markedText(item.fields.title));
             lines.push("DATE: " + markedText(item.fields.date));
             lines.push("ORGANIZATION: " + markedText(item.fields.org));
-            (item.fields.items || []).forEach(function (bullet) { lines.push("- " + markedText(bullet)); });
+            (item.fields.items || []).forEach(function (bullet) { lines.push("POINT: " + markedText(bullet)); });
         } else if (item.type === "paragraph") {
             lines.push("@@@PARAGRAPH");
             lines.push(markedText(item.fields.html));
@@ -502,7 +508,7 @@ function exportMarked() {
             lines.push("SUBJECT: " + markedText(item.fields.subject));
         } else if (item.type === "list") {
             lines.push("@@@LIST");
-            (item.fields.items || []).forEach(function (bullet) { lines.push("- " + markedText(bullet)); });
+            (item.fields.items || []).forEach(function (bullet) { lines.push("POINT: " + markedText(bullet)); });
         } else if (item.type === "closing") {
             closing = item;
         } else if (item.type === "signature") {
@@ -526,14 +532,37 @@ function exportMarked() {
     return lines.join("\n");
 }
 
+function stripCodeFence(raw) {
+    const text = String(raw || "").replace(/^\uFEFF/, "");
+    const re = /```[a-zA-Z0-9_-]*[ \t]*\r?\n?([\s\S]*?)```/g;
+    let found = "";
+    let match;
+    while ((match = re.exec(text))) {
+        if (match[1].indexOf("@@@") >= 0) found = match[1];
+    }
+    return found || text;
+}
+
+function markerIndex(source, name, last) {
+    const re = new RegExp("@@@" + name + "(?![A-Za-z])", "g");
+    let at = -1;
+    let match;
+    while ((match = re.exec(source))) {
+        at = match.index;
+        if (!last) break;
+    }
+    return at;
+}
+
 function parseMarked(raw) {
-    const end = String(raw || "").lastIndexOf("@@@END");
-    const cvAt = String(raw || "").indexOf("@@@CV");
-    const letterAt = String(raw || "").indexOf("@@@LETTER");
+    const source = stripCodeFence(raw);
+    const end = markerIndex(source, "END", true);
+    const cvAt = markerIndex(source, "CV", false);
+    const letterAt = markerIndex(source, "LETTER", false);
     const start = cvAt >= 0 && (letterAt < 0 || cvAt < letterAt) ? cvAt : letterAt;
     if (start < 0 || end < start) throw new Error(t("ui.parseError"));
-    const kind = raw.startsWith("@@@LETTER", start) ? "letter" : "cv";
-    const chunks = raw.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
+    const kind = /^@@@LETTER(?![A-Za-z])/.test(source.slice(start)) ? "letter" : "cv";
+    const chunks = source.slice(start, end).split(/\n@@@/).map(function (chunk) { return chunk.trim(); }).filter(Boolean);
     return { kind: kind, chunks: chunks };
 }
 

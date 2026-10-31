@@ -40,14 +40,14 @@ function markCatalog() {
         { types: ["name"], key: "name", shape: "NAME: Voornaam<br>Achternaam" },
         { types: ["role"], key: "role", shape: "ROLE: " },
         { types: ["contact"], key: "contact", shape: "@@@CONTACT\nCITY: \nPHONE: \nEMAIL: \nBORN: \nLABEL: \nVALUE: " },
-        { types: ["skill"], key: "skill", shape: "@@@SKILLS\n- " },
-        { types: ["competence"], key: "competence", shape: "@@@STRENGTHS\n- titel: tekst" },
-        { types: ["project"], key: "project", shape: "@@@PROJECTS\n- titel: tekst" },
+        { types: ["skill"], key: "skill", shape: "@@@SKILLS\nPOINT: " },
+        { types: ["competence"], key: "competence", shape: "@@@STRENGTHS\nPOINT: titel: tekst" },
+        { types: ["project"], key: "project", shape: "@@@PROJECTS\nPOINT: titel: tekst" },
         { types: ["intro"], key: "intro", shape: "@@@PROFILE\nSUMMARY: " },
-        { types: ["timeline"], key: "timeline", shape: "@@@JOB\nTITLE: \nDATE: \nORGANIZATION: \n- \n@@@STUDY" },
+        { types: ["timeline"], key: "timeline", shape: "@@@JOB\nTITLE: \nDATE: \nORGANIZATION: \nPOINT: \n@@@STUDY" },
         { types: ["heading"], key: "heading", shape: "@@@HEADING\nTEXT: \nSTYLE: bar" },
         { types: ["paragraph"], key: "paragraph", shape: "@@@PARAGRAPH" },
-        { types: ["list"], key: "list", shape: "@@@LIST\n- " },
+        { types: ["list"], key: "list", shape: "@@@LIST\nPOINT: " },
         { types: ["letterhead"], key: "letterhead", shape: "@@@LETTERHEAD\nTITLE: \nDATE: \nTO: \nSUBJECT: " },
         { types: ["closing"], key: "closing", shape: "@@@CLOSING\nSIGN: " },
         { types: ["signature"], key: "signature", shape: "SIGN: " },
@@ -91,15 +91,12 @@ function themeBlock(theme) {
 }
 
 function modelInstructions(mode, kind) {
-    const letter = (kind || setupState.kind) === "letter";
     const lines = [t("mark.preamble")
-        .replace("{doc}", letter ? "@@@LETTER" : "@@@CV")
-        .replace("{lang}", lang === "en" ? "English" : "Nederlands")];
+        .replace("{lang}", lang === "en" ? "English" : "Nederlands")
+        .replace("{kind}", (kind || setupState.kind) === "letter" ? t("setup.letter") : t("setup.cv"))];
     markCatalog().forEach(function (entry) {
-        const title = entry.types.map(function (type) { return t("type." + type); }).join(", ");
-        lines.push("", title, entry.shape);
         const say = t("mark." + entry.key);
-        if (say && say !== "mark." + entry.key) lines.push(say);
+        if (say && say !== "mark." + entry.key) lines.push("", say);
     });
     uncoveredBlocks().forEach(function (type) {
         const fields = fieldSketch(type);
@@ -116,17 +113,17 @@ function blankMarked() {
     if (letter) lines.push("TITLE: ", "DATE: ", "TO: ", "SUBJECT: ", "SUMMARY: ");
     lines.push(
         "@@@CONTACT", "CITY: ", "PHONE: ", "EMAIL: ", "BORN: ",
-        "@@@SKILLS", "- ",
-        "@@@STRENGTHS", "- : ",
-        "@@@PROJECTS", "- : "
+        "@@@SKILLS", "POINT: ",
+        "@@@STRENGTHS", "POINT: ",
+        "@@@PROJECTS", "POINT: "
     );
     if (!letter) lines.push("@@@PROFILE", "");
     lines.push(
-        "@@@JOB", "TITLE: ", "DATE: ", "ORGANIZATION: ", "- ",
-        "@@@STUDY", "TITLE: ", "DATE: ", "ORGANIZATION: ", "- ",
+        "@@@JOB", "TITLE: ", "DATE: ", "ORGANIZATION: ", "POINT: ",
+        "@@@STUDY", "TITLE: ", "DATE: ", "ORGANIZATION: ", "POINT: ",
         "@@@HEADING", "TEXT: ", "STYLE: bar",
         "@@@PARAGRAPH", "",
-        "@@@LIST", "- "
+        "@@@LIST", "POINT: "
     );
     if (!letter) lines.push("@@@LETTERHEAD", "TITLE: ", "DATE: ", "TO: ", "SUBJECT: ");
     lines.push("@@@PHOTO", "CAPTION: ", "@@@CLOSING", "", "SIGN: ", "@@@SPACER", "SIZE: 12", "@@@END");
