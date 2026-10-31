@@ -165,7 +165,9 @@ if (form.indexOf("https://github.com/Vabian124/LibreCV/issues/new?") === -1) fai
 if (home.indexOf("site.distinct") === -1 || home.indexOf("SimpleCV Python library") === -1) fail("the homepage does not say this is the CV editor");
 const llms = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
 if (llms.indexOf("SimpleCV Python library") === -1 || llms.indexOf("computer-vision association") === -1) fail("llms.txt does not separate this project from the vision names");
-if (fs.readFileSync(path.join(root, "README.md"), "utf8").indexOf("github.com/Vabian124/SimpleCV") >= 0) fail("the README still points at SimpleCV");
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+if (readme.indexOf("github.com/Vabian124/SimpleCV") >= 0) fail("the README still points at SimpleCV");
+if (readme.indexOf("does not use GitHub Pages") === -1) fail("the README does not say GitHub Pages is off");
 if (form.indexOf("maxnumber") === -1 || form.indexOf("signature") === -1) fail("the feedback form does not solve an ALTCHA challenge");
 if (/ghp_|github_pat_|SPACESHIP_API/.test(form)) fail("the feedback form contains a token");
 const copySource = form.slice(form.indexOf("var COPY = "), form.indexOf("var KIND_KEYS"));
@@ -200,9 +202,12 @@ const template = fs.readFileSync(path.join(root, ".github", "ISSUE_TEMPLATE", "f
 if (template.indexOf("https://librecv.org/feedback/") === -1 || template.indexOf("Do not paste a CV") === -1) {
     fail("the GitHub feedback template does not steer an assistant");
 }
+if (template.indexOf("computer-vision association") === -1) fail("the GitHub feedback template does not name this project");
 const steering = fs.readFileSync(path.join(root, "feedback.txt"), "utf8");
 if (steering.indexOf("Do not invent a CV") === -1) fail("feedback.txt does not tell an assistant to leave the document out");
 if (steering.indexOf("ALTCHA") === -1) fail("feedback.txt does not name the ALTCHA check");
+if (steering.indexOf("More menu") !== -1) fail("feedback.txt still puts Feedback in the More menu");
+if (steering.indexOf("button in the header") === -1) fail("feedback.txt does not put Feedback in the editor header");
 const guide = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
 if (guide.indexOf("/feedback/desk") !== -1) fail("llms.txt points at the inbox");
 if (guide.indexOf("https://librecv.org/feedback.txt") === -1) fail("llms.txt does not point at the feedback instructions");

@@ -9,4 +9,5 @@ Language: English, Dutch
 Standards: HTML, CSS
 Components: LibreCV, a CV and motivation-letter builder. Not the LibreCV computer-vision association, and not the SimpleCV Python library.
 Source: https://github.com/Vabian124/LibreCV
+Pages: none. The only site is https://librecv.org/
 License: CC0-1.0

@@ -2,4 +2,4 @@ blank_issues_enabled: true
 contact_links:
   - name: Private feedback
     url: https://librecv.org/feedback/
-    about: Send a note without a GitHub account. It is not published. A CV belongs here, not in an issue.
+    about: A private note for the CV editor at librecv.org. It is not published. A CV belongs here, not in an issue.

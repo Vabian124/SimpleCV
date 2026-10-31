@@ -1,7 +1,7 @@
 {
   "name": "librecv",
   "private": true,
-  "description": "LibreCV, a free CV and motivation-letter builder.",
+  "description": "LibreCV, a free CV and motivation-letter builder at librecv.org. Not the computer-vision association or the SimpleCV Python library.",
   "scripts": {
     "build": "node scripts/build.js",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html",

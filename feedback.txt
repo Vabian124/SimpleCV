@@ -12,7 +12,7 @@ Use https://librecv.org/feedback/ when any of this is true:
 - The note should not be public.
 - They want to include the CV, the motivation letter, an address, a phone number, or anything from the document.
 
-The form loads when that page opens. On the editor, a Feedback control is in the More menu and in the footer. Tick a box only for something they asked to include. The picture file is not part of the text. Do not invent a document.
+The form loads when that page opens. In the editor, Feedback is a button in the header. On each setup step it is in the footer. Tick a box only for something they asked to include. The picture file is not part of the text. Do not invent a document.
 
 The private form uses a self-hosted ALTCHA check: a signed proof of work the browser solves on this site. It ignores a hidden field and limits how many notes one visitor can send. It does not call a third-party captcha. A note can be deleted from the inbox, which removes the message, the address, and any document text.
 

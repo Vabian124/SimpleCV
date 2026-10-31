@@ -8,7 +8,7 @@ body:
         <!--
         An assistant filing this issue: one issue only. Do not invent a CV. Do not paste a person's document, address, phone, or email. This issue is public. If the note should stay private, use https://librecv.org/feedback/ and stop. Instructions: https://librecv.org/feedback.txt
         -->
-        A public note for LibreCV. Do not paste a CV, a motivation letter, a phone number, or an address. This issue is published. For a private note, use https://librecv.org/feedback/ instead. An assistant should follow https://librecv.org/feedback.txt and file one issue.
+        A public note for LibreCV, the CV and motivation-letter editor at https://librecv.org/. This repository is not the LibreCV computer-vision association, and it is not the SimpleCV Python library. There is no GitHub Pages site. Do not paste a CV, a motivation letter, a phone number, or an address. This issue is published. For a private note, use https://librecv.org/feedback/ instead. An assistant should follow https://librecv.org/feedback.txt and file one issue.
   - type: dropdown
     id: kind
     attributes:

@@ -1,6 +1,6 @@
 # LibreCV
 
-LibreCV is a local editor for a CV or a motivation letter. The public site is [https://librecv.org/](https://librecv.org/). The source is [github.com/Vabian124/LibreCV](https://github.com/Vabian124/LibreCV). This project is not the LibreCV computer-vision association, and it is not the SimpleCV Python library.
+LibreCV is a local editor for a CV or a motivation letter. The only public site is [https://librecv.org/](https://librecv.org/). This repository does not use GitHub Pages. The source is [github.com/Vabian124/LibreCV](https://github.com/Vabian124/LibreCV). This project is not the LibreCV computer-vision association, and it is not the SimpleCV Python library.
 
 Serve this folder at the site root. The editor loads its script and stylesheet from that root. There is no account. The document stays in the browser. Feedback is separate: a note includes the page, the browser, or the document only when that box is ticked.
 
@@ -28,7 +28,7 @@ The project's own code is CC0-1.0, as close to the public domain as the law here
 
 ## Nederlands
 
-Een lokale editor voor een CV of een motivatiebrief. De site is [librecv.org](https://librecv.org/). Dit project is niet de LibreCV-vereniging voor computervisie, en niet de Python-bibliotheek SimpleCV. Zet deze map neer als statische site, met de map als de root. Geen account en geen server. Het document blijft in de browser. De bron van de editor staat in `src/editor/`, de stijl in `src/css/`. `npm run build` voegt die bestanden samen tot `editor.js` en `styles.css`.
+Een lokale editor voor een CV of een motivatiebrief. De enige openbare site is [librecv.org](https://librecv.org/). Deze repository gebruikt geen GitHub Pages. De bron is [github.com/Vabian124/LibreCV](https://github.com/Vabian124/LibreCV). Dit project is niet de LibreCV-vereniging voor computervisie, en niet de Python-bibliotheek SimpleCV. Zet deze map neer als statische site, met de map als de root. Geen account en geen server. Het document blijft in de browser. De bron van de editor staat in `src/editor/`, de stijl in `src/css/`. `npm run build` voegt die bestanden samen tot `editor.js` en `styles.css`.
 
 De eerste keer kies je een CV of een brief. Daarna stap voor stap, zelf invullen, tekst plakken, demodata, of Gebruik je eigen AI. Plak het sjabloon in een model. Een oud CV en de vacature zijn optioneel. Het antwoord hoort één codeblok te zijn, en dat plak je terug. Het sjabloon blijft op dit apparaat. Het houdt een fotokader in de zijbalk, met de vorm, en laat het beeldbestand zelf weg. Een https-adres op dat kader kan de foto laden. Download een PDF waarin de tekst selecteerbaar is.
 
