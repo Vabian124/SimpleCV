@@ -37,11 +37,23 @@ function showSetupStep(step) {
     const custom = document.getElementById("setup-custom");
     if (custom) custom.hidden = setupState.palette !== "custom";
     const backToDoc = document.getElementById("setup-return");
-    if (backToDoc) backToDoc.hidden = !setupReturn;
     const replaceNote = document.getElementById("setup-replace-note");
-    if (replaceNote) replaceNote.hidden = !setupReturn;
+    const actions = document.querySelector(".setup-actions");
     const nav = document.querySelector(".setup-nav");
-    if (nav) nav.hidden = ![back, cont, generate, backToDoc].some(function (button) { return button && !button.hidden; });
+    if (setupState.step === 1 && actions) {
+        if (backToDoc) actions.appendChild(backToDoc);
+        if (replaceNote) actions.appendChild(replaceNote);
+    } else if (nav && cont) {
+        if (backToDoc) nav.insertBefore(backToDoc, cont);
+        if (replaceNote) nav.insertBefore(replaceNote, cont);
+    }
+    if (backToDoc) backToDoc.hidden = !setupReturn;
+    if (replaceNote) replaceNote.hidden = !setupReturn;
+    if (nav) {
+        nav.hidden = !Array.prototype.some.call(nav.children, function (node) {
+            return node.tagName === "BUTTON" && !node.hidden;
+        });
+    }
     paintPalettePreview();
     paintContrastWarning();
 }

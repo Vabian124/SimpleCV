@@ -44,7 +44,7 @@ const I18N = {
             file: "Bestand",
             thisBlock: "Dit blok",
             model: "Kopiëren naar een AI",
-            modelHint: "Tekst ophalen kopieert een sjabloon. Plak het in je AI, en plak daarna je oude CV en de vacature eronder. Kopieer het codeblok dat je terugkrijgt, zet dat hier, en druk op Tekst plakken. Er gaat niets naar een server.",
+            modelHint: "Tekst ophalen kopieert een sjabloon. Plak het in je AI. Een oud CV en de vacature zijn optioneel; plak ze onder het sjabloon als je ze hebt. Kopieer het codeblok dat je terugkrijgt, zet dat hier, en druk op Tekst plakken. Er gaat niets naar een server.",
             copy: "Tekst ophalen",
             copied: "Gekopieerd",
             applyText: "Tekst plakken",
@@ -257,7 +257,7 @@ const I18N = {
             model: "Laat een AI het invullen",
             modelHint: "Kopieer een sjabloon, laat een AI je CV of brief schrijven, en plak het antwoord terug.",
             modelLead: "Kies wat je kopieert. De uitleg noemt elk blok van deze editor, dus een nieuw blok komt vanzelf mee.",
-            modelBox: "Het sjabloon staat hier. Plak het in een AI, en voeg je oude CV en de vacature toe. Kopieer het codeblok dat je terugkrijgt, en plak dat over deze tekst.",
+            modelBox: "Het sjabloon staat hier. Plak het in een AI. Een oud CV en de vacature zijn optioneel. Kopieer het codeblok dat je terugkrijgt, en plak dat over deze tekst.",
             fast: "Snelste",
             copyGuide: "Kopieer met uitleg",
             copyGuideHint: "Elk blok, met de vorm die de AI moet aanhouden.",
@@ -291,7 +291,7 @@ const I18N = {
             step: "Stap {n} van 3"
         },
         mark: {
-            preamble: "Opdracht. Vul het document onderaan in. Dit is een {kind}. De gebruiker plakt daarna ook een bestaand CV en de vacature. Ontbreekt een van die twee, vraag ernaar en wacht. Verzin geen werkgever, datum, vaardigheid of diploma. Het oude CV is de enige bron van feiten. De vacature bepaalt de nadruk, de volgorde en de formulering. Laat een veld leeg als je het niet weet. Schrijf de tekst in het {lang}. Antwoord met één codeblok en geen andere tekst, zodat het in één klik te kopiëren is. In het codeblok staat alleen het document. Gebruik daar geen markdown: geen sterretjes, geen koppen met een hekje, geen tabellen en geen lijsten met een streepje. Een punt is een regel die begint met POINT: . In NAME en TO is een nieuwe regel het teken <br>, vier tekens, niet omgezet naar een echte regel.",
+            preamble: "Opdracht. Vul het document onderaan in. Dit is een {kind}. De gebruiker mag ook een oud CV en de vacature plakken. Allebei zijn optioneel. Staan ze erbij, dan is het oude CV de enige bron van feiten en bepaalt de vacature de nadruk, de volgorde en de formulering. Ontbreken ze, gebruik dan alleen wat al in het document staat. Verzin geen werkgever, datum, vaardigheid of diploma. Laat een veld leeg als je het niet weet. Schrijf de tekst in het {lang}. Antwoord met één codeblok en geen andere tekst, zodat het in één klik te kopiëren is. In het codeblok staat alleen het document. Gebruik daar geen markdown: geen sterretjes, geen koppen met een hekje, geen tabellen en geen lijsten met een streepje. Een punt is een regel die begint met POINT: . In NAME en TO is een nieuwe regel het teken <br>, vier tekens, niet omgezet naar een echte regel.",
             keep: "Herhaal @@@JOB één keer per baan en @@@STUDY één keer per opleiding. Laat elke regel die met @@@ begint exact staan, tot en met @@@END.",
             advanced: "Optioneel. Een sectie mag ook COLOR, BACKGROUND en SIZE hebben. COLOR en BACKGROUND zijn een hekje en dan zes hexadecimale tekens. SIZE is de tekstgrootte in punten, van 8 tot 28. @@@THEME zet de pagina. SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE en TEXT zijn een hekje plus zes hexadecimale tekens. SIZE is de basisgrootte. COLUMN is het percentage van de zijbalk. FONT is roboto, merriweather of lora.",
             fallback: "Blok {type} hoort ook in het document. Velden: {fields}.",
@@ -400,7 +400,7 @@ const I18N = {
             file: "File",
             thisBlock: "This block",
             model: "Copy to an AI",
-            modelHint: "Get text copies a template. Paste it into your AI, then paste your old CV and the job under it. Copy the code block it returns, put that here, and press Paste text. Nothing is sent to a server.",
+            modelHint: "Get text copies a template. Paste it into your AI. An old CV and the job are optional; paste them under the template if you have them. Copy the code block it returns, put that here, and press Paste text. Nothing is sent to a server.",
             copy: "Get text",
             copied: "Copied",
             applyText: "Paste text",
@@ -613,7 +613,7 @@ const I18N = {
             model: "Let an AI fill it in",
             modelHint: "Copy a template, let an AI write your CV or letter, and paste the answer back.",
             modelLead: "Choose what you copy. The guide names every block in this editor, so a new block is included on its own.",
-            modelBox: "The template is here. Paste it into an AI, then add your old CV and the job. Copy the code block it returns and paste it over this text.",
+            modelBox: "The template is here. Paste it into an AI. An old CV and the job are optional. Copy the code block it returns and paste it over this text.",
             fast: "Fastest",
             copyGuide: "Copy with a guide",
             copyGuideHint: "Every block, with the shape the AI should follow.",
@@ -647,7 +647,7 @@ const I18N = {
             step: "Step {n} of 3"
         },
         mark: {
-            preamble: "Task. Fill in the document at the end. This is a {kind}. The user will also paste their current CV and the job they want. If either is missing, ask for it and wait. Do not invent an employer, a date, a skill, or a degree. The old CV is the only source of facts. The job text decides the emphasis, the order, and the wording. Leave a field empty when you do not know it. Write the words in {lang}. Reply with one code block and no other text, so it can be copied in one click. The code block is the document only. Inside it, do not use markdown: no asterisks, no hash headings, no tables, and no dash lists. A point is a line that starts with POINT: . Inside NAME and TO, a new line is the token <br>, four characters, not a real line break.",
+            preamble: "Task. Fill in the document at the end. This is a {kind}. The user may also paste an old CV and the job. Both are optional. If they are included, the old CV is the only source of facts and the job text decides the emphasis, the order, and the wording. If they are left out, use only what is already in the document. Do not invent an employer, a date, a skill, or a degree. Leave a field empty when you do not know it. Write the words in {lang}. Reply with one code block and no other text, so it can be copied in one click. The code block is the document only. Inside it, do not use markdown: no asterisks, no hash headings, no tables, and no dash lists. A point is a line that starts with POINT: . Inside NAME and TO, a new line is the token <br>, four characters, not a real line break.",
             keep: "Repeat @@@JOB once for each job and @@@STUDY once for each course. Keep every line that starts with @@@ exactly, through @@@END.",
             advanced: "Optional. A section may also have COLOR, BACKGROUND and SIZE. COLOR and BACKGROUND are a hash followed by six hex digits. SIZE is the type size in points, from 8 to 28. @@@THEME sets the page. SIDEBAR, SIDEBARTEXT, ACCENT, ACCENTLIGHT, PAGE and TEXT are a hash plus six hex digits. SIZE is the base size. COLUMN is the sidebar percentage. FONT is roboto, merriweather or lora.",
             fallback: "The {type} block belongs in the document too. Fields: {fields}.",
