@@ -1720,27 +1720,7 @@ body[data-phase="studio"] .studio {
     min-height: 0;
 }
 
-body[data-phase="studio"] .site-foot {
-    flex: none;
-    width: auto;
-    margin: 0;
-    padding: 7px 16px 8px;
-    background: #f8fafc;
-    border-top: 1px solid rgba(15, 23, 42, 0.08);
-    font-size: 12.5px;
-    line-height: 1.45;
-}
-
-body[data-phase="studio"] .site-foot p {
-    display: inline;
-    margin: 0;
-    max-width: none;
-}
-
-body[data-phase="studio"] .site-foot p + p::before { content: " "; }
-
-body[data-phase="studio"] .site-foot .site-faq,
-body[data-phase="studio"] .site-foot .seo-links { display: none; }
+body[data-phase="studio"] .site-foot { display: none; }
 
 body.pdf-exporting .site-foot { display: none; }
 
