@@ -2,7 +2,9 @@
 
 LibreCV is a local editor for a CV or a motivation letter. The public site is [https://librecv.org/](https://librecv.org/). The source is [github.com/Vabian124/SimpleCV](https://github.com/Vabian124/SimpleCV).
 
-Open `index.html` in a browser, or host this folder as a static site. There is no account, no server, and no build step. The document stays in the browser.
+Open `index.html` in a browser, or host this folder as a static site. There is no account and no server. The document stays in the browser.
+
+The editor is written as several files in `src/editor/`. `npm run build` joins them into `editor.js`, which is the file the site loads. `npm test` checks that the join matches. `npm run lint` runs ESLint, Stylelint, and HTML Validate.
 
 The first visit asks whether you want a CV or a motivation letter. Then you can walk through it step by step, start from a blank page, paste text, load demo data, or copy an AI template. The template stays on this device: no account, no key, and the text is not sent to a server. In the studio, formatting appears above the block you touch. Settings, paste, colours and the typeface live in the panel on the right. Download a PDF whose text can be selected.
 

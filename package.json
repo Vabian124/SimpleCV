@@ -1,0 +1,20 @@
+{
+  "name": "librecv",
+  "private": true,
+  "description": "LibreCV, a free CV and motivation-letter builder.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:html",
+    "lint:js": "node scripts/build.js --check && eslint editor.js scripts",
+    "lint:css": "stylelint styles.css",
+    "lint:html": "html-validate index.html 404.html nl/index.html nl/motivatiebrief/index.html motivation-letter/index.html templates/index.html templates/software-engineer/index.html templates/nursing/index.html",
+    "test": "node scripts/test.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "html-validate": "^11.17.0",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0"
+  }
+}

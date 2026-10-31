@@ -82,6 +82,8 @@ const I18N = {
             fit: "Passend",
             more: "Meer",
             langHint: "NL/EN wisselt de knoppen, de vaste koppen en de spelling. Tekst die je zelf schreef blijft staan.",
+            language: "Taal",
+            panes: "Delen van de editor",
             backToDoc: "Terug naar document",
             replaceNote: "Doorgaan vervangt het open document. Terug naar document laat het staan.",
             replaceArmed: "Vervangen?",
@@ -430,6 +432,8 @@ const I18N = {
             fit: "Fit",
             more: "More",
             langHint: "NL/EN switches the buttons, the fixed headings and the spellcheck. Text you wrote stays as it is.",
+            language: "Language",
+            panes: "Editor panes",
             backToDoc: "Back to document",
             replaceNote: "Continuing replaces the open document. Back to document leaves it as it is.",
             replaceArmed: "Replace?",
@@ -711,10 +715,6 @@ let lang = "en";
 let doc = null;
 let selectedId = null;
 let addTarget = "main";
-let dragHome = null;
-let dragCancel = false;
-let dragSortable = null;
-let dragPoint = null;
 let activeDragCancel = null;
 let seq = 1;
 let past = [];
@@ -730,7 +730,6 @@ const PALETTES = {
     minimal: { sidebar: "#f4f4f5", sidebarText: "#18181b", accent: "#18181b", accentLight: "#18181b", page: "#ffffff", text: "#18181b" }
 };
 let stageScale = 1;
-let sortables = [];
 let zoomTouched = false;
 let filenameCustom = false;
 let setupReturn = false;
@@ -2118,7 +2117,6 @@ function render() {
         selectedId = null;
         updateInspector();
     }
-    bindSortables();
     fillBlockGrid();
     syncSpellLocale();
     requestAnimationFrame(updatePageGuides);
@@ -2239,87 +2237,11 @@ function positionFloatbar() {
     bar.style.top = top + "px";
 }
 
-function dragPointFrom(event) {
-    if (!event) return null;
-    const touch = event.changedTouches && event.changedTouches[0];
-    const source = touch || event;
-    if (typeof source.clientX !== "number") return null;
-    return { x: source.clientX, y: source.clientY };
-}
-
-function trackDragPoint(event) {
-    const point = dragPointFrom(event);
-    if (point) dragPoint = point;
-}
-
-function columnAtPoint(point) {
-    if (!point) return null;
-    const stack = document.elementsFromPoint(point.x, point.y);
-    for (let index = 0; index < stack.length; index += 1) {
-        const node = stack[index];
-        if (!node || node.nodeType !== 1) continue;
-        if (node.closest(".sortable-fallback, .sortable-drag")) continue;
-        if (node.closest("#floatbar, #toast, .crop-dialog, .topbar, .library, .drawer")) return null;
-        if (node.id === "col-sidebar" || node.id === "col-main") return node;
-        const column = node.closest("#col-sidebar, #col-main");
-        if (column) return column;
-        if (node.closest("#sheet")) continue;
-        return null;
-    }
-    return null;
-}
-
-function placeBlockAtPoint(item, point) {
-    const column = columnAtPoint(point);
-    if (!column || !item) return false;
-    const blocks = Array.from(column.children).filter(function (node) {
-        return node !== item && node.classList.contains("block");
-    });
-    let next = null;
-    blocks.forEach(function (block) {
-        if (next) return;
-        const rect = block.getBoundingClientRect();
-        if (point.y < rect.top + rect.height / 2) next = block;
-    });
-    if (item.parentElement !== column || item.nextSibling !== next) column.insertBefore(item, next);
-    return true;
-}
-
-function bindSortables() {
-    sortables.forEach(function (sortable) { sortable.destroy(); });
-    sortables = [];
-}
-
 function cancelDrag() {
-    if (typeof activeDragCancel === "function") {
-        const cancel = activeDragCancel;
-        activeDragCancel = null;
-        cancel();
-        return true;
-    }
-    const dragged = typeof Sortable !== "undefined" ? Sortable.dragged : null;
-    const active = (typeof Sortable !== "undefined" && Sortable.active) || dragSortable;
-    if (!active || !dragged || !active._onDrop) return false;
-    dragCancel = true;
-    if (dragHome && dragHome.parent) {
-        const next = dragHome.next && dragHome.next.parentNode === dragHome.parent ? dragHome.next : null;
-        dragHome.parent.insertBefore(dragged, next);
-    }
-    try {
-        active._onDrop({
-            type: "drop",
-            preventDefault: function () {},
-            stopPropagation: function () {}
-        });
-    } catch (error) {
-        dragCancel = false;
-        render();
-    }
-    requestAnimationFrame(function () {
-        if (!document.querySelector(".sortable-fallback, .block.is-ghost, .block.is-chosen")) return;
-        dragCancel = false;
-        render();
-    });
+    if (typeof activeDragCancel !== "function") return false;
+    const cancel = activeDragCancel;
+    activeDragCancel = null;
+    cancel();
     return true;
 }
 
@@ -3396,9 +3318,9 @@ function filePrefix() {
 
 function pdfFilename() {
     const safe = function (value) {
-        return String(value || "")
-            .replace(/\.pdf$/i, "")
-            .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "")
+        return Array.from(String(value || "").replace(/\.pdf$/i, "")).filter(function (char) {
+            return char.charCodeAt(0) >= 32 && "<>:\"/\\|?*".indexOf(char) === -1;
+        }).join("")
             .trim()
             .replace(/\s+/g, "_")
             .replace(/_+/g, "_")
@@ -4186,6 +4108,10 @@ function applyLanguage() {
     document.querySelectorAll("[data-i18n-placeholder]").forEach(function (node) {
         const value = t(node.dataset.i18nPlaceholder);
         if (value !== node.dataset.i18nPlaceholder) node.placeholder = value;
+    });
+    document.querySelectorAll("[data-i18n-label]").forEach(function (node) {
+        const value = t(node.dataset.i18nLabel);
+        if (value !== node.dataset.i18nLabel) node.setAttribute("aria-label", value);
     });
     document.querySelectorAll(".lang-switch button").forEach(function (button) {
         button.classList.toggle("is-active", button.dataset.lang === lang);
@@ -5162,7 +5088,6 @@ function setPhase(phase) {
     }
     if (phase === "setup") showSetupStep(setupState.step || 1);
     refreshIdentity();
-    bindSortables();
     requestAnimationFrame(function () {
         if (phase === "studio" && !zoomTouched) fitStage();
         else updatePageGuides();

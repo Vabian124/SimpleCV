@@ -373,12 +373,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     border-radius: 14px;
     background: #fff;
     text-align: left;
-    cursor: pointer;
+    cursor: grab;
     user-select: none;
+    touch-action: none;
 }
 
 .library-card:hover { border-color: #cbd5e1; background: #f8fafc; }
-.library-card { cursor: grab; touch-action: none; }
 body.is-dragging .library-card { cursor: grabbing; }
 
 .col.is-drop { box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.85); }
@@ -677,8 +677,6 @@ body.is-dragging .library-card { cursor: grabbing; }
 
 .sheet[data-kind="letter"] .main .block { margin-bottom: 4px; }
 
-.sidebar .heading { margin-top: 16px; font-size: 1.05em; }
-
 .sheet[data-kind="letter"] .sidebar .heading { margin-top: 10px; font-size: 1em; }
 
 .sheet[data-kind="letter"] .main .heading { margin-top: 6px; }
@@ -829,10 +827,9 @@ a.btn-primary {
     border-radius: 4px;
     border: 0;
     break-inside: avoid;
-    page-break-inside: avoid;
 }
 
-.paragraph, .intro { break-inside: auto; page-break-inside: auto; }
+.paragraph, .intro { break-inside: auto; }
 
 body[data-phase="studio"] .block:hover {
     outline: 1px dashed rgba(15, 23, 42, 0.28);
@@ -1037,7 +1034,11 @@ body.is-dragging .library-card { cursor: grabbing; }
     margin-top: 8px;
 }
 
-.sidebar .heading { border-bottom-color: var(--rule-side, #3d524c); }
+.sidebar .heading {
+    margin-top: 16px;
+    font-size: 1.05em;
+    border-bottom-color: var(--rule-side, #3d524c);
+}
 
 .heading.is-label {
     border-bottom: 0;
@@ -1291,11 +1292,10 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
 
 .kind-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 
-.kind-card, .choice-card { min-width: 0; }
-
 .card-kicker, .card-copy { overflow-wrap: anywhere; }
 
 .kind-card, .choice-card {
+    min-width: 0;
     text-align: left;
     border: 1px solid rgba(15, 23, 42, 0.08);
     background: rgba(255, 255, 255, 0.78);
