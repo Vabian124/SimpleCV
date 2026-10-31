@@ -53,11 +53,11 @@ const I18N = {
             hint: "Selecteer tekst in een blok om alleen dat stuk een kleur of grootte te geven.",
             file: "Bestand",
             thisBlock: "Dit blok",
-            model: "Model op dit apparaat",
-            modelHint: "Kopieer het document met of zonder uitleg. Plak het antwoord hieronder. De bloknamen moeten blijven staan. De tekst gaat niet naar een server.",
-            copy: "Kopieer tekst",
+            model: "Kopiëren naar een AI",
+            modelHint: "Dit vak begint met je pagina, in de vorm die een AI kan invullen. Tekst ophalen kopieert hem. Plak het antwoord over deze tekst, en Tekst plakken zet hem op de pagina. Laat de namen van de blokken staan. Er gaat niets naar een server.",
+            copy: "Tekst ophalen",
             copied: "Gekopieerd",
-            applyText: "Zet antwoord in de pagina",
+            applyText: "Tekst plakken",
             applied: "De pagina is bijgewerkt",
             copyFailed: "Kopiëren lukte niet. De tekst staat in het vak, selecteer hem daar.",
             parseError: "Het antwoord moet @@@CV of @@@LETTER bevatten, en eindigen met @@@END.",
@@ -408,11 +408,11 @@ const I18N = {
             hint: "Select text inside a block to colour or resize only that part.",
             file: "File",
             thisBlock: "This block",
-            model: "On-device model",
-            modelHint: "Copy the document with or without a guide. Paste the answer below. The block names have to stay as they are. The text is not sent to a server.",
-            copy: "Copy text",
+            model: "Copy to an AI",
+            modelHint: "This box starts with your page, in the shape an AI can fill in. Get text copies it. Paste the answer back over this text, then Paste text puts it on the page. Keep the names of the blocks. Nothing is sent to a server.",
+            copy: "Get text",
             copied: "Copied",
-            applyText: "Put the answer on the page",
+            applyText: "Paste text",
             applied: "The page is updated",
             copyFailed: "Copying failed. The text is in the box; select it there.",
             parseError: "The answer must contain @@@CV or @@@LETTER, and end with @@@END.",
@@ -751,6 +751,7 @@ let documentLive = false;
 let routeLock = false;
 let chromeProceed = false;
 let chromeAction = null;
+let aiBoxSource = "";
 let assetLoads = {};
 let pdfLibsPromise = null;
 let cropperPromise = null;
@@ -3041,9 +3042,21 @@ async function copyModelText(mode, filled) {
     }
 }
 
+function refreshAiBox(force) {
+    const box = document.getElementById("llm-input");
+    const pick = document.getElementById("model-mode");
+    if (!box || !doc) return;
+    if (!force && box.value && box.value !== aiBoxSource) return;
+    const text = filledBundle(pick ? pick.value : "guide");
+    aiBoxSource = text;
+    box.value = text;
+    box.scrollTop = 0;
+}
+
 async function copyForModel() {
     const pick = document.getElementById("model-mode");
     copyModelText(pick ? pick.value : "guide", true);
+    aiBoxSource = document.getElementById("llm-input") ? document.getElementById("llm-input").value : aiBoxSource;
 }
 
 function applyModelText() {
@@ -3898,10 +3911,10 @@ function mountTools() {
     deleteBtn.classList.add("btn-danger");
 
     const loose = h("textarea", { id: "loose-text", rows: "8" });
-    const llm = h("textarea", { id: "llm-input", rows: "6" });
+    const llm = h("textarea", { id: "llm-input", rows: "10", spellcheck: "false" });
     const formatBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "guide.formatLocal" }));
     const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel", "data-chrome-only": "1" }));
-    const copyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.copy" }));
+    const copyBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "ui.copy" }));
     const applyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.applyText" }));
     formatBtn.addEventListener("click", function () {
         const data = applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
@@ -4015,6 +4028,9 @@ function mountTools() {
             themeRange("theme-width", "sidebarWidth", "ui.column", "24", "50", "1")
         ])
     );
+    const modelMode = document.getElementById("model-mode");
+    if (modelMode) modelMode.addEventListener("change", function () { refreshAiBox(true); });
+    refreshAiBox(true);
     document.getElementById("library").append(
         h("h2", { i18n: "ui.blocks" }),
         h("p", { id: "library-hint", class: "note" }),
@@ -4188,6 +4204,7 @@ function applyLanguage() {
     updateFilenamePreview();
     paintContrastWarning();
     syncFaqSchema();
+    refreshAiBox(false);
     const morePages = document.getElementById("more-pages");
     if (morePages) morePages.setAttribute("aria-label", t("site.morePages"));
 }

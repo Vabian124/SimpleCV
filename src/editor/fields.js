@@ -519,10 +519,10 @@ function mountTools() {
     deleteBtn.classList.add("btn-danger");
 
     const loose = h("textarea", { id: "loose-text", rows: "8" });
-    const llm = h("textarea", { id: "llm-input", rows: "6" });
+    const llm = h("textarea", { id: "llm-input", rows: "10", spellcheck: "false" });
     const formatBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "guide.formatLocal" }));
     const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel", "data-chrome-only": "1" }));
-    const copyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.copy" }));
+    const copyBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "ui.copy" }));
     const applyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.applyText" }));
     formatBtn.addEventListener("click", function () {
         const data = applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
@@ -636,6 +636,9 @@ function mountTools() {
             themeRange("theme-width", "sidebarWidth", "ui.column", "24", "50", "1")
         ])
     );
+    const modelMode = document.getElementById("model-mode");
+    if (modelMode) modelMode.addEventListener("change", function () { refreshAiBox(true); });
+    refreshAiBox(true);
     document.getElementById("library").append(
         h("h2", { i18n: "ui.blocks" }),
         h("p", { id: "library-hint", class: "note" }),
@@ -809,6 +812,7 @@ function applyLanguage() {
     updateFilenamePreview();
     paintContrastWarning();
     syncFaqSchema();
+    refreshAiBox(false);
     const morePages = document.getElementById("more-pages");
     if (morePages) morePages.setAttribute("aria-label", t("site.morePages"));
 }

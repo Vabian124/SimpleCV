@@ -168,9 +168,21 @@ async function copyModelText(mode, filled) {
     }
 }
 
+function refreshAiBox(force) {
+    const box = document.getElementById("llm-input");
+    const pick = document.getElementById("model-mode");
+    if (!box || !doc) return;
+    if (!force && box.value && box.value !== aiBoxSource) return;
+    const text = filledBundle(pick ? pick.value : "guide");
+    aiBoxSource = text;
+    box.value = text;
+    box.scrollTop = 0;
+}
+
 async function copyForModel() {
     const pick = document.getElementById("model-mode");
     copyModelText(pick ? pick.value : "guide", true);
+    aiBoxSource = document.getElementById("llm-input") ? document.getElementById("llm-input").value : aiBoxSource;
 }
 
 function applyModelText() {

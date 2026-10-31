@@ -28,6 +28,7 @@ let documentLive = false;
 let routeLock = false;
 let chromeProceed = false;
 let chromeAction = null;
+let aiBoxSource = "";
 let assetLoads = {};
 let pdfLibsPromise = null;
 let cropperPromise = null;
