@@ -17,7 +17,7 @@ These pages are separate from the editor, and they are listed in `sitemap.xml`:
 - [https://librecv.org/nl/](https://librecv.org/nl/) is the Dutch introduction
 - [https://librecv.org/motivation-letter/](https://librecv.org/motivation-letter/) and [https://librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/) are the letter, in English and Dutch
 - [https://librecv.org/templates/](https://librecv.org/templates/) links to a software engineer CV and letter and a registered nurse CV and letter, in English and Dutch. A link on each page opens that block in the editor. The names are invented
-- [https://librecv.org/cli/](https://librecv.org/cli/) is the PDF command: `node scripts/pdf.js catalog/software-engineer-cv.txt -o cv.pdf`
+- [https://librecv.org/cli/](https://librecv.org/cli/) is the PDF command: `npm run pdf -- catalog/software-engineer-cv.txt -o cv.pdf`. An id such as `software-engineer-cv` works too. `--lang nl` sets the Dutch headings. The command-line PDF uses a standard typeface. The download in the editor uses the typeface on the page. Both carry `document.json`
 
 `/step-1`, `/step-2`, `/step-3` and `/editor` are the editor itself. They stay out of the sitemap. The canonical URL of the editor is `https://librecv.org/`.
 
@@ -33,7 +33,7 @@ Een lokale editor voor een CV of een motivatiebrief. De enige openbare site is [
 
 De eerste keer kies je een CV of een brief. Daarna stap voor stap, zelf invullen, tekst plakken, demodata, of Gebruik je eigen AI. Plak het sjabloon in een model. Een oud CV en de vacature zijn optioneel. Het antwoord hoort één codeblok te zijn, en dat plak je terug. Het sjabloon blijft op dit apparaat. Het houdt een fotokader in de zijbalk, met de vorm, en laat het beeldbestand zelf weg. Een https-adres op dat kader kan de foto laden. Download een PDF waarin de tekst selecteerbaar is.
 
-NL/EN wisselt de knoppen en de vaste koppen. Een nieuw bezoek begint in het Engels. De Nederlandse uitleg staat op [librecv.org/nl/](https://librecv.org/nl/) en de brief op [librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/).
+NL/EN wisselt de knoppen en de vaste koppen. Een nieuw bezoek begint in het Engels. De Nederlandse uitleg staat op [librecv.org/nl/](https://librecv.org/nl/) en de brief op [librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/). De cv's en brieven staan op [librecv.org/templates/](https://librecv.org/templates/) en onder [librecv.org/nl/sjablonen/](https://librecv.org/nl/sjablonen/softwareontwikkelaar/). Een link opent het blok in de editor. De namen zijn verzonnen. `npm run pdf -- catalog/verpleegkundige-cv.txt --lang nl -o cv.pdf` maakt dezelfde PDF vanaf de opdrachtregel. Die PDF bevat `document.json`. De uitleg van het commando staat op [librecv.org/nl/cli/](https://librecv.org/nl/cli/).
 
 De eigen code is CC0-1.0. Bibliotheken houden hun eigen licentie. Zie `NOTICE`.
 
