@@ -1,6 +1,8 @@
 *.md
 !README.md
 *.pdf
+!templates/**/document.pdf
+!nl/sjablonen/**/document.pdf
 *.html
 !index.html
 !404.html

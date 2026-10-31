@@ -32,12 +32,18 @@
     <link rel="icon" href="/favicon.png" sizes="96x96" type="image/png">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles.css?v=20">
+    <link rel="stylesheet" href="/styles.css?v=21">
 </head>
 <body>
     <main class="setup">
         <article class="guide-page">
+            <div class="page-tools">
             <p class="kicker">LibreCV. Geen account.</p>
+            <nav class="lang-switch" aria-label="Taal">
+                <a href="/nl/cli/" lang="nl" hreflang="nl" aria-current="page">NL</a>
+                <a href="/cli/" lang="en" hreflang="en">EN</a>
+            </nav>
+            </div>
             <h1>Een CV-PDF maken vanaf de opdrachtregel</h1>
             <p class="setup-lead">Het commando leest hetzelfde blok als de editor. Het schrijft een PDF waarin de tekst selecteerbaar is. Die PDF bevat document.json, zodat je hem opnieuw in de editor kunt openen. Er wordt niets geüpload.</p>
             <pre class="marked"><code>node scripts/pdf.js catalog/verpleegkundige-cv.txt --lang nl -o cv.pdf</code></pre>

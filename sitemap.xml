@@ -110,6 +110,46 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://librecv.org/cli/"/>
   </url>
   <url>
+    <loc>https://librecv.org/templates/software-engineer/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/templates/software-engineer/letter/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/templates/nursing/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/templates/nursing/letter/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/nl/sjablonen/softwareontwikkelaar/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/nl/sjablonen/softwareontwikkelaar/brief/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/nl/sjablonen/verpleegkundige/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://librecv.org/nl/sjablonen/verpleegkundige/brief/document.pdf</loc>
+    <lastmod>2026-10-31</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://librecv.org/nl/cli/</loc>
     <lastmod>2026-10-31</lastmod>
     <changefreq>monthly</changefreq>

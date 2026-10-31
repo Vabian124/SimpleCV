@@ -32,12 +32,18 @@
     <link rel="icon" href="/favicon.png" sizes="96x96" type="image/png">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles.css?v=20">
+    <link rel="stylesheet" href="/styles.css?v=21">
 </head>
 <body>
     <main class="setup">
         <article class="guide-page">
+            <div class="page-tools">
             <p class="kicker">LibreCV. No account.</p>
+            <nav class="lang-switch" aria-label="Language">
+                <a href="/nl/cli/" lang="nl" hreflang="nl">NL</a>
+                <a href="/cli/" lang="en" hreflang="en" aria-current="page">EN</a>
+            </nav>
+            </div>
             <h1>Make a CV PDF from the command line</h1>
             <p class="setup-lead">The command reads the same block the editor pastes. It writes a PDF whose text can be selected. That PDF carries document.json, so you can open it in the editor again. Nothing is uploaded.</p>
             <pre class="marked"><code>node scripts/pdf.js catalog/software-engineer-cv.txt -o cv.pdf</code></pre>

@@ -5,10 +5,25 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const asset = "20";
+const asset = "21";
+const pdfCli = require("./pdf.js");
 
 function readCatalog(id) {
     return fs.readFileSync(path.join(root, "catalog", id + ".txt"), "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\s+$/, "");
+}
+
+function sitePath(url) {
+    return url.slice("https://librecv.org".length) || "/";
+}
+
+function langSwitch(lang, enPath, nlPath) {
+    const label = lang === "nl" ? "Taal" : "Language";
+    const nlCurrent = lang === "nl" ? " aria-current=\"page\"" : "";
+    const enCurrent = lang === "en" ? " aria-current=\"page\"" : "";
+    return "            <nav class=\"lang-switch\" aria-label=\"" + label + "\">\n" +
+        "                <a href=\"" + esc(nlPath) + "\" lang=\"nl\" hreflang=\"nl\"" + nlCurrent + ">NL</a>\n" +
+        "                <a href=\"" + esc(enPath) + "\" lang=\"en\" hreflang=\"en\"" + enCurrent + ">EN</a>\n" +
+        "            </nav>\n";
 }
 
 function esc(value) {
@@ -343,6 +358,14 @@ function render(page) {
     const commandLead = page.lang === "nl"
         ? "Hetzelfde blok maakt een PDF vanaf de opdrachtregel. De tekst is selecteerbaar, en de PDF bevat document.json."
         : "The same block makes a PDF from the command line. The text can be selected, and the PDF carries document.json.";
+    const pdfLead = page.lang === "nl"
+        ? "Dit is het document. De tekst is selecteerbaar. De PDF bevat document.json, zodat de editor hem opnieuw kan openen."
+        : "This is the document. The text can be selected. The PDF carries document.json, so the editor can open it again.";
+    const pdfLink = page.lang === "nl" ? "Download de PDF" : "Download the PDF";
+    const pdfTitle = page.lang === "nl" ? "De PDF" : "The PDF";
+    const pdfPath = sitePath(page.url) + "document.pdf";
+    const enPath = sitePath(page.lang === "en" ? page.url : page.pair);
+    const nlPath = sitePath(page.lang === "nl" ? page.url : page.pair);
     const tips = page.tips.map(function (tip) { return "<li>" + esc(tip) + "</li>"; }).join("\n");
     const steps = page.steps.map(function (step) { return "<li>" + esc(step) + "</li>"; }).join("\n");
     const related = page.related.map(function (link) {
@@ -401,10 +424,21 @@ function render(page) {
         "<body>\n" +
         "    <main class=\"setup\">\n" +
         "        <article class=\"guide-page\">\n" +
+        "            <div class=\"page-tools\">\n" +
         "            <p class=\"kicker\">LibreCV. " + (page.lang === "nl" ? "Geen account." : "No account.") + "</p>\n" +
+        langSwitch(page.lang, enPath, nlPath) +
+        "            </div>\n" +
         "            <h1>" + esc(page.h1) + "</h1>\n" +
         "            <p class=\"setup-lead\">" + esc(page.lead) + "</p>\n" +
         "            <p><a class=\"btn-primary\" href=\"/?template=" + esc(page.id) + "&amp;lang=" + page.lang + "\">" + esc(page.open) + "</a></p>\n" +
+        "            <h2>" + pdfTitle + "</h2>\n" +
+        "            <p>" + esc(pdfLead) + "</p>\n" +
+        "            <figure class=\"pdf-preview\">\n" +
+        "                <div class=\"pdf-sheet\">\n" +
+        "                    <iframe src=\"" + esc(pdfPath) + "#toolbar=0&navpanes=0&view=Fit\" title=\"" + esc(page.h1) + "\"></iframe>\n" +
+        "                </div>\n" +
+        "                <figcaption><a href=\"" + esc(pdfPath) + "\">" + esc(pdfLink) + "</a></figcaption>\n" +
+        "            </figure>\n" +
         "            <h2>" + esc(page.tipsTitle) + "</h2>\n" +
         "            <ul>\n" + tips + "\n            </ul>\n" +
         sample +
@@ -429,14 +463,22 @@ function render(page) {
         "</html>\n";
 }
 
-function writePages() {
-    pages.forEach(function (page) {
+async function writePages() {
+    for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
         const file = path.join(root, page.out);
         fs.mkdirSync(path.dirname(file), { recursive: true });
         fs.writeFileSync(file, render(page));
-    });
+        const bytes = await pdfCli.renderMarkedPdf(readCatalog(page.id), page.lang);
+        fs.writeFileSync(path.join(path.dirname(file), "document.pdf"), Buffer.from(bytes));
+    }
 }
 
-if (require.main === module) writePages();
+if (require.main === module) {
+    writePages().catch(function (error) {
+        process.stderr.write((error && error.stack ? error.stack : String(error)) + "\n");
+        process.exit(1);
+    });
+}
 
 module.exports = { pages: pages, render: render, readCatalog: readCatalog, asset: asset };

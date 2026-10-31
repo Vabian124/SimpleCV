@@ -47,6 +47,7 @@ pages.forEach(function (page) {
     if (!style) fail(page[0] + " does not load /styles.css?v=");
     styleQueries.push(style[1]);
     if (html.indexOf("data-feedback") === -1) fail(page[0] + " has no feedback control");
+    if (html.indexOf('class="lang-switch"') === -1) fail(page[0] + " has no language switch");
     if (html.indexOf('src="/feedback/open.js?v=2"') === -1) fail(page[0] + " does not load the feedback opener");
     if (html.indexOf("form.js") !== -1) fail(page[0] + " loads the feedback form up front");
     if (html.indexOf("/feedback/desk") !== -1) fail(page[0] + " links the inbox");
@@ -256,6 +257,11 @@ templatePages.pages.forEach(function (page) {
     const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     if (html.indexOf(escaped) < 0) fail(page.out + " does not contain its block");
     if (html.indexOf("/?template=" + page.id + "&amp;lang=") < 0) fail(page.out + " does not open its block");
+    const pdfPath = page.url.slice("https://librecv.org".length) + "document.pdf";
+    if (html.indexOf(pdfPath) < 0) fail(page.out + " does not show its PDF");
+    const pdfBytes = fs.readFileSync(path.join(root, path.dirname(page.out), "document.pdf"));
+    if (pdfBytes.slice(0, 5).toString() !== "%PDF-") fail(page.out + " PDF is not a PDF");
+    if (sitemap.indexOf("https://librecv.org" + pdfPath) < 0) fail("sitemap is missing " + pdfPath);
     if (sitemap.indexOf(page.url) < 0) fail("sitemap is missing " + page.url);
     if (editor.indexOf(JSON.stringify(text)) < 0) fail("the editor is missing " + page.id);
 });

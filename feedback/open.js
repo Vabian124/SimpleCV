@@ -35,6 +35,11 @@
             var text = node.getAttribute("data-" + lang);
             if (text) node.textContent = text;
         });
+        document.querySelectorAll(".lang-switch a").forEach(function (link) {
+            var href = link.getAttribute("href") || "";
+            if (href.indexOf("lang=" + lang) !== -1) link.setAttribute("aria-current", "page");
+            else link.removeAttribute("aria-current");
+        });
     }
 
     document.addEventListener("click", function (event) {
