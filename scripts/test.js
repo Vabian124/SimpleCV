@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const zlib = require("zlib");
 const { built, builtCss } = require("./build.js");
 
 const root = path.join(__dirname, "..");
@@ -317,6 +318,24 @@ pdfCli.renderMarkedPdf(templatePages.readCatalog("nursing-cv"), "en").then(funct
     const embedded = names.lookup(PDFLib.PDFName.of("EmbeddedFiles"), PDFLib.PDFDict);
     const list = embedded.lookup(PDFLib.PDFName.of("Names"), PDFLib.PDFArray);
     if (list.lookup(0).decodeText() !== "document.json") fail("the PDF command dropped document.json");
+    return pdfCli.renderMarkedPdf(templatePages.readCatalog("nursing-letter"), "en");
+}).then(function (bytes) {
+    return PDFLib.PDFDocument.load(bytes);
+}).then(function (pdf) {
+    const names = pdf.catalog.lookup(PDFLib.PDFName.of("Names"), PDFLib.PDFDict);
+    const embedded = names.lookup(PDFLib.PDFName.of("EmbeddedFiles"), PDFLib.PDFDict);
+    const list = embedded.lookup(PDFLib.PDFName.of("Names"), PDFLib.PDFArray);
+    const spec = list.lookup(1);
+    const file = spec.lookup(PDFLib.PDFName.of("EF"), PDFLib.PDFDict).lookup(PDFLib.PDFName.of("F"));
+    const raw = zlib.inflateSync(Buffer.from(file.getContents()));
+    const saved = JSON.parse(raw.toString("utf8"));
+    if (saved.theme.sidebar !== "#14532d" || saved.theme.accentLight !== "#6ee7b7") fail("the PDF command dropped the sidebar colours");
+    const photo = saved.sidebar.filter(function (item) { return item.type === "photo" && item.fields.src; })[0];
+    if (!photo) fail("the PDF command dropped the sidebar photo");
+    const painted = zlib.inflateSync(Buffer.from(pdf.context.lookup(pdf.getPage(0).node.Contents().asArray()[0]).contents)).toString("latin1");
+    if (painted.indexOf("<4E4F4F52>") < 0) fail("the PDF command did not paint the name");
+    if (painted.indexOf("0.43137254901960786") < 0) fail("the PDF command did not paint the sidebar accent");
+    if (painted.indexOf("0.8392156862745098") < 0) fail("the PDF command did not paint the photo mark");
     console.log("ok");
 }).catch(function (error) {
     fail(error && error.stack ? error.stack : String(error));

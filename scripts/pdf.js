@@ -187,58 +187,327 @@ function wrap(font, text, size, width) {
     return lines.length ? lines : [""];
 }
 
-function runsFor(item, width, fonts, label, plain, color, accent) {
-    const size = Number(item.fontSize) >= 8 && Number(item.fontSize) <= 28 ? Number(item.fontSize) : 0;
-    const bodySize = size || 9.5;
-    const text = function (html) { return plain(html || ""); };
-    const add = function (value, font, paint, point) {
-        wrap(font, value, point, width).forEach(function (line) {
-            runs.push({ text: line, font: font, size: point, color: paint });
-        });
+function px(value) {
+    return value * 0.75;
+}
+
+function mixHex(base, tint, amount) {
+    const read = function (hex) {
+        const h = String(hex || "").replace("#", "");
+        if (!/^[0-9a-fA-F]{6}$/.test(h)) return [255, 255, 255];
+        return [0, 2, 4].map(function (index) { return parseInt(h.slice(index, index + 2), 16); });
     };
-    const runs = [];
-    const fields = item.fields || {};
-    if (item.type === "name") add(text(fields.html), fonts.bold, color, 16);
-    else if (item.type === "role") add(text(fields.html), fonts.bold, color, 11);
-    else if (item.type === "heading") {
-        const heading = fields.key ? label(fields.key) : text(fields.html);
-        if (heading) add(heading, fonts.bold, accent || color, 10);
-    } else if (item.type === "contact") {
-        const rowLabel = fields.labelKey && fields.labelKey !== "custom" ? label("doc." + fields.labelKey) : text(fields.label);
-        const value = text(fields.html);
-        if (rowLabel || value) add((rowLabel ? rowLabel + "  " : "") + value, fonts.regular, color, bodySize);
-    } else if (item.type === "skill") add(text(fields.html), fonts.regular, color, bodySize);
-    else if (item.type === "competence" || item.type === "project") {
-        const title = text(fields.title);
-        const body = text(fields.body);
-        if (title) add(title, fonts.bold, color, bodySize);
-        if (body) add(body, fonts.regular, color, bodySize);
-    } else if (item.type === "letterhead") {
-        if (text(fields.title)) add(text(fields.title), fonts.bold, accent || color, 12);
-        if (text(fields.date)) add(text(fields.date), fonts.regular, color, bodySize);
-        if (text(fields.to)) add(text(fields.to), fonts.regular, color, bodySize);
-        if (text(fields.subject)) add(text(fields.subject), fonts.bold, color, bodySize);
-    } else if (item.type === "intro" || item.type === "paragraph") add(text(fields.html), fonts.regular, color, bodySize);
-    else if (item.type === "timeline") {
-        if (text(fields.title)) add(text(fields.title), fonts.bold, color, bodySize + 0.5);
-        const when = [text(fields.date), text(fields.org)].filter(Boolean).join("  ");
-        if (when) add(when, fonts.regular, color, bodySize);
-        (fields.items || []).forEach(function (itemText) {
-            const line = text(itemText);
-            if (line) add(line, fonts.regular, color, bodySize);
+    const from = read(base);
+    const to = read(tint);
+    return "#" + from.map(function (channel, index) {
+        const mixed = Math.round(channel + (to[index] - channel) * amount).toString(16);
+        return mixed.length === 1 ? "0" + mixed : mixed;
+    }).join("");
+}
+
+function gap(height) {
+    return { h: Math.max(0, height), draw: function () {} };
+}
+
+function pushText(out, value, font, size, color, width, leading) {
+    const lines = wrap(font, value, size, width);
+    if (!lines.join("").trim()) return;
+    const step = size * (leading || 1.28);
+    lines.forEach(function (line) {
+        out.push({
+            h: step,
+            draw: function (page, x, top) {
+                if (!line) return;
+                page.drawText(line, { x: x, y: top - size * 0.8, size: size, font: font, color: color });
+            }
         });
-    } else if (item.type === "list") {
-        (fields.items || []).forEach(function (itemText) {
-            const line = text(itemText);
-            if (line) add(line, fonts.regular, color, bodySize);
-        });
-    } else if (item.type === "closing") {
-        (fields.paragraphs || []).forEach(function (paragraph) {
-            if (text(paragraph)) add(text(paragraph), fonts.regular, color, bodySize);
-        });
-    } else if (item.type === "signature") add(text(fields.html), fonts.bold, color, 12);
-    else if (item.type === "spacer") runs.push({ text: "", font: fonts.regular, size: Math.max(4, Math.min(24, Number(fields.size) || 12)), color: color });
-    return runs;
+    });
+}
+
+function photoBox(item, width) {
+    const parts = String(item.fields && item.fields.aspect || "3 / 4").split("/");
+    const across = Number(parts[0]) > 0 ? Number(parts[0]) : 3;
+    const down = Number(parts[1]) > 0 ? Number(parts[1]) : 4;
+    const saved = Number(item.fields && item.fields.width);
+    const portion = saved >= 36 && saved <= 100 ? saved : 92;
+    const box = width * portion / 100;
+    return { w: box, h: box * down / across, filled: Boolean(item.fields && item.fields.src) };
+}
+
+function bulletPiece(value, font, size, color, width) {
+    const indent = px(12);
+    const lines = wrap(font, value, size, width - indent);
+    const step = size * 1.32;
+    return {
+        h: Math.max(step, lines.length * step),
+        draw: function (page, x, top) {
+            page.drawEllipse({
+                x: x + 1.6,
+                y: top - size * 0.48,
+                xScale: 1.35,
+                yScale: 1.35,
+                color: color
+            });
+            lines.forEach(function (line, index) {
+                if (!line) return;
+                page.drawText(line, {
+                    x: x + indent,
+                    y: top - size * 0.8 - index * step,
+                    size: size,
+                    font: font,
+                    color: color
+                });
+            });
+        }
+    };
+}
+
+function blocksFor(items, width, ctx) {
+    const out = [];
+    const letter = ctx.kind === "letter";
+    const base = ctx.base;
+    const blockGap = px(letter ? 5 : 8);
+    items.forEach(function (item, index) {
+        const fields = item.fields || {};
+        const text = function (html) { return ctx.plain(html || ""); };
+        const ink = item.color ? rgbOf(item.color, "#334155") : ctx.ink;
+        const size = Number(item.fontSize) >= 8 && Number(item.fontSize) <= 28 ? Number(item.fontSize) : base;
+        if (item.type === "photo") {
+            const box = photoBox(item, width);
+            const fill = rgbOf("#d6dee8", "#d6dee8");
+            const mark = rgbOf("#94a3b8", "#94a3b8");
+            out.push({
+                h: box.h,
+                draw: function (page, x, top) {
+                    const rect = { x: x, y: top - box.h, width: box.w, height: box.h };
+                    if (box.filled) rect.color = fill;
+                    else {
+                        rect.borderColor = ink;
+                        rect.borderWidth = 1;
+                    }
+                    page.drawRectangle(rect);
+                    if (!box.filled) return;
+                    page.drawEllipse({
+                        x: x + box.w * 0.5,
+                        y: top - box.h * 0.37,
+                        xScale: box.w * 0.19,
+                        yScale: box.w * 0.19,
+                        color: mark
+                    });
+                    page.drawEllipse({
+                        x: x + box.w * 0.5,
+                        y: top - box.h * 0.84,
+                        xScale: box.w * 0.31,
+                        yScale: box.h * 0.18,
+                        color: mark
+                    });
+                }
+            });
+            pushText(out, text(fields.caption), ctx.fonts.regular, size * 0.92, ink, box.w, 1.3);
+            out.push(gap(blockGap));
+        } else if (item.type === "name") {
+            pushText(out, text(fields.html).toUpperCase(), ctx.fonts.bold, letter ? 20 : 22, ink, width, 1.08);
+            out.push(gap(px(letter ? 4 : 6)));
+        } else if (item.type === "role") {
+            pushText(out, text(fields.html).toUpperCase(), ctx.fonts.bold, base, ctx.side ? ctx.accentLight : ctx.accent, width, 1.2);
+            out.push(gap(px(letter ? 6 : 8)));
+        } else if (item.type === "heading") {
+            const heading = fields.key ? ctx.label(fields.key) : text(fields.html);
+            const labelStyle = fields.style === "label";
+            if (heading) {
+                if (!labelStyle && index > 0) out.push(gap(px(letter && ctx.side ? 8 : 10)));
+                pushText(out, heading.toUpperCase(), ctx.fonts.bold, labelStyle ? base * 0.95 : base * 1.05, labelStyle ? ctx.accent : ink, width, 1.15);
+                if (!labelStyle) {
+                    out.push({
+                        h: px(5),
+                        draw: function (page, x, top) {
+                            page.drawLine({
+                                start: { x: x, y: top - px(2) },
+                                end: { x: x + width, y: top - px(2) },
+                                thickness: 0.7,
+                                color: ctx.rule
+                            });
+                        }
+                    });
+                }
+                out.push(gap(px(labelStyle ? 2 : 3)));
+            }
+        } else if (item.type === "contact") {
+            const rowLabel = fields.labelKey && fields.labelKey !== "custom" ? ctx.label("doc." + fields.labelKey) : text(fields.label);
+            pushText(out, rowLabel.toUpperCase(), ctx.fonts.bold, base * 0.78, ctx.side ? ctx.accentLight : ctx.accent, width, 1.15);
+            pushText(out, text(fields.html), ctx.fonts.regular, base * 0.92, ink, width, 1.25);
+            out.push(gap(px(letter ? 3 : 5)));
+        } else if (item.type === "skill") {
+            const point = size * 0.92;
+            const lines = wrap(ctx.fonts.regular, text(fields.html), point, width - px(16));
+            const step = point * 1.25;
+            const h = px(letter ? 6 : 10) + lines.length * step;
+            const fill = item.background ? rgbOf(item.background, "#243044") : ctx.skillFill;
+            out.push({
+                h: h,
+                draw: function (page, x, top) {
+                    page.drawRectangle({ x: x, y: top - h, width: width, height: h, color: fill });
+                    page.drawRectangle({ x: x, y: top - h, width: px(3), height: h, color: ctx.side ? ctx.accentLight : ctx.accent });
+                    lines.forEach(function (line, lineIndex) {
+                        if (!line) return;
+                        page.drawText(line, {
+                            x: x + px(8),
+                            y: top - px(3) - point * 0.8 - lineIndex * step,
+                            size: point,
+                            font: ctx.fonts.regular,
+                            color: ink
+                        });
+                    });
+                }
+            });
+            out.push(gap(px(letter ? 3 : 4)));
+        } else if (item.type === "competence" || item.type === "project") {
+            pushText(out, text(fields.title), ctx.fonts.bold, size * 0.92, ink, width, 1.25);
+            pushText(out, text(fields.body), ctx.fonts.regular, size * 0.88, ink, width, 1.3);
+            out.push(gap(px(letter ? 4 : 6)));
+        } else if (item.type === "letterhead") {
+            const title = text(fields.title).toUpperCase();
+            const date = text(fields.date);
+            const point = 16;
+            const titleLines = wrap(ctx.fonts.bold, title, point, width * 0.62);
+            const row = Math.max(titleLines.length * point * 1.05, date ? point : point * 0.4);
+            out.push({
+                h: row + px(6),
+                draw: function (page, x, top) {
+                    titleLines.forEach(function (line, lineIndex) {
+                        if (!line) return;
+                        page.drawText(line, {
+                            x: x,
+                            y: top - point * 0.8 - lineIndex * point * 1.05,
+                            size: point,
+                            font: ctx.fonts.bold,
+                            color: ctx.accent
+                        });
+                    });
+                    if (date) {
+                        const dateSize = base * 0.92;
+                        const shown = winAnsi(date);
+                        const dateWidth = ctx.fonts.bold.widthOfTextAtSize(shown, dateSize);
+                        page.drawText(shown, {
+                            x: x + width - dateWidth,
+                            y: top - point * 0.72,
+                            size: dateSize,
+                            font: ctx.fonts.bold,
+                            color: rgbOf("#4b5563", "#4b5563")
+                        });
+                    }
+                    page.drawLine({
+                        start: { x: x, y: top - row - px(2) },
+                        end: { x: x + width, y: top - row - px(2) },
+                        thickness: 1.4,
+                        color: ctx.accent
+                    });
+                }
+            });
+            pushText(out, text(fields.to), ctx.fonts.regular, base * 0.92, ink, width, 1.3);
+            out.push(gap(px(3)));
+            pushText(out, text(fields.subject), ctx.fonts.bold, base, ctx.accent, width, 1.25);
+            out.push(gap(px(6)));
+        } else if (item.type === "intro") {
+            const label = ctx.label("doc.intro");
+            const body = text(fields.html);
+            const pad = px(6);
+            const bar = px(4);
+            const inner = width - pad * 2 - bar;
+            const labelSize = base * 0.85;
+            const bodyLines = wrap(ctx.fonts.regular, body, size, inner);
+            const bodyStep = size * 1.32;
+            const h = pad * 2 + labelSize * 1.25 + bodyLines.length * bodyStep;
+            out.push({
+                h: h,
+                draw: function (page, x, top) {
+                    page.drawRectangle({ x: x, y: top - h, width: width, height: h, color: ctx.introFill });
+                    page.drawRectangle({ x: x, y: top - h, width: bar, height: h, color: ctx.accent });
+                    if (label) {
+                        page.drawText(winAnsi(label), {
+                            x: x + bar + pad,
+                            y: top - pad - labelSize * 0.8,
+                            size: labelSize,
+                            font: ctx.fonts.bold,
+                            color: ink
+                        });
+                    }
+                    bodyLines.forEach(function (line, lineIndex) {
+                        if (!line) return;
+                        page.drawText(line, {
+                            x: x + bar + pad,
+                            y: top - pad - labelSize * 1.35 - size * 0.8 - lineIndex * bodyStep,
+                            size: size,
+                            font: ctx.fonts.regular,
+                            color: ink
+                        });
+                    });
+                }
+            });
+            out.push(gap(px(letter ? 4 : 8)));
+        } else if (item.type === "timeline") {
+            const title = text(fields.title);
+            const date = text(fields.date);
+            const titleSize = size;
+            const dateSize = size * 0.85;
+            if (title || date) {
+                const titleWidth = date ? width * 0.62 : width;
+                const titleLines = wrap(ctx.fonts.bold, title, titleSize, titleWidth);
+                const step = titleSize * 1.2;
+                out.push({
+                    h: Math.max(titleLines.length, 1) * step,
+                    draw: function (page, x, top) {
+                        titleLines.forEach(function (line, lineIndex) {
+                            if (!line) return;
+                            page.drawText(line, {
+                                x: x,
+                                y: top - titleSize * 0.8 - lineIndex * step,
+                                size: titleSize,
+                                font: ctx.fonts.bold,
+                                color: ink
+                            });
+                        });
+                        if (!date) return;
+                        const shown = winAnsi(date);
+                        const dateWidth = ctx.fonts.bold.widthOfTextAtSize(shown, dateSize);
+                        page.drawText(shown, {
+                            x: x + width - dateWidth,
+                            y: top - dateSize * 0.8,
+                            size: dateSize,
+                            font: ctx.fonts.bold,
+                            color: ctx.dateInk
+                        });
+                    }
+                });
+            }
+            pushText(out, text(fields.org), ctx.fonts.bold, size * 0.92, ctx.accent, width, 1.25);
+            (fields.items || []).forEach(function (itemText) {
+                const line = text(itemText);
+                if (line) out.push(bulletPiece(line, ctx.fonts.regular, size * 0.92, ink, width));
+            });
+            out.push(gap(px(letter ? 4 : 7)));
+        } else if (item.type === "list") {
+            (fields.items || []).forEach(function (itemText) {
+                const line = text(itemText);
+                if (line) out.push(bulletPiece(line, ctx.fonts.regular, size, ink, width));
+            });
+            out.push(gap(px(4)));
+        } else if (item.type === "paragraph") {
+            pushText(out, text(fields.html), ctx.fonts.regular, size, ink, width, letter ? 1.32 : 1.4);
+            out.push(gap(px(letter ? 4 : 6)));
+        } else if (item.type === "closing") {
+            (fields.paragraphs || []).forEach(function (paragraph) {
+                pushText(out, text(paragraph), ctx.fonts.bold, size, ctx.accent, width, 1.32);
+            });
+            out.push(gap(px(6)));
+        } else if (item.type === "signature") {
+            pushText(out, text(fields.html), ctx.fonts.bold, Math.max(size, 12), ctx.accent, width, 1.2);
+            out.push(gap(px(4)));
+        } else if (item.type === "spacer") {
+            out.push(gap(Math.max(4, Math.min(48, Number(fields.size) || 12)) * 0.75));
+        }
+    });
+    return out;
 }
 
 async function renderMarkedPdf(text, uiLang) {
@@ -250,27 +519,43 @@ async function renderMarkedPdf(text, uiLang) {
         regular: await pdf.embedFont(PDFLib.StandardFonts.Helvetica),
         bold: await pdf.embedFont(PDFLib.StandardFonts.HelveticaBold)
     };
+    const letter = doc.kind === "letter";
     const sideWidth = Math.max(140, Math.min(260, pageWidth * (Number(theme.sidebarWidth) || 33) / 100));
-    const sideInk = rgbOf(theme.sidebarText, "#f8fafc");
-    const mainInk = rgbOf(theme.text, "#334155");
+    const sidePad = px(letter ? 14 : 22);
+    const mainPad = px(letter ? 16 : 26);
+    const topPad = px(letter ? 18 : 36);
+    const base = Number(theme.baseSize) >= 8 && Number(theme.baseSize) <= 14 ? Number(theme.baseSize) : 9.5;
     const accent = rgbOf(theme.accent, "#0284c7");
-    const sideRuns = [];
-    const mainRuns = [];
-    doc.sidebar.forEach(function (item) {
-        if (item.type === "photo") return;
-        runsFor(item, sideWidth - 28, fonts, loaded.label, loaded.plain, sideInk, sideInk).forEach(function (run) {
-            sideRuns.push(run);
-        });
-    });
-    doc.main.forEach(function (item) {
-        if (item.type === "photo") return;
-        runsFor(item, pageWidth - sideWidth - 36, fonts, loaded.label, loaded.plain, mainInk, accent).forEach(function (run) {
-            mainRuns.push(run);
-        });
-    });
+    const shared = {
+        fonts: fonts,
+        kind: letter ? "letter" : "cv",
+        label: loaded.label,
+        plain: loaded.plain,
+        base: base,
+        accent: accent,
+        accentLight: rgbOf(theme.accentLight || theme.accent, "#38bdf8"),
+        introFill: rgbOf(mixHex(theme.page || "#ffffff", theme.accent || "#0284c7", 0.12), "#e8f4fb")
+    };
+    const sidePieces = blocksFor(doc.sidebar, sideWidth - sidePad * 2, Object.assign({}, shared, {
+        side: true,
+        ink: rgbOf(theme.sidebarText, "#f8fafc"),
+        skillFill: rgbOf(mixHex(theme.sidebar || "#1e293b", "#ffffff", 0.1), "#243044"),
+        rule: rgbOf(mixHex(theme.sidebar || "#1e293b", "#ffffff", 0.28), "#3d524c"),
+        dateInk: rgbOf(mixHex(theme.sidebarText || "#f8fafc", theme.sidebar || "#1e293b", 0.35), "#cbd5e1")
+    }));
+    const mainPieces = blocksFor(doc.main, pageWidth - sideWidth - mainPad - px(letter ? 18 : 28), Object.assign({}, shared, {
+        side: false,
+        ink: rgbOf(theme.text, "#334155"),
+        skillFill: rgbOf(mixHex(theme.page || "#ffffff", theme.accent || "#0284c7", 0.1), "#e0f2fe"),
+        rule: rgbOf(mixHex(theme.page || "#ffffff", "#64748b", 0.45), "#d5d5d5"),
+        dateInk: rgbOf("#64748b", "#64748b")
+    }));
     let page = null;
     let sideAt = 0;
     let mainAt = 0;
+    let sideY = 0;
+    let mainY = 0;
+    let fresh = false;
     function newPage() {
         page = pdf.addPage([pageWidth, pageHeight]);
         page.drawRectangle({
@@ -287,36 +572,30 @@ async function renderMarkedPdf(text, uiLang) {
             height: pageHeight,
             color: rgbOf(theme.page, "#ffffff")
         });
-        return pageHeight - 36;
+        sideY = pageHeight - topPad;
+        mainY = sideY;
+        fresh = true;
     }
-    let y = newPage();
-    while (sideAt < sideRuns.length || mainAt < mainRuns.length) {
-        const side = sideRuns[sideAt];
-        const main = mainRuns[mainAt];
-        const need = Math.max(side ? side.size + 4 : 0, main ? main.size + 4 : 0, 12);
-        if (y - need < 28) {
-            y = newPage();
-            continue;
-        }
-        if (side) {
-            if (side.text) {
-                page.drawText(side.text, { x: 14, y: y - side.size, size: side.size, font: side.font, color: side.color });
-            }
+    newPage();
+    while (sideAt < sidePieces.length || mainAt < mainPieces.length) {
+        let moved = false;
+        const side = sidePieces[sideAt];
+        const main = mainPieces[mainAt];
+        if (side && (sideY - side.h >= 28 || fresh)) {
+            side.draw(page, sidePad, sideY);
+            sideY -= side.h;
             sideAt += 1;
+            moved = true;
+            fresh = false;
         }
-        if (main) {
-            if (main.text) {
-                page.drawText(main.text, {
-                    x: sideWidth + 16,
-                    y: y - main.size,
-                    size: main.size,
-                    font: main.font,
-                    color: main.color
-                });
-            }
+        if (main && (mainY - main.h >= 28 || (fresh && sideAt >= sidePieces.length))) {
+            main.draw(page, sideWidth + mainPad, mainY);
+            mainY -= main.h;
             mainAt += 1;
+            moved = true;
+            fresh = false;
         }
-        y -= need;
+        if (!moved) newPage();
     }
     const person = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "name"; });
     const title = person ? loaded.plain(person.fields.html).replace(/\n/g, " ") : "LibreCV";
