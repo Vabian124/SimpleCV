@@ -34,6 +34,8 @@ const I18N_EN = {
         add: "Add a block",
         blocks: "Blocks",
         dragHint: "Click to add one. Drag a block to the sidebar or the page; Escape puts it back.",
+        dragHintTouch: "Tap a block to add it. Drag the handle on the right to place it on the page.",
+        placeBlock: "Drag onto the page",
         addTo: "Add to",
         sidebar: "Sidebar",
         main: "Page",

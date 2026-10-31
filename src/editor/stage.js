@@ -125,7 +125,8 @@ function syncLibraryHint() {
     if (!note) return;
     const item = selectedBlock();
     const lines = item && (item.type === "list" || item.type === "timeline" || item.type === "closing");
-    note.textContent = lines ? t("shell.addItem") + " " + t("ui.hint") : t("ui.dragHint");
+    const hint = narrowStudio() ? t("ui.dragHintTouch") : t("ui.dragHint");
+    note.textContent = lines ? t("shell.addItem") + " " + t("ui.hint") : hint;
 }
 
 function positionFloatbar() {

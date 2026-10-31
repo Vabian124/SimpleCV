@@ -294,6 +294,7 @@ function bindStudio() {
         if (!zoomTouched) fitStage();
         else updatePageGuides();
         positionFloatbar();
+        syncLibraryHint();
     });
 }
 

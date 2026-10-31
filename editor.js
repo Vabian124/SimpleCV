@@ -83,6 +83,8 @@ const I18N_NL = {
         add: "Blok toevoegen",
         blocks: "Blokken",
         dragHint: "Klik om toe te voegen. Sleep een blok naar de zijbalk of de pagina; Escape zet het terug.",
+        dragHintTouch: "Tik een blok om het toe te voegen. Sleep het handvat rechts om het op de pagina te zetten.",
+        placeBlock: "Sleep naar de pagina",
         addTo: "Toevoegen aan",
         sidebar: "Zijbalk",
         main: "Pagina",
@@ -445,6 +447,8 @@ const I18N_EN = {
         add: "Add a block",
         blocks: "Blocks",
         dragHint: "Click to add one. Drag a block to the sidebar or the page; Escape puts it back.",
+        dragHintTouch: "Tap a block to add it. Drag the handle on the right to place it on the page.",
+        placeBlock: "Drag onto the page",
         addTo: "Add to",
         sidebar: "Sidebar",
         main: "Page",
@@ -2264,11 +2268,15 @@ function bindLibraryCard(button, type) {
     let start = null;
     let dragging = false;
     let pointerId = null;
+    let fromGrip = false;
     button.addEventListener("pointerdown", function (event) {
         if (event.button !== 0) return;
+        fromGrip = !!(event.target.closest && event.target.closest(".library-grip"));
+        if (event.pointerType === "touch" && !fromGrip) return;
         start = { x: event.clientX, y: event.clientY };
         pointerId = event.pointerId;
         dragging = false;
+        if (fromGrip) event.preventDefault();
     });
     button.addEventListener("pointermove", function (event) {
         if (!start || event.pointerId !== pointerId) return;
@@ -2277,15 +2285,16 @@ function bindLibraryCard(button, type) {
         if (!dragging) {
             if (dx * dx + dy * dy < 36) return;
             dragging = true;
+            try { button.setPointerCapture(pointerId); } catch (error) { /* already gone */ }
             if (narrowStudio()) setStudioPane("page");
             document.body.classList.add("is-dragging");
             const bar = document.getElementById("floatbar");
             if (bar) bar.hidden = true;
             ensureDragChrome();
-            try { button.setPointerCapture(pointerId); } catch (error) { /* already gone */ }
             activeDragCancel = function () {
                 dragging = false;
                 start = null;
+                fromGrip = false;
                 button.dataset.suppressClick = "1";
                 try { button.releasePointerCapture(pointerId); } catch (error) { /* not captured */ }
                 clearDrop();
@@ -2300,12 +2309,14 @@ function bindLibraryCard(button, type) {
     function end(event) {
         if (!start || event.pointerId !== pointerId) return;
         const dropped = dragging;
+        const gripTap = fromGrip;
         const spot = dropped ? dropTarget(event.clientX, event.clientY, null) : null;
         start = null;
         dragging = false;
+        fromGrip = false;
         activeDragCancel = null;
         clearDrop();
-        if (dropped) button.dataset.suppressClick = "1";
+        if (dropped || gripTap) button.dataset.suppressClick = "1";
         if (!dropped || !spot) {
             updateInspector();
             return;
@@ -2318,6 +2329,7 @@ function bindLibraryCard(button, type) {
     button.addEventListener("pointercancel", function (event) {
         start = null;
         dragging = false;
+        fromGrip = false;
         activeDragCancel = null;
         clearDrop();
         if (event.pointerId === pointerId) button.dataset.suppressClick = "1";
@@ -2330,6 +2342,7 @@ function bindLibraryCard(button, type) {
             return;
         }
         addBlock(type);
+        if (narrowStudio()) setStudioPane("page");
     });
 }
 
@@ -2923,7 +2936,8 @@ function syncLibraryHint() {
     if (!note) return;
     const item = selectedBlock();
     const lines = item && (item.type === "list" || item.type === "timeline" || item.type === "closing");
-    note.textContent = lines ? t("shell.addItem") + " " + t("ui.hint") : t("ui.dragHint");
+    const hint = narrowStudio() ? t("ui.dragHintTouch") : t("ui.dragHint");
+    note.textContent = lines ? t("shell.addItem") + " " + t("ui.hint") : hint;
 }
 
 function positionFloatbar() {
@@ -4258,7 +4272,9 @@ function fillBlockGrid() {
     const types = ALL_BLOCKS;
     types.forEach(function (type) {
         const button = keepSelection(h("button", { class: "library-card", type: "button" }));
-        button.append(previewFor(type), h("span", { class: "library-name", text: t("type." + type), i18n: "type." + type }));
+        const grip = h("span", { class: "library-grip", "aria-hidden": "true", title: t("ui.placeBlock"), i18nTitle: "ui.placeBlock" });
+        grip.textContent = "\u22ee\u22ee";
+        button.append(previewFor(type), h("span", { class: "library-name", text: t("type." + type), i18n: "type." + type }), grip);
         bindLibraryCard(button, type);
         grid.appendChild(button);
     });
@@ -5933,6 +5949,7 @@ function bindStudio() {
         if (!zoomTouched) fitStage();
         else updatePageGuides();
         positionFloatbar();
+        syncLibraryHint();
     });
 }
 

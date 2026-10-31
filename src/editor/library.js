@@ -85,7 +85,9 @@ function fillBlockGrid() {
     const types = ALL_BLOCKS;
     types.forEach(function (type) {
         const button = keepSelection(h("button", { class: "library-card", type: "button" }));
-        button.append(previewFor(type), h("span", { class: "library-name", text: t("type." + type), i18n: "type." + type }));
+        const grip = h("span", { class: "library-grip", "aria-hidden": "true", title: t("ui.placeBlock"), i18nTitle: "ui.placeBlock" });
+        grip.textContent = "\u22ee\u22ee";
+        button.append(previewFor(type), h("span", { class: "library-name", text: t("type." + type), i18n: "type." + type }), grip);
         bindLibraryCard(button, type);
         grid.appendChild(button);
     });

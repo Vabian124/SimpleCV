@@ -364,6 +364,8 @@ body.is-dragging .library-card { cursor: grabbing; }
 
 .library-name { font-size: 12px; font-weight: 600; color: #334155; }
 
+.library-grip { display: none; }
+
 .library-frame {
     overflow: hidden;
     max-height: 108px;
@@ -1514,6 +1516,36 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
         display: flex;
         flex-direction: column;
         overflow: visible;
+    }
+    .library {
+        overflow: auto;
+        overscroll-behavior: contain;
+    }
+    .library-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 44px;
+        gap: 6px 0;
+        align-items: stretch;
+        padding: 8px 0 8px 8px;
+        touch-action: pan-y;
+        cursor: pointer;
+        overflow: hidden;
+    }
+    .library-frame { grid-column: 1; grid-row: 1; }
+    .library-name { grid-column: 1; grid-row: 2; align-self: center; }
+    .library-grip {
+        display: flex;
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 16px;
+        letter-spacing: -0.14em;
+        touch-action: none;
+        cursor: grab;
     }
     body[data-pane="page"] .library,
     body[data-pane="page"] .drawer,

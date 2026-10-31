@@ -34,6 +34,8 @@ const I18N_NL = {
         add: "Blok toevoegen",
         blocks: "Blokken",
         dragHint: "Klik om toe te voegen. Sleep een blok naar de zijbalk of de pagina; Escape zet het terug.",
+        dragHintTouch: "Tik een blok om het toe te voegen. Sleep het handvat rechts om het op de pagina te zetten.",
+        placeBlock: "Sleep naar de pagina",
         addTo: "Toevoegen aan",
         sidebar: "Zijbalk",
         main: "Pagina",
