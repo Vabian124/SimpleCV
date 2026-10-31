@@ -304,9 +304,10 @@ function boot() {
         });
     });
     document.addEventListener("pointerdown", function (event) {
-        const menu = document.querySelector(".more-menu");
-        if (!menu || !menu.open || menu.contains(event.target)) return;
-        menu.open = false;
+        document.querySelectorAll(".more-menu, .ai-menu").forEach(function (menu) {
+            if (!menu.open || menu.contains(event.target)) return;
+            menu.open = false;
+        });
     }, true);
     document.querySelectorAll("#pane-switch [data-pane]").forEach(function (button) {
         button.addEventListener("click", function () { setStudioPane(button.dataset.pane); });

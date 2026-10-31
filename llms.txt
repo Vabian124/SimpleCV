@@ -10,7 +10,7 @@ LibreCV is a visual editor. You design a page with blocks. It is not a markdown 
 - A step-by-step guide, a blank page, pasted text, demo data, or an AI template
 - Pasted text uses Chrome's on-device model. Another browser warns first. Sorting text into blocks still works without that model
 - The AI template is copied on this device. The text is not sent to a LibreCV server
-- In the editor, Copy to an AI starts with the page in a box. Get text copies it. Paste text puts an answer back on the page
+- AI is a button in the editor's top bar. The box starts with the page. Get text copies it. Paste text puts an answer back on the page
 - Download a PDF whose text can be selected. That PDF can be opened in the editor again
 - The interface is in English and Dutch. A new visit starts in English. `?lang=nl` opens it in Dutch
 - [Dutch introduction](https://librecv.org/nl/)

@@ -558,6 +558,33 @@ function mountTools() {
     summary.className = "btn";
     summary.dataset.i18n = "ui.more";
     more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn]));
+    const ai = document.createElement("details");
+    ai.className = "ai-menu";
+    const aiSummary = document.createElement("summary");
+    aiSummary.className = "btn";
+    aiSummary.dataset.i18n = "ui.ai";
+    ai.append(aiSummary, h("div", { class: "ai-panel" }, [
+        h("p", { class: "ai-title", i18n: "ui.model" }),
+        h("p", { class: "note", i18n: "ui.modelHint" }),
+        llm,
+        h("div", { class: "menu-actions" }, [
+            copyBtn,
+            applyBtn,
+            h("select", { id: "model-mode" }, [
+                h("option", { value: "guide", i18n: "setup.copyGuide" }),
+                h("option", { value: "plain", i18n: "setup.copyPlain" }),
+                h("option", { value: "advanced", i18n: "setup.copyAdvanced" })
+            ])
+        ])
+    ]));
+    ai.addEventListener("toggle", function () {
+        if (!ai.open) return;
+        more.open = false;
+        refreshAiBox(false);
+    });
+    more.addEventListener("toggle", function () {
+        if (more.open) ai.open = false;
+    });
     const zoomSlot = document.getElementById("zoom-slot");
     if (zoomSlot) zoomSlot.appendChild(zoom);
     topbar.append(
@@ -568,6 +595,7 @@ function mountTools() {
         undoBtn,
         redoBtn,
         name,
+        ai,
         download,
         more,
         file
@@ -602,20 +630,6 @@ function mountTools() {
             loose,
             h("div", { class: "menu-actions" }, [formatBtn, modelBtn]),
             chromeNote
-        ]),
-        h("section", { class: "menu-block" }, [
-            h("h2", { i18n: "ui.model" }),
-            h("p", { class: "note", i18n: "ui.modelHint" }),
-            llm,
-            h("div", { class: "menu-actions" }, [
-                h("select", { id: "model-mode" }, [
-                    h("option", { value: "guide", i18n: "setup.copyGuide" }),
-                    h("option", { value: "plain", i18n: "setup.copyPlain" }),
-                    h("option", { value: "advanced", i18n: "setup.copyAdvanced" })
-                ]),
-                copyBtn,
-                applyBtn
-            ])
         ]),
         h("section", { class: "menu-block" }, [
             h("h2", { i18n: "ui.templates" }),

@@ -316,8 +316,30 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .save-state { font-size: 12px; color: #047857; white-space: nowrap; }
 .save-state.is-fail { color: #991b1b; }
 
+.ai-menu,
 .more-menu { position: relative; flex: 0 0 auto; }
+.ai-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(420px, calc(100vw - 24px));
+    max-height: min(70vh, 560px);
+    overflow: auto;
+    padding: 14px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: var(--shadow);
+}
+.ai-panel textarea { width: 100%; min-height: 160px; resize: vertical; }
+.ai-title { margin: 0; font-weight: 700; }
+.ai-menu summary,
 .more-menu summary { list-style: none; }
+.ai-menu summary { font-weight: 700; border-color: #0f172a; }
+.ai-menu summary::-webkit-details-marker,
 .more-menu summary::-webkit-details-marker { display: none; }
 .more-panel {
     position: absolute;

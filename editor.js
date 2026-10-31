@@ -81,6 +81,7 @@ const I18N = {
             zoom: "Zoom",
             fit: "Passend",
             more: "Meer",
+            ai: "AI",
             langHint: "NL/EN wisselt de knoppen, de vaste koppen en de spelling. Tekst die je zelf schreef blijft staan.",
             language: "Taal",
             panes: "Delen van de editor",
@@ -436,6 +437,7 @@ const I18N = {
             zoom: "Zoom",
             fit: "Fit",
             more: "More",
+            ai: "AI",
             langHint: "NL/EN switches the buttons, the fixed headings and the spellcheck. Text you wrote stays as it is.",
             language: "Language",
             panes: "Editor panes",
@@ -3950,6 +3952,33 @@ function mountTools() {
     summary.className = "btn";
     summary.dataset.i18n = "ui.more";
     more.append(summary, h("div", { class: "more-panel" }, [freshBtn, fillBtn, pasteBtn, importer, settingsBtn]));
+    const ai = document.createElement("details");
+    ai.className = "ai-menu";
+    const aiSummary = document.createElement("summary");
+    aiSummary.className = "btn";
+    aiSummary.dataset.i18n = "ui.ai";
+    ai.append(aiSummary, h("div", { class: "ai-panel" }, [
+        h("p", { class: "ai-title", i18n: "ui.model" }),
+        h("p", { class: "note", i18n: "ui.modelHint" }),
+        llm,
+        h("div", { class: "menu-actions" }, [
+            copyBtn,
+            applyBtn,
+            h("select", { id: "model-mode" }, [
+                h("option", { value: "guide", i18n: "setup.copyGuide" }),
+                h("option", { value: "plain", i18n: "setup.copyPlain" }),
+                h("option", { value: "advanced", i18n: "setup.copyAdvanced" })
+            ])
+        ])
+    ]));
+    ai.addEventListener("toggle", function () {
+        if (!ai.open) return;
+        more.open = false;
+        refreshAiBox(false);
+    });
+    more.addEventListener("toggle", function () {
+        if (more.open) ai.open = false;
+    });
     const zoomSlot = document.getElementById("zoom-slot");
     if (zoomSlot) zoomSlot.appendChild(zoom);
     topbar.append(
@@ -3960,6 +3989,7 @@ function mountTools() {
         undoBtn,
         redoBtn,
         name,
+        ai,
         download,
         more,
         file
@@ -3994,20 +4024,6 @@ function mountTools() {
             loose,
             h("div", { class: "menu-actions" }, [formatBtn, modelBtn]),
             chromeNote
-        ]),
-        h("section", { class: "menu-block" }, [
-            h("h2", { i18n: "ui.model" }),
-            h("p", { class: "note", i18n: "ui.modelHint" }),
-            llm,
-            h("div", { class: "menu-actions" }, [
-                h("select", { id: "model-mode" }, [
-                    h("option", { value: "guide", i18n: "setup.copyGuide" }),
-                    h("option", { value: "plain", i18n: "setup.copyPlain" }),
-                    h("option", { value: "advanced", i18n: "setup.copyAdvanced" })
-                ]),
-                copyBtn,
-                applyBtn
-            ])
         ]),
         h("section", { class: "menu-block" }, [
             h("h2", { i18n: "ui.templates" }),
@@ -5619,9 +5635,10 @@ function boot() {
         });
     });
     document.addEventListener("pointerdown", function (event) {
-        const menu = document.querySelector(".more-menu");
-        if (!menu || !menu.open || menu.contains(event.target)) return;
-        menu.open = false;
+        document.querySelectorAll(".more-menu, .ai-menu").forEach(function (menu) {
+            if (!menu.open || menu.contains(event.target)) return;
+            menu.open = false;
+        });
     }, true);
     document.querySelectorAll("#pane-switch [data-pane]").forEach(function (button) {
         button.addEventListener("click", function () { setStudioPane(button.dataset.pane); });
