@@ -59,6 +59,33 @@ const home = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const editorSrc = home.match(/src="(\/editor\.js\?v=\d+)"/);
 if (!editorSrc) fail("index.html must load /editor.js?v=");
 
+if (home.indexOf('rel="icon" href="/favicon.svg" type="image/svg+xml"') === -1) {
+    fail("the homepage dropped the SVG favicon");
+}
+const iconTags = home.match(/<link rel="icon"[^>]*>/g) || [];
+const rasterTag = iconTags.find(function (tag) {
+    const size = tag.match(/sizes="(\d+)x(\d+)"/);
+    return tag.indexOf(".svg") === -1 && size && Number(size[1]) >= 48 && size[1] === size[2];
+});
+if (!rasterTag) fail("the homepage does not link a non-SVG favicon of at least 48px");
+const pngTag = iconTags.find(function (tag) {
+    return tag.indexOf("image/png") !== -1;
+});
+const pngHref = pngTag && pngTag.match(/href="(\/[^"]+\.png)"/);
+if (!pngHref) fail("the homepage does not link a PNG favicon");
+const pngFile = fs.readFileSync(path.join(root, pngHref[1].slice(1)));
+if (pngFile.slice(0, 8).toString("hex") !== "89504e470d0a1a0a") fail("the linked favicon is not a PNG file");
+const pngSide = pngFile.readUInt32BE(16);
+if (pngSide < 48 || pngSide !== pngFile.readUInt32BE(20) || pngSide % 48 !== 0) {
+    fail("favicon PNG is not a square of at least 48 and a multiple of 48");
+}
+if (home.indexOf('rel="icon" href="/favicon.ico"') === -1) fail("the homepage does not link /favicon.ico");
+const icoFile = fs.readFileSync(path.join(root, "favicon.ico"));
+if (icoFile.length < 22 || icoFile.readUInt16LE(0) !== 0 || icoFile.readUInt16LE(2) !== 1) {
+    fail("favicon.ico is not a real ICO file");
+}
+if (icoFile[0] === 0x3c) fail("favicon.ico is the HTML 404 page");
+
 if (editor.indexOf("function boot()") === -1 || editor.indexOf("\nboot();\n") === -1) {
     fail("the built editor does not boot");
 }

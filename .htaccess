@@ -1,11 +1,13 @@
 # The page changes often. Revalidate HTML on each visit so a new
 # editor.js?v= link is picked up. Versioned assets stay cached by their
 # full URL, including the ?v= query. Do not add a page cache in front of this.
+AddType image/x-icon .ico
+
 <IfModule mod_headers.c>
   <FilesMatch "\.(html|txt|xml|json)$">
     Header set Cache-Control "public, max-age=0, must-revalidate"
   </FilesMatch>
-  <FilesMatch "\.(js|css|svg|png|jpe?g|webp|woff2|ttf)$">
+  <FilesMatch "\.(js|css|svg|png|ico|jpe?g|webp|woff2|ttf)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
   Header always set X-Content-Type-Options "nosniff"

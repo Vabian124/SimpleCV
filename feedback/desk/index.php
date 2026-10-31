@@ -38,6 +38,8 @@ function fb_layout(string $title, string $body): void {
     echo '<meta name="robots" content="noindex, nofollow, noarchive">';
     echo '<meta name="referrer" content="no-referrer">';
     echo '<title>' . fb_h($title) . '</title>';
+    echo '<link rel="icon" href="/favicon.ico" sizes="96x96" type="image/x-icon">';
+    echo '<link rel="icon" href="/favicon.png" sizes="96x96" type="image/png">';
     echo '<link rel="icon" href="/favicon.svg" type="image/svg+xml">';
     echo '<link rel="stylesheet" href="' . fb_h(FB_ASSET) . '">';
     echo '</head><body><main class="desk">';
