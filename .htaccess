@@ -1,0 +1,7 @@
+# The page changes often. Revalidate HTML on each visit so a new
+# editor.js?v= link is picked up. Fonts and vendor files stay cached.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|txt|xml)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>

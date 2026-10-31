@@ -4074,13 +4074,16 @@ function syncSpellLocale() {
 function applyLanguage() {
     syncSpellLocale();
     document.querySelectorAll("[data-i18n]").forEach(function (node) {
-        node.textContent = t(node.dataset.i18n);
+        const value = t(node.dataset.i18n);
+        if (value !== node.dataset.i18n) node.textContent = value;
     });
     document.querySelectorAll("[data-i18n-title]").forEach(function (node) {
-        node.title = t(node.dataset.i18nTitle);
+        const value = t(node.dataset.i18nTitle);
+        if (value !== node.dataset.i18nTitle) node.title = value;
     });
     document.querySelectorAll("[data-i18n-placeholder]").forEach(function (node) {
-        node.placeholder = t(node.dataset.i18nPlaceholder);
+        const value = t(node.dataset.i18nPlaceholder);
+        if (value !== node.dataset.i18nPlaceholder) node.placeholder = value;
     });
     document.querySelectorAll(".lang-switch button").forEach(function (button) {
         button.classList.toggle("is-active", button.dataset.lang === lang);
