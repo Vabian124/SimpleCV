@@ -20,7 +20,7 @@ These pages are separate from the editor, and they are listed in `sitemap.xml`:
 
 `/step-1`, `/step-2`, `/step-3` and `/editor` are the editor itself. They stay out of the sitemap. The canonical URL of the editor is `https://librecv.org/`.
 
-Feedback is in the editor's More menu and in the page footers. The form loads when you open it. Send privately, or open a GitHub issue. The issue template tells an assistant not to paste a CV. Private notes are read at `/feedback/desk/`. That address is not linked from the public pages and is not indexed. Its password is not in this repository. A note can be deleted there, which removes the message and any document text. The private form uses a self-hosted ALTCHA check. Instructions for an assistant are in `feedback.txt`.
+Feedback is a button in the editor header and in the footer of each setup step. The form loads when you open it. Send privately, or open a GitHub issue. The issue template tells an assistant not to paste a CV. Private notes are read at `/feedback/desk/`. That address is not linked from the public pages and is not indexed. Its password is not in this repository. A note can be deleted there, which removes the message and any document text. The private form uses a self-hosted ALTCHA check. Instructions for an assistant are in `feedback.txt`.
 
 You design a page. It is not a markdown document.
 
@@ -36,4 +36,4 @@ NL/EN wisselt de knoppen en de vaste koppen. Een nieuw bezoek begint in het Enge
 
 De eigen code is CC0-1.0. Bibliotheken houden hun eigen licentie. Zie `NOTICE`.
 
-Feedback staat in het menu Meer en in de voettekst. Het formulier laadt pas als je het opent. Een privénotitie blijft buiten de zoekmachines. Een GitHub-issue is openbaar, dus daar hoort geen CV in.
+Feedback is een knop in de kop van de editor en in de voettekst van elke stap. Het formulier laadt pas als je het opent. Een privénotitie blijft buiten de zoekmachines. Een GitHub-issue is openbaar, dus daar hoort geen CV in.

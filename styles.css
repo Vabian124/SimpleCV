@@ -1475,6 +1475,7 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
     padding-top: 8px;
 }
 
+.setup-nav [data-feedback] { min-height: 44px; padding: 10px 16px; font-size: 14px; }
 #setup-continue, #setup-generate { margin-left: auto; min-width: 180px; padding: 12px 18px; font-size: 15px; }
 
 @keyframes setup-in {
