@@ -91,7 +91,7 @@ vm.runInContext(
     "function escapeHtml(value) { return String(value); }\n" +
     "function block(type, fields) { return { id: 'x', type: type, fields: fields }; }\n" +
     fs.readFileSync(path.join(root, "src", "editor", "marked.js"), "utf8") +
-    "\nthis.stripCodeFence = stripCodeFence;\nthis.parseMarked = parseMarked;\nthis.pointBody = pointBody;\nthis.fieldValue = fieldValue;\nthis.placePhoto = placePhoto;\nthis.photoAddress = photoAddress;\n",
+    "\nthis.stripCodeFence = stripCodeFence;\nthis.parseMarked = parseMarked;\nthis.pointBody = pointBody;\nthis.fieldValue = fieldValue;\nthis.placePhoto = placePhoto;\nthis.photoAddress = photoAddress;\nthis.profileBody = profileBody;\nthis.letterheadFilled = letterheadFilled;\nthis.blankEntry = blankEntry;\n",
     marked
 );
 const fenced = "Answer:\n```text\n@@@CV\nNAME: A\nPOINT: one\n@@@END\n```\n";
@@ -122,5 +122,19 @@ marked.placePhoto(later, "ASPECT: 4 / 3\nWIDTH: 48");
 if (later.sidebar[later.sidebar.length - 1].type !== "photo") fail("a later photo was not left where it was written");
 if (marked.photoAddress("javascript:alert(1)") || marked.photoAddress("http://example.com/a.jpg")) fail("an unsafe image address was accepted");
 if (marked.photoAddress("https://example.com/a.jpg") !== "https://example.com/a.jpg") fail("an https address was dropped");
+const letterhead = "DATE: 31 October 2026\nTO: NATO Headquarters<br>Brussels\nSUBJECT: CV Mark Rutte";
+if (!marked.letterheadFilled(letterhead)) fail("a filled letter header was dropped");
+if (marked.fieldValue(letterhead, "TITLE") !== "") fail("an omitted letter title was invented");
+if (marked.letterheadFilled("TITLE: \nDATE: \nTO: \nSUBJECT: ")) fail("an empty letter header was kept");
+if (marked.profileBody("SUMMARY: A short line.") !== "A short line.") fail("a profile label was kept");
+if (marked.profileBody("A short profile.") !== "A short profile.") fail("profile prose was changed");
+if (!marked.blankEntry({ title: "", date: "", org: "", items: [] })) fail("an empty job was kept");
+if (marked.blankEntry({ title: "Prime Minister", date: "", org: "", items: [] })) fail("a titled job was dropped");
+["src/editor/canvas.js", "src/editor/marked.js"].forEach(function (file) {
+    const source = fs.readFileSync(path.join(root, file), "utf8");
+    if (source.indexOf('fields.title || escapeHtml(t("doc.letter"))') >= 0 || source.indexOf("letterhead.fields.title || escapeHtml(t(\"doc.letter\"))") >= 0) {
+        fail(file + " fills an empty letter title");
+    }
+});
 
 console.log("ok");

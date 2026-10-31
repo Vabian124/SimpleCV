@@ -98,6 +98,23 @@ function pointBody(line) {
     return null;
 }
 
+function profileBody(rest) {
+    const text = String(rest || "").trim();
+    if (!text) return "";
+    const summary = fieldValue(text, "SUMMARY");
+    const other = text.replace(/^SUMMARY:[^\S\n]*.*$/gim, "").trim();
+    if (summary && !other) return summary;
+    return text;
+}
+
+function letterheadFilled(rest) {
+    return ["TITLE", "DATE", "TO", "SUBJECT"].some(function (key) { return fieldValue(rest, key); });
+}
+
+function blankEntry(item) {
+    return !item.title && !item.date && !item.org && !(item.items && item.items.length);
+}
+
 function bulletLines(text) {
     return String(text || "").split(/\r?\n/).map(pointBody).filter(function (line) { return line; });
 }
@@ -142,7 +159,7 @@ function exportMarked() {
     if (doc.kind === "letter") {
         const letterhead = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "letterhead"; });
         if (letterhead) {
-            lines.push("TITLE: " + markedText(letterhead.fields.title || escapeHtml(t("doc.letter"))));
+            lines.push("TITLE: " + markedText(letterhead.fields.title || ""));
             lines.push("DATE: " + markedText(letterhead.fields.date));
             lines.push("TO: " + markedText(letterhead.fields.to).replace(/\n/g, "<br>"));
             lines.push("SUBJECT: " + markedText(letterhead.fields.subject));
@@ -229,6 +246,7 @@ function exportMarked() {
         } else if (item.type === "letterhead") {
             if (doc.kind === "letter") return;
             lines.push("@@@LETTERHEAD");
+            lines.push("TITLE: " + markedText(item.fields.title || ""));
             lines.push("DATE: " + markedText(item.fields.date));
             lines.push("TO: " + markedText(item.fields.to).replace(/\n/g, "<br>"));
             lines.push("SUBJECT: " + markedText(item.fields.subject));
@@ -425,12 +443,14 @@ function applyMarked(raw) {
             });
             useful = true;
         } else if (head === "PROFILE") {
-            if (!rest) return;
+            const body = profileBody(rest);
+            if (!body) return;
             next.main.push(barHeading("doc.profile"));
-            next.main.push(block("intro", { html: textToHtml(rest) }));
+            next.main.push(block("intro", { html: textToHtml(body) }));
             useful = true;
         } else if (head === "JOB" || head === "STUDY") {
             const item = entryFrom(rest);
+            if (blankEntry(item)) return;
             const flag = head === "STUDY" ? "study" : "work";
             if (!seen[flag]) {
                 seen[flag] = true;
@@ -450,6 +470,7 @@ function applyMarked(raw) {
             next.main.push(block("list", { items: items.map(textToHtml) }));
             useful = true;
         } else if (head === "LETTERHEAD") {
+            if (!letterheadFilled(rest)) return;
             next.main.push(makeLetterhead(
                 textToHtml(fieldValue(rest, "DATE")),
                 nameToHtml(fieldValue(rest, "TO")),
@@ -458,13 +479,17 @@ function applyMarked(raw) {
             ));
             useful = true;
         } else if (head === "SECTION") {
+            const heading = fieldValue(rest, "HEADING");
             const bodyAt = rest.search(/^BODY:\s*/im);
             const body = bodyAt < 0 ? "" : rest.slice(bodyAt).replace(/^BODY:\s*/i, "");
-            next.main.push(block("heading", {
-                key: "",
-                style: parsed.kind === "letter" ? "label" : "bar",
-                html: textToHtml(fieldValue(rest, "HEADING"))
-            }));
+            if (!heading && !body.trim()) return;
+            if (heading) {
+                next.main.push(block("heading", {
+                    key: "",
+                    style: parsed.kind === "letter" ? "label" : "bar",
+                    html: textToHtml(heading)
+                }));
+            }
             body.split(/\n{2,}/).forEach(function (part) {
                 if (part.trim()) next.main.push(block("paragraph", { html: textToHtml(part.trim()) }));
             });
@@ -479,8 +504,10 @@ function applyMarked(raw) {
                 useful = true;
             }
         } else if (head === "HEADING") {
+            const text = fieldValue(rest, "TEXT");
+            if (!text) return;
             const style = /^label$/i.test(fieldValue(rest, "STYLE")) ? "label" : "bar";
-            next.main.push(block("heading", { key: "", style: style, html: textToHtml(fieldValue(rest, "TEXT")) }));
+            next.main.push(block("heading", { key: "", style: style, html: textToHtml(text) }));
             useful = true;
         } else if (head === "SPACER") {
             const size = Number(fieldValue(rest, "SIZE")) || 12;

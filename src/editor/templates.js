@@ -250,7 +250,7 @@ function demoCv() {
 function demoLetter() {
     const copy = demoPack();
     const main = [
-        makeLetterhead(copy.date, copy.to, copy.subject, ""),
+        makeLetterhead(copy.date, copy.to, copy.subject, t("doc.letter")),
         block("intro", { html: copy.letterIntro }),
         block("paragraph", { html: copy.greeting })
     ];

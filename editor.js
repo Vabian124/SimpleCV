@@ -352,12 +352,12 @@ const I18N_NL = {
         skill: "Eén vaardigheid per regel. Elke regel begint met POINT: .",
         competence: "Eén competentie per regel. POINT: titel: korte tekst.",
         project: "Eén project per regel. POINT: titel: korte tekst.",
-        intro: "Bij een CV staat de intro onder @@@PROFILE. Bij een brief staat hij als SUMMARY in de kop.",
-        timeline: "@@@JOB is werk, @@@STUDY is opleiding. TITLE, DATE en ORGANIZATION, daarna één POINT: per regel.",
-        heading: "TEXT is de kop. STYLE is bar of label. bar heeft een lijn, label niet.",
+        intro: "Bij een CV is de intro de alinea onder @@@PROFILE. Begin die niet met SUMMARY:. Bij een brief is de intro SUMMARY in de kop.",
+        timeline: "@@@JOB is werk, @@@STUDY is opleiding. TITLE, DATE en ORGANIZATION, daarna één POINT: per regel. Een item zonder titel, datum, organisatie en punten valt weg.",
+        heading: "TEXT is de kop. STYLE is bar of label. bar heeft een lijn, label niet. Laat TEXT leeg als je deze kop niet wilt.",
         paragraph: "Vrije alinea. Een lege regel begint een nieuwe alinea.",
         list: "Eén punt per regel. Elke regel begint met POINT: .",
-        letterhead: "Bij een brief staan TITLE, DATE, TO en SUBJECT in de kop. Bij een CV gebruik je @@@LETTERHEAD. In TO mag <br> een nieuwe regel zijn.",
+        letterhead: "TITLE, DATE, TO en SUBJECT. Bij een brief staan ze in de opening, en TITLE is de kop. Bij een CV is @@@LETTERHEAD alleen een datum, een ontvanger en een onderwerp. Laat TITLE op een CV leeg. Verzin geen kop. In TO mag <br> een nieuwe regel zijn. Een blok waarvan alle vier de velden leeg zijn valt weg.",
         closing: "De groet, en daarna SIGN: met de naam.",
         signature: "SIGN: is de naam onder de groet.",
         spacer: "SIZE is de hoogte in punten, bijvoorbeeld 12.",
@@ -712,12 +712,12 @@ const I18N_EN = {
         skill: "One skill on each line. Each line starts with POINT: .",
         competence: "One strength on each line. POINT: title: short text.",
         project: "One project on each line. POINT: title: short text.",
-        intro: "On a CV the intro sits under @@@PROFILE. On a letter it is SUMMARY in the header.",
-        timeline: "@@@JOB is work, @@@STUDY is education. TITLE, DATE and ORGANIZATION, then one POINT: on each line.",
-        heading: "TEXT is the heading. STYLE is bar or label. bar has a line under it, label does not.",
+        intro: "On a CV the intro is the paragraph under @@@PROFILE. Do not start it with SUMMARY:. On a letter the intro is SUMMARY in the header.",
+        timeline: "@@@JOB is work, @@@STUDY is education. TITLE, DATE and ORGANIZATION, then one POINT: on each line. An entry with an empty title, date, organisation and no points is left out.",
+        heading: "TEXT is the heading. STYLE is bar or label. bar has a line under it, label does not. Leave TEXT empty when you do not want this heading.",
         paragraph: "A free paragraph. A blank line starts another paragraph.",
         list: "One point on each line. Each line starts with POINT: .",
-        letterhead: "On a letter, TITLE, DATE, TO and SUBJECT sit in the header. On a CV use @@@LETTERHEAD. In TO, <br> starts a new line.",
+        letterhead: "TITLE, DATE, TO and SUBJECT. On a letter they sit in the opening, and TITLE is the heading. On a CV, @@@LETTERHEAD is only a date, a recipient and a subject. Leave TITLE empty on a CV. Do not invent a heading. In TO, <br> starts a new line. A block with all four fields empty is left out.",
         closing: "The sign-off, then SIGN: with the name.",
         signature: "SIGN: is the name under the sign-off.",
         spacer: "SIZE is the height in points, for example 12.",
@@ -1023,7 +1023,7 @@ function demoCv() {
 function demoLetter() {
     const copy = demoPack();
     const main = [
-        makeLetterhead(copy.date, copy.to, copy.subject, ""),
+        makeLetterhead(copy.date, copy.to, copy.subject, t("doc.letter")),
         block("intro", { html: copy.letterIntro }),
         block("paragraph", { html: copy.greeting })
     ];
@@ -1649,6 +1649,23 @@ function pointBody(line) {
     return null;
 }
 
+function profileBody(rest) {
+    const text = String(rest || "").trim();
+    if (!text) return "";
+    const summary = fieldValue(text, "SUMMARY");
+    const other = text.replace(/^SUMMARY:[^\S\n]*.*$/gim, "").trim();
+    if (summary && !other) return summary;
+    return text;
+}
+
+function letterheadFilled(rest) {
+    return ["TITLE", "DATE", "TO", "SUBJECT"].some(function (key) { return fieldValue(rest, key); });
+}
+
+function blankEntry(item) {
+    return !item.title && !item.date && !item.org && !(item.items && item.items.length);
+}
+
 function bulletLines(text) {
     return String(text || "").split(/\r?\n/).map(pointBody).filter(function (line) { return line; });
 }
@@ -1693,7 +1710,7 @@ function exportMarked() {
     if (doc.kind === "letter") {
         const letterhead = doc.sidebar.concat(doc.main).find(function (item) { return item.type === "letterhead"; });
         if (letterhead) {
-            lines.push("TITLE: " + markedText(letterhead.fields.title || escapeHtml(t("doc.letter"))));
+            lines.push("TITLE: " + markedText(letterhead.fields.title || ""));
             lines.push("DATE: " + markedText(letterhead.fields.date));
             lines.push("TO: " + markedText(letterhead.fields.to).replace(/\n/g, "<br>"));
             lines.push("SUBJECT: " + markedText(letterhead.fields.subject));
@@ -1780,6 +1797,7 @@ function exportMarked() {
         } else if (item.type === "letterhead") {
             if (doc.kind === "letter") return;
             lines.push("@@@LETTERHEAD");
+            lines.push("TITLE: " + markedText(item.fields.title || ""));
             lines.push("DATE: " + markedText(item.fields.date));
             lines.push("TO: " + markedText(item.fields.to).replace(/\n/g, "<br>"));
             lines.push("SUBJECT: " + markedText(item.fields.subject));
@@ -1976,12 +1994,14 @@ function applyMarked(raw) {
             });
             useful = true;
         } else if (head === "PROFILE") {
-            if (!rest) return;
+            const body = profileBody(rest);
+            if (!body) return;
             next.main.push(barHeading("doc.profile"));
-            next.main.push(block("intro", { html: textToHtml(rest) }));
+            next.main.push(block("intro", { html: textToHtml(body) }));
             useful = true;
         } else if (head === "JOB" || head === "STUDY") {
             const item = entryFrom(rest);
+            if (blankEntry(item)) return;
             const flag = head === "STUDY" ? "study" : "work";
             if (!seen[flag]) {
                 seen[flag] = true;
@@ -2001,6 +2021,7 @@ function applyMarked(raw) {
             next.main.push(block("list", { items: items.map(textToHtml) }));
             useful = true;
         } else if (head === "LETTERHEAD") {
+            if (!letterheadFilled(rest)) return;
             next.main.push(makeLetterhead(
                 textToHtml(fieldValue(rest, "DATE")),
                 nameToHtml(fieldValue(rest, "TO")),
@@ -2009,13 +2030,17 @@ function applyMarked(raw) {
             ));
             useful = true;
         } else if (head === "SECTION") {
+            const heading = fieldValue(rest, "HEADING");
             const bodyAt = rest.search(/^BODY:\s*/im);
             const body = bodyAt < 0 ? "" : rest.slice(bodyAt).replace(/^BODY:\s*/i, "");
-            next.main.push(block("heading", {
-                key: "",
-                style: parsed.kind === "letter" ? "label" : "bar",
-                html: textToHtml(fieldValue(rest, "HEADING"))
-            }));
+            if (!heading && !body.trim()) return;
+            if (heading) {
+                next.main.push(block("heading", {
+                    key: "",
+                    style: parsed.kind === "letter" ? "label" : "bar",
+                    html: textToHtml(heading)
+                }));
+            }
             body.split(/\n{2,}/).forEach(function (part) {
                 if (part.trim()) next.main.push(block("paragraph", { html: textToHtml(part.trim()) }));
             });
@@ -2030,8 +2055,10 @@ function applyMarked(raw) {
                 useful = true;
             }
         } else if (head === "HEADING") {
+            const text = fieldValue(rest, "TEXT");
+            if (!text) return;
             const style = /^label$/i.test(fieldValue(rest, "STYLE")) ? "label" : "bar";
-            next.main.push(block("heading", { key: "", style: style, html: textToHtml(fieldValue(rest, "TEXT")) }));
+            next.main.push(block("heading", { key: "", style: style, html: textToHtml(text) }));
             useful = true;
         } else if (head === "SPACER") {
             const size = Number(fieldValue(rest, "SIZE")) || 12;
@@ -2742,10 +2769,10 @@ function renderBlock(item) {
         const top = document.createElement("div");
         top.className = "letterhead-top";
         top.append(
-            editable("doc-title", fields.title || escapeHtml(t("doc.letter")), function (html) {
+            editable("doc-title", fields.title || "", function (html) {
                 fields.title = html;
                 save();
-            }, t("doc.letter")),
+            }, doc && doc.kind === "letter" ? t("doc.letter") : t("ph.heading")),
             editable("date", fields.date || "", function (html) { fields.date = html; save(); }, t("ph.date"))
         );
         node.append(
@@ -4431,7 +4458,7 @@ async function formatWithBrowserModel(text) {
     const session = await api.create(Object.assign({}, options, {
         initialPrompts: [{
             role: "system",
-            content: "Turn the user's CV or motivation letter into marked text. Output only the block from @@@CV or @@@LETTER through @@@END, with no markdown. Keep these English field names: NAME, ROLE, CITY, PHONE, EMAIL, BORN, TITLE, DATE, ORGANIZATION, SUMMARY, SUBJECT, TO, SIGN, HEADING, BODY. A point is a line starting with POINT: . Write the person's own words in the same language as the input. Use @@@CONTACT, @@@SKILLS, @@@STRENGTHS, @@@PROJECTS, @@@PROFILE, @@@JOB, @@@STUDY, @@@PARAGRAPH, @@@OPENING, @@@SECTION and @@@CLOSING where they fit."
+            content: "Turn the user's CV or motivation letter into marked text. Output only the block from @@@CV or @@@LETTER through @@@END, with no markdown. Keep these English field names: NAME, ROLE, CITY, PHONE, EMAIL, BORN, TITLE, DATE, ORGANIZATION, SUMMARY, SUBJECT, TO, SIGN, HEADING, BODY. A point is a line starting with POINT: . Write the person's own words in the same language as the input. Use @@@CONTACT, @@@SKILLS, @@@STRENGTHS, @@@PROJECTS, @@@PROFILE, @@@JOB, @@@STUDY, @@@PARAGRAPH, @@@OPENING, @@@SECTION and @@@CLOSING where they fit. On a CV, @@@LETTERHEAD is only a date, a recipient and a subject. Leave TITLE empty unless the source has a heading. Do not invent a heading."
         }]
     }));
     try {

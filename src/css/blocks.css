@@ -313,6 +313,13 @@ body.is-dragging .library-card { cursor: grabbing; }
     color: var(--block-color, var(--accent, #047857));
 }
 
+.letterhead .doc-title.is-blank {
+    font-size: 1em;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
 .letterhead .date {
     flex: 0 1 auto;
     text-align: right;

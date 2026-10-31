@@ -405,10 +405,10 @@ function renderBlock(item) {
         const top = document.createElement("div");
         top.className = "letterhead-top";
         top.append(
-            editable("doc-title", fields.title || escapeHtml(t("doc.letter")), function (html) {
+            editable("doc-title", fields.title || "", function (html) {
                 fields.title = html;
                 save();
-            }, t("doc.letter")),
+            }, doc && doc.kind === "letter" ? t("doc.letter") : t("ph.heading")),
             editable("date", fields.date || "", function (html) { fields.date = html; save(); }, t("ph.date"))
         );
         node.append(
