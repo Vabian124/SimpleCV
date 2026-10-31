@@ -1,0 +1,12 @@
+/* TEAM */
+Developer: Vabian124
+Site: https://librecv.org/
+Contact: https://github.com/Vabian124/SimpleCV
+
+/* SITE */
+Last update: 2026-10-31
+Language: English, Dutch
+Standards: HTML, CSS
+Components: LibreCV, a CV and motivation-letter builder
+Source: https://github.com/Vabian124/SimpleCV
+License: CC0-1.0

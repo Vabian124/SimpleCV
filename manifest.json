@@ -1,0 +1,15 @@
+{
+  "name": "LibreCV",
+  "short_name": "LibreCV",
+  "description": "A free CV and motivation-letter builder. No account. The document stays in the browser.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#e8eef5",
+  "theme_color": "#0f172a",
+  "lang": "en",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

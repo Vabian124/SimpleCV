@@ -339,7 +339,22 @@ const I18N = {
             skip: "Naar de editor",
             lead: "LibreCV is een gratis editor voor een CV of een motivatiebrief. Geen account. Het document blijft op deze computer. De eigen code is publiek domein (CC0).",
             how: "Een stap-voor-stap gids leidt je erdoor. Een AI-sjabloon blijft op dit apparaat, of je plakt een antwoord uit een model terug. Je ontwerpt een pagina, geen markdown-bestand.",
-            github: "Broncode op GitHub"
+            github: "Broncode op GitHub",
+            faqTitle: "Vragen",
+            qPrice: "Kost LibreCV iets?",
+            aPrice: "Nee. Er is geen account en geen betaling bij de PDF. De prijs is nul.",
+            qUpload: "Wordt het document geüpload?",
+            aUpload: "Nee. De CV of brief blijft in deze browser. LibreCV heeft geen account en ontvangt het bestand niet.",
+            qDutch: "Kan ik een Nederlandse motivatiebrief schrijven?",
+            aDutch: "Ja. De brief en de CV zijn twee documenten. Open de Nederlandse pagina, of zet deze site op NL. NL verandert de knoppen en de vaste koppen. Tekst die je al typte blijft staan.",
+            qPdf: "Is de tekst in de PDF selecteerbaar?",
+            aPdf: "Ja. De download is een PDF met echte tekst, geen foto van de pagina. Die PDF kun je opnieuw importeren en verder bewerken.",
+            qCode: "Welke licentie heeft de code?",
+            aCode: "De eigen code is CC0, zo dicht bij het publieke domein als de wet toelaat. De meegeleverde bibliotheken houden hun eigen licentie.",
+            examples: "Voorbeelden",
+            letterPage: "Motivatiebrief",
+            dutchPage: "Nederlands",
+            morePages: "Meer pagina's"
         }
     },
     en: {
@@ -672,7 +687,22 @@ const I18N = {
             skip: "Skip to the builder",
             lead: "LibreCV is a free CV and motivation-letter builder. No account. The document stays on this computer. The project's own code is public domain (CC0).",
             how: "A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.",
-            github: "Source code on GitHub"
+            github: "Source code on GitHub",
+            faqTitle: "Questions",
+            qPrice: "Does LibreCV cost anything?",
+            aPrice: "No. There is no account and no charge when you download the PDF. The price is zero.",
+            qUpload: "Is the document uploaded?",
+            aUpload: "No. The CV or letter stays in this browser. LibreCV has no account and does not receive the file.",
+            qDutch: "Can I write a Dutch motivation letter?",
+            aDutch: "Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.",
+            qPdf: "Can the PDF text be selected?",
+            aPdf: "Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing.",
+            qCode: "What license is the code under?",
+            aCode: "The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.",
+            examples: "Examples",
+            letterPage: "Motivation letter",
+            dutchPage: "Nederlands",
+            morePages: "More pages"
         }
     }
 };
@@ -4173,6 +4203,26 @@ function applyLanguage() {
     refreshIdentity();
     updateFilenamePreview();
     paintContrastWarning();
+    syncFaqSchema();
+    const morePages = document.getElementById("more-pages");
+    if (morePages) morePages.setAttribute("aria-label", t("site.morePages"));
+}
+
+function syncFaqSchema() {
+    const node = document.getElementById("faq-ld");
+    if (!node) return;
+    const pairs = ["qPrice", "qUpload", "qDutch", "qPdf", "qCode"];
+    node.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": pairs.map(function (key) {
+            return {
+                "@type": "Question",
+                "name": t("site." + key),
+                "acceptedAnswer": { "@type": "Answer", "text": t("site.a" + key.slice(1)) }
+            };
+        })
+    });
 }
 
 function setLanguage(next) {
@@ -4447,6 +4497,14 @@ function savedLang() {
         if (stored === "en") return "en";
     } catch (error) { /* keep the English default */ }
     return "en";
+}
+
+function requestedLang() {
+    try {
+        const value = new URLSearchParams(location.search).get("lang");
+        if (value === "nl" || value === "en") return value;
+    } catch (error) { /* a file URL has no search to read */ }
+    return "";
 }
 
 function hexChannels(hex) {
@@ -5294,6 +5352,12 @@ function boot() {
     if (!doc || doc.version !== 1 || !Array.isArray(doc.sidebar) || !Array.isArray(doc.main)) doc = emptyCv();
     normalize(doc);
     if (doc.lang === "en" || doc.lang === "nl") lang = doc.lang;
+    const requested = requestedLang();
+    if (requested) {
+        lang = requested;
+        doc.lang = requested;
+        try { localStorage.setItem(STORAGE_LANG, requested); } catch (error) { /* ignore */ }
+    }
     mountTools();
     const name = document.getElementById("pdf-name");
     let storedName = "";
@@ -5304,6 +5368,7 @@ function boot() {
     name.value = filenameCustom ? storedName : follow;
     applyLanguage();
     adoptRoute(fresh);
+    if (requested && document.body.dataset.phase === "studio") save();
     toggleDrawer(false);
     render();
     document.querySelectorAll("#view-setup [data-lang]").forEach(function (button) {

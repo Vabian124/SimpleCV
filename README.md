@@ -8,7 +8,15 @@ The first visit asks whether you want a CV or a motivation letter. Then you can 
 
 A PDF from this editor carries an attachment named `document.json`: the blocks, the language, the theme and the colours. Import that PDF to keep editing. A PDF without the attachment shows a message.
 
-EN/NL switches the buttons and the fixed headings. Text you typed stays as it is. A new visit starts in English.
+EN/NL switches the buttons and the fixed headings. Text you typed stays as it is. A new visit starts in English. A link with `?lang=nl` or `?lang=en` chooses that language for this visit.
+
+These pages are separate from the editor, and they are listed in `sitemap.xml`:
+
+- [https://librecv.org/nl/](https://librecv.org/nl/) is the Dutch introduction
+- [https://librecv.org/motivation-letter/](https://librecv.org/motivation-letter/) and [https://librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/) are the letter, in English and Dutch
+- [https://librecv.org/templates/](https://librecv.org/templates/) links to a software engineer CV and a nursing CV
+
+`/step-1`, `/step-2`, `/step-3` and `/editor` are the editor itself. They stay out of the sitemap. The canonical URL of the editor is `https://librecv.org/`.
 
 You design a page. It is not a markdown document.
 
@@ -20,6 +28,6 @@ Een lokale editor voor een CV of een motivatiebrief. De site is [librecv.org](ht
 
 De eerste keer kies je een CV of een brief. Daarna stap voor stap, zelf invullen, tekst plakken, demodata, of een AI-sjabloon. Dat sjabloon blijft op dit apparaat. Download een PDF waarin de tekst selecteerbaar is.
 
-NL/EN wisselt de knoppen en de vaste koppen. Een nieuw bezoek begint in het Engels.
+NL/EN wisselt de knoppen en de vaste koppen. Een nieuw bezoek begint in het Engels. De Nederlandse uitleg staat op [librecv.org/nl/](https://librecv.org/nl/) en de brief op [librecv.org/nl/motivatiebrief/](https://librecv.org/nl/motivatiebrief/).
 
 De eigen code is CC0-1.0. Bibliotheken houden hun eigen licentie. Zie `NOTICE`.

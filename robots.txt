@@ -37,4 +37,7 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+# The builder, the Dutch page, and the examples are the site.
+# There is no separate preview or print URL to withhold.
+
 Sitemap: https://librecv.org/sitemap.xml

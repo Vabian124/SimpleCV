@@ -7,6 +7,10 @@
     <title>LibreCV — free CV builder, no account</title>
     <meta name="description" content="A free CV and motivation-letter builder. No account, nothing is uploaded, and the code is public domain. Step-by-step, with an on-device AI template.">
     <link rel="canonical" href="https://librecv.org/">
+    <link rel="alternate" hreflang="en" href="https://librecv.org/">
+    <link rel="alternate" hreflang="nl" href="https://librecv.org/nl/">
+    <link rel="alternate" hreflang="x-default" href="https://librecv.org/">
+    <link rel="manifest" href="/manifest.json">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#0f172a">
     <meta property="og:type" content="website">
@@ -44,13 +48,46 @@
         "sameAs": "https://github.com/Vabian124/SimpleCV",
         "offers": {
             "@type": "Offer",
-            "price": "0",
+            "price": "0.00",
             "priceCurrency": "USD"
         },
         "featureList": "No account, document stays in the browser, step-by-step guide, on-device AI template, selectable-text PDF"
     }
     </script>
-    <link rel="stylesheet" href="styles.css?v=3">
+    <script type="application/ld+json" id="faq-ld">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Does LibreCV cost anything?",
+                "acceptedAnswer": { "@type": "Answer", "text": "No. There is no account and no charge when you download the PDF. The price is zero." }
+            },
+            {
+                "@type": "Question",
+                "name": "Is the document uploaded?",
+                "acceptedAnswer": { "@type": "Answer", "text": "No. The CV or letter stays in this browser. LibreCV has no account and does not receive the file." }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I write a Dutch motivation letter?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is." }
+            },
+            {
+                "@type": "Question",
+                "name": "Can the PDF text be selected?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing." }
+            },
+            {
+                "@type": "Question",
+                "name": "What license is the code under?",
+                "acceptedAnswer": { "@type": "Answer", "text": "The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses." }
+            }
+        ]
+    }
+    </script>
+    <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body data-pane="page">
     <main id="view-setup" class="setup">
@@ -67,7 +104,7 @@
             </div>
         </div>
 
-        <div class="setup-step" data-setup-step="1">
+        <section class="setup-step" data-setup-step="1">
             <h1 id="setup-title-1" data-i18n="setup.title1">What are we making?</h1>
             <p class="setup-lead" data-i18n="setup.hint1">A CV and a motivation letter are two separate documents.</p>
             <div class="kind-grid">
@@ -89,11 +126,11 @@
                 </button>
             </div>
             <p class="setup-import"><button type="button" class="btn" id="setup-import" data-i18n="ui.import">Import PDF</button></p>
-        </div>
+        </section>
 
-        <div class="setup-step" data-setup-step="2" hidden>
+        <section class="setup-step" data-setup-step="2" hidden>
             <div id="setup-source">
-            <h1 data-i18n="setup.title2">How should we start?</h1>
+            <h2 data-i18n="setup.title2">How should we start?</h2>
             <p class="setup-lead" data-i18n="setup.hint2">Step by step is the calm way. You can also write it yourself, paste text, or start from the example.</p>
             <div class="choice-list">
                 <button type="button" class="choice-card is-featured" data-source="guided">
@@ -177,10 +214,10 @@
                 </div>
                 <p id="setup-message" class="note" hidden></p>
             </div>
-        </div>
+        </section>
 
-        <div class="setup-step" data-setup-step="3" hidden>
-            <h1 data-i18n="setup.title3">Which palette?</h1>
+        <section class="setup-step" data-setup-step="3" hidden>
+            <h2 data-i18n="setup.title3">Which palette?</h2>
             <p class="setup-lead" data-i18n="setup.hint3">Pick a ready-made palette, or set the colours yourself.</p>
             <div class="palette-layout">
                 <div class="choice-list">
@@ -227,7 +264,7 @@
                     <div class="pp-main"><b></b><i></i><i></i><i class="short"></i></div>
                 </div>
             </div>
-        </div>
+        </section>
 
         <p id="setup-replace-note" class="note" hidden data-i18n="ui.replaceNote">Continuing replaces the open document. Back to document leaves it as it is.</p>
         <footer class="setup-nav">
@@ -241,6 +278,24 @@
             <p data-i18n="site.how">A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.</p>
             <p><a href="https://github.com/Vabian124/SimpleCV" data-i18n="site.github">Source code on GitHub</a></p>
         </footer>
+        <section class="site-about" id="faq" aria-labelledby="faq-title">
+            <h2 id="faq-title" data-i18n="site.faqTitle">Questions</h2>
+            <h3 data-i18n="site.qPrice">Does LibreCV cost anything?</h3>
+            <p data-i18n="site.aPrice">No. There is no account and no charge when you download the PDF. The price is zero.</p>
+            <h3 data-i18n="site.qUpload">Is the document uploaded?</h3>
+            <p data-i18n="site.aUpload">No. The CV or letter stays in this browser. LibreCV has no account and does not receive the file.</p>
+            <h3 data-i18n="site.qDutch">Can I write a Dutch motivation letter?</h3>
+            <p data-i18n="site.aDutch">Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.</p>
+            <h3 data-i18n="site.qPdf">Can the PDF text be selected?</h3>
+            <p data-i18n="site.aPdf">Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing.</p>
+            <h3 data-i18n="site.qCode">What license is the code under?</h3>
+            <p data-i18n="site.aCode">The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.</p>
+            <nav class="guide-links" id="more-pages">
+                <a href="/templates/" data-i18n="site.examples">Examples</a>
+                <a href="/motivation-letter/" data-i18n="site.letterPage">Motivation letter</a>
+                <a href="/nl/" data-i18n="site.dutchPage">Nederlands</a>
+            </nav>
+        </section>
     </main>
 
     <div id="studio" class="studio" hidden>
@@ -260,7 +315,7 @@
                         <div class="guides" id="guides"></div>
                         <article class="sheet" id="sheet">
                             <aside class="col sidebar" id="col-sidebar"></aside>
-                            <div class="col main" id="col-main"></div>
+                            <section class="col main" id="col-main"></section>
                         </article>
                         </div>
                     </div>
@@ -310,6 +365,6 @@
         </div>
     </div>
     <input id="photo-file" type="file" accept="image/*" hidden>
-    <script src="editor.js?v=3" defer></script>
+    <script src="editor.js?v=5" defer></script>
 </body>
 </html>

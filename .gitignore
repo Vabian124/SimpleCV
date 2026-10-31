@@ -4,5 +4,11 @@
 *.html
 !index.html
 !404.html
+!nl/index.html
+!nl/motivatiebrief/index.html
+!motivation-letter/index.html
+!templates/index.html
+!templates/software-engineer/index.html
+!templates/nursing/index.html
 Thumbs.db
 .DS_Store
