@@ -215,7 +215,7 @@ function renderGuide() {
     }
     const skip = h("button", { type: "button", class: "btn", text: t("guide.leaveEmpty") });
     const another = h("button", { type: "button", class: "btn", text: t("guide.another") });
-    const next = h("button", { type: "button", class: "btn-primary", text: index === steps.length - 1 ? t("setup.title3") : t("guide.next") });
+    const next = h("button", { type: "button", class: "btn-primary", text: index === steps.length - 1 ? t("guide.toColours") : t("guide.next") });
     if (!step.repeat) another.hidden = true;
     function refreshSkip() {
         const values = readGuideInputs();
@@ -260,9 +260,9 @@ function pressGuidePrimary() {
     const index = Math.max(0, Math.min(setupState.guideIndex || 0, steps.length - 1));
     const step = steps[index];
     if (!step) return;
+    if (step.repeat) commitRepeat(step);
     if (index >= steps.length - 1) {
-        if (step.repeat) commitRepeat(step);
-        else storeGuideStep();
+        if (!step.repeat) storeGuideStep();
         showSetupStep(3);
         syncRoute("push");
         focusPaletteCard();
@@ -445,6 +445,16 @@ function chooseKind(kind) {
 }
 
 function chooseSource(source) {
+    if (source === "paste") {
+        askChrome(document.getElementById("chrome-gate"), function () {
+            setupState.source = "paste";
+            showSetupStep(2);
+            const box = document.getElementById("setup-paste");
+            if (box) box.focus();
+            syncRoute("push");
+        });
+        return;
+    }
     setupState.source = source;
     if (source === "guided") {
         setupState.guideIndex = 0;
@@ -462,13 +472,6 @@ function chooseSource(source) {
             box.setSelectionRange(0, 0);
             box.scrollTop = 0;
         }
-        syncRoute("push");
-        return;
-    }
-    if (source === "paste") {
-        showSetupStep(2);
-        const box = document.getElementById("setup-paste");
-        if (box) box.focus();
         syncRoute("push");
         return;
     }

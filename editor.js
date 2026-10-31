@@ -206,8 +206,9 @@ const I18N = {
             close: "Sluit het stappenplan",
             step: "Stap {n} van {m}",
             added: "{n} toegevoegd",
+            toColours: "Kies de kleuren",
             pasteTitle: "Plak je tekst",
-            pasteHint: "Plak een lap tekst. Maak blokken deelt hem hier in. Het model in Chrome is optioneel en gaat niet naar een server.",
+            pasteHint: "Plak een lap tekst. Maak blokken deelt hem in, in elke browser. Het model in Chrome is optioneel en blijft op deze computer.",
             formatLocal: "Maak blokken",
             formatModel: "Model in Chrome",
             modelMissing: "Deze browser heeft geen model op het apparaat. De tekst is wel ingedeeld.",
@@ -274,7 +275,10 @@ const I18N = {
             copyAdvanced: "Geavanceerd",
             copyAdvancedHint: "Uitleg, plus kleuren, koppen en de stijl van de pagina.",
             paste: "Tekst plakken",
-            pasteHint: "Plak een lap tekst. De browser maakt er blokken van, op deze computer.",
+            pasteHint: "Alleen in Chrome. Plak een lap tekst. De browser maakt er blokken van, op deze computer.",
+            chromeOnly: "Chrome",
+            chromeWarn: "Dit heeft Chrome nodig. Firefox en andere browsers hebben dit model niet. Weet je zeker dat je Chrome gebruikt, dan kun je doorgaan.",
+            chromeProceed: "Ik gebruik Chrome",
             pastePlaceholder: "Plak hier je cv of je brief…",
             title3: "Welk palet?",
             hint3: "Kies een kant-en-klaar palet, of stel de kleuren zelf in.",
@@ -556,8 +560,9 @@ const I18N = {
             close: "Close the guide",
             step: "Step {n} of {m}",
             added: "{n} added",
+            toColours: "Choose colours",
             pasteTitle: "Paste your text",
-            pasteHint: "Paste a block of text. Make blocks sorts it here. Chrome's model is optional and does not send the text to a server.",
+            pasteHint: "Paste a block of text. Make blocks sorts it in any browser. Chrome's model is optional and stays on this computer.",
             formatLocal: "Make blocks",
             formatModel: "Model in Chrome",
             modelMissing: "This browser has no on-device model. The text was still sorted into blocks.",
@@ -624,7 +629,10 @@ const I18N = {
             copyAdvanced: "Advanced",
             copyAdvancedHint: "The guide, plus colours, headings and the page style.",
             paste: "Paste text",
-            pasteHint: "Paste a block of text. The browser turns it into blocks, on this computer.",
+            pasteHint: "Chrome only. Paste a block of text. The browser turns it into blocks, on this computer.",
+            chromeOnly: "Chrome",
+            chromeWarn: "This needs Chrome. Firefox and other browsers do not have this on-device model. If you are sure you are using Chrome, you can continue.",
+            chromeProceed: "I'm using Chrome",
             pastePlaceholder: "Paste your CV or letter here…",
             title3: "Which palette?",
             hint3: "Pick a ready-made palette, or set the colours yourself.",
@@ -739,6 +747,8 @@ let toastTimer = 0;
 let photoReturnFocus = null;
 let documentLive = false;
 let routeLock = false;
+let chromeProceed = false;
+let chromeAction = null;
 let assetLoads = {};
 let pdfLibsPromise = null;
 let cropperPromise = null;
@@ -3652,6 +3662,45 @@ function installDocument(next, keepTheme) {
     save();
 }
 
+function browserLooksLikeChrome() {
+    const ua = navigator.userAgent || "";
+    return /Chrome\/\d/.test(ua) && !/Edg\/|OPR\/|Firefox|FxiOS|SamsungBrowser|CriOS/.test(ua);
+}
+
+function chromeLimited() {
+    return !browserLooksLikeChrome() && !chromeProceed;
+}
+
+function markChromeLimits() {
+    const limited = chromeLimited();
+    document.querySelectorAll("[data-chrome-only]").forEach(function (node) {
+        node.classList.toggle("is-limited", limited);
+        if (node.tagName === "BUTTON") node.setAttribute("aria-disabled", limited ? "true" : "false");
+    });
+}
+
+function askChrome(note, action) {
+    if (!chromeLimited()) {
+        action();
+        return;
+    }
+    chromeAction = action;
+    document.querySelectorAll(".chrome-gate").forEach(function (gate) { gate.hidden = true; });
+    if (!note) return;
+    note.hidden = false;
+    const go = note.querySelector("[data-chrome-go]");
+    if (go) go.focus();
+}
+
+function allowChromeAndRun() {
+    const action = chromeAction;
+    chromeProceed = true;
+    chromeAction = null;
+    document.querySelectorAll(".chrome-gate").forEach(function (gate) { gate.hidden = true; });
+    markChromeLimits();
+    if (action) action();
+}
+
 function browserModelApi() {
     if (typeof LanguageModel !== "undefined") return LanguageModel;
     if (window.ai && window.ai.languageModel) return window.ai.languageModel;
@@ -3849,7 +3898,7 @@ function mountTools() {
     const loose = h("textarea", { id: "loose-text", rows: "8" });
     const llm = h("textarea", { id: "llm-input", rows: "6" });
     const formatBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "guide.formatLocal" }));
-    const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel" }));
+    const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel", "data-chrome-only": "1" }));
     const copyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.copy" }));
     const applyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.applyText" }));
     formatBtn.addEventListener("click", function () {
@@ -3857,13 +3906,19 @@ function mountTools() {
         const found = describeLoose(data);
         showStatus(t("ui.applied") + (found ? " " + t("ui.found").replace("{list}", found) : ""));
     });
+    const chromeNote = h("div", { class: "chrome-gate", hidden: "hidden" }, [
+        h("p", { i18n: "setup.chromeWarn" }),
+        keepSelection(h("button", { class: "btn", type: "button", "data-chrome-go": "1", i18n: "setup.chromeProceed" }))
+    ]);
     modelBtn.addEventListener("click", function () {
-        showStatus(t("guide.modelWorking"));
-        formatWithBrowserModel(loose.value).then(function () {
-            showStatus(t("guide.modelReady"));
-        }).catch(function () {
-            applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
-            showError(t("guide.modelMissing"));
+        askChrome(chromeNote, function () {
+            showStatus(t("guide.modelWorking"));
+            formatWithBrowserModel(loose.value).then(function () {
+                showStatus(t("guide.modelReady"));
+            }).catch(function () {
+                applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
+                showError(t("guide.modelMissing"));
+            });
         });
     });
     copyBtn.addEventListener("click", function () { copyForModel(); });
@@ -3922,7 +3977,8 @@ function mountTools() {
             h("h2", { i18n: "guide.pasteTitle" }),
             h("p", { class: "note", i18n: "guide.pasteHint" }),
             loose,
-            h("div", { class: "menu-actions" }, [formatBtn, modelBtn])
+            h("div", { class: "menu-actions" }, [formatBtn, modelBtn]),
+            chromeNote
         ]),
         h("section", { class: "menu-block" }, [
             h("h2", { i18n: "ui.model" }),
@@ -4755,7 +4811,7 @@ function renderGuide() {
     }
     const skip = h("button", { type: "button", class: "btn", text: t("guide.leaveEmpty") });
     const another = h("button", { type: "button", class: "btn", text: t("guide.another") });
-    const next = h("button", { type: "button", class: "btn-primary", text: index === steps.length - 1 ? t("setup.title3") : t("guide.next") });
+    const next = h("button", { type: "button", class: "btn-primary", text: index === steps.length - 1 ? t("guide.toColours") : t("guide.next") });
     if (!step.repeat) another.hidden = true;
     function refreshSkip() {
         const values = readGuideInputs();
@@ -4800,9 +4856,9 @@ function pressGuidePrimary() {
     const index = Math.max(0, Math.min(setupState.guideIndex || 0, steps.length - 1));
     const step = steps[index];
     if (!step) return;
+    if (step.repeat) commitRepeat(step);
     if (index >= steps.length - 1) {
-        if (step.repeat) commitRepeat(step);
-        else storeGuideStep();
+        if (!step.repeat) storeGuideStep();
         showSetupStep(3);
         syncRoute("push");
         focusPaletteCard();
@@ -4985,6 +5041,16 @@ function chooseKind(kind) {
 }
 
 function chooseSource(source) {
+    if (source === "paste") {
+        askChrome(document.getElementById("chrome-gate"), function () {
+            setupState.source = "paste";
+            showSetupStep(2);
+            const box = document.getElementById("setup-paste");
+            if (box) box.focus();
+            syncRoute("push");
+        });
+        return;
+    }
     setupState.source = source;
     if (source === "guided") {
         setupState.guideIndex = 0;
@@ -5002,13 +5068,6 @@ function chooseSource(source) {
             box.setSelectionRange(0, 0);
             box.scrollTop = 0;
         }
-        syncRoute("push");
-        return;
-    }
-    if (source === "paste") {
-        showSetupStep(2);
-        const box = document.getElementById("setup-paste");
-        if (box) box.focus();
         syncRoute("push");
         return;
     }
@@ -5369,28 +5428,34 @@ function boot() {
     document.getElementById("crop-dialog").addEventListener("click", function (event) {
         if (event.target.id === "crop-dialog") closePhotoCrop();
     });
+    document.querySelectorAll("[data-chrome-go]").forEach(function (button) {
+        button.addEventListener("click", allowChromeAndRun);
+    });
     document.getElementById("setup-model-run").addEventListener("click", function () {
-        const text = document.getElementById("setup-model-text").value;
-        setupMessage(t("guide.modelWorking"), false);
-        const theme = Object.assign({}, setupState.kind === "letter" ? letterTheme() : cvTheme(), activePalette());
-        doc.theme = theme;
-        formatWithBrowserModel(text).then(function () {
+        askChrome(document.getElementById("setup-chrome-note"), function () {
+            const text = document.getElementById("setup-model-text").value;
+            setupMessage(t("guide.modelWorking"), false);
+            const theme = Object.assign({}, setupState.kind === "letter" ? letterTheme() : cvTheme(), activePalette());
             doc.theme = theme;
-            applyTheme();
-            setupReturn = false;
-            setPhase("studio");
-            save();
-            toggleDrawer(false);
-            syncRoute("push");
-        }).catch(function () {
-            try {
-                openFromText(text);
-                showStatus(t("guide.modelMissing"));
-            } catch (error) {
-                setupMessage(error && error.message ? error.message : t("guide.modelMissing"), true);
-            }
+            formatWithBrowserModel(text).then(function () {
+                doc.theme = theme;
+                applyTheme();
+                setupReturn = false;
+                setPhase("studio");
+                save();
+                toggleDrawer(false);
+                syncRoute("push");
+            }).catch(function () {
+                try {
+                    openFromText(text);
+                    showStatus(t("guide.modelMissing"));
+                } catch (error) {
+                    setupMessage(error && error.message ? error.message : t("guide.modelMissing"), true);
+                }
+            });
         });
     });
+    markChromeLimits();
     document.getElementById("setup-continue").addEventListener("click", function () {
         showSetupStep(3);
         syncRoute("push");

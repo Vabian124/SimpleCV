@@ -132,28 +132,34 @@ function boot() {
     document.getElementById("crop-dialog").addEventListener("click", function (event) {
         if (event.target.id === "crop-dialog") closePhotoCrop();
     });
+    document.querySelectorAll("[data-chrome-go]").forEach(function (button) {
+        button.addEventListener("click", allowChromeAndRun);
+    });
     document.getElementById("setup-model-run").addEventListener("click", function () {
-        const text = document.getElementById("setup-model-text").value;
-        setupMessage(t("guide.modelWorking"), false);
-        const theme = Object.assign({}, setupState.kind === "letter" ? letterTheme() : cvTheme(), activePalette());
-        doc.theme = theme;
-        formatWithBrowserModel(text).then(function () {
+        askChrome(document.getElementById("setup-chrome-note"), function () {
+            const text = document.getElementById("setup-model-text").value;
+            setupMessage(t("guide.modelWorking"), false);
+            const theme = Object.assign({}, setupState.kind === "letter" ? letterTheme() : cvTheme(), activePalette());
             doc.theme = theme;
-            applyTheme();
-            setupReturn = false;
-            setPhase("studio");
-            save();
-            toggleDrawer(false);
-            syncRoute("push");
-        }).catch(function () {
-            try {
-                openFromText(text);
-                showStatus(t("guide.modelMissing"));
-            } catch (error) {
-                setupMessage(error && error.message ? error.message : t("guide.modelMissing"), true);
-            }
+            formatWithBrowserModel(text).then(function () {
+                doc.theme = theme;
+                applyTheme();
+                setupReturn = false;
+                setPhase("studio");
+                save();
+                toggleDrawer(false);
+                syncRoute("push");
+            }).catch(function () {
+                try {
+                    openFromText(text);
+                    showStatus(t("guide.modelMissing"));
+                } catch (error) {
+                    setupMessage(error && error.message ? error.message : t("guide.modelMissing"), true);
+                }
+            });
         });
     });
+    markChromeLimits();
     document.getElementById("setup-continue").addEventListener("click", function () {
         showSetupStep(3);
         syncRoute("push");

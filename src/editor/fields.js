@@ -285,6 +285,45 @@ function installDocument(next, keepTheme) {
     save();
 }
 
+function browserLooksLikeChrome() {
+    const ua = navigator.userAgent || "";
+    return /Chrome\/\d/.test(ua) && !/Edg\/|OPR\/|Firefox|FxiOS|SamsungBrowser|CriOS/.test(ua);
+}
+
+function chromeLimited() {
+    return !browserLooksLikeChrome() && !chromeProceed;
+}
+
+function markChromeLimits() {
+    const limited = chromeLimited();
+    document.querySelectorAll("[data-chrome-only]").forEach(function (node) {
+        node.classList.toggle("is-limited", limited);
+        if (node.tagName === "BUTTON") node.setAttribute("aria-disabled", limited ? "true" : "false");
+    });
+}
+
+function askChrome(note, action) {
+    if (!chromeLimited()) {
+        action();
+        return;
+    }
+    chromeAction = action;
+    document.querySelectorAll(".chrome-gate").forEach(function (gate) { gate.hidden = true; });
+    if (!note) return;
+    note.hidden = false;
+    const go = note.querySelector("[data-chrome-go]");
+    if (go) go.focus();
+}
+
+function allowChromeAndRun() {
+    const action = chromeAction;
+    chromeProceed = true;
+    chromeAction = null;
+    document.querySelectorAll(".chrome-gate").forEach(function (gate) { gate.hidden = true; });
+    markChromeLimits();
+    if (action) action();
+}
+
 function browserModelApi() {
     if (typeof LanguageModel !== "undefined") return LanguageModel;
     if (window.ai && window.ai.languageModel) return window.ai.languageModel;
@@ -482,7 +521,7 @@ function mountTools() {
     const loose = h("textarea", { id: "loose-text", rows: "8" });
     const llm = h("textarea", { id: "llm-input", rows: "6" });
     const formatBtn = keepSelection(h("button", { class: "btn-primary", type: "button", i18n: "guide.formatLocal" }));
-    const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel" }));
+    const modelBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "guide.formatModel", "data-chrome-only": "1" }));
     const copyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.copy" }));
     const applyBtn = keepSelection(h("button", { class: "btn", type: "button", i18n: "ui.applyText" }));
     formatBtn.addEventListener("click", function () {
@@ -490,13 +529,19 @@ function mountTools() {
         const found = describeLoose(data);
         showStatus(t("ui.applied") + (found ? " " + t("ui.found").replace("{list}", found) : ""));
     });
+    const chromeNote = h("div", { class: "chrome-gate", hidden: "hidden" }, [
+        h("p", { i18n: "setup.chromeWarn" }),
+        keepSelection(h("button", { class: "btn", type: "button", "data-chrome-go": "1", i18n: "setup.chromeProceed" }))
+    ]);
     modelBtn.addEventListener("click", function () {
-        showStatus(t("guide.modelWorking"));
-        formatWithBrowserModel(loose.value).then(function () {
-            showStatus(t("guide.modelReady"));
-        }).catch(function () {
-            applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
-            showError(t("guide.modelMissing"));
+        askChrome(chromeNote, function () {
+            showStatus(t("guide.modelWorking"));
+            formatWithBrowserModel(loose.value).then(function () {
+                showStatus(t("guide.modelReady"));
+            }).catch(function () {
+                applyLooseText(loose.value, doc.kind === "letter" ? "letter" : "cv");
+                showError(t("guide.modelMissing"));
+            });
         });
     });
     copyBtn.addEventListener("click", function () { copyForModel(); });
@@ -555,7 +600,8 @@ function mountTools() {
             h("h2", { i18n: "guide.pasteTitle" }),
             h("p", { class: "note", i18n: "guide.pasteHint" }),
             loose,
-            h("div", { class: "menu-actions" }, [formatBtn, modelBtn])
+            h("div", { class: "menu-actions" }, [formatBtn, modelBtn]),
+            chromeNote
         ]),
         h("section", { class: "menu-block" }, [
             h("h2", { i18n: "ui.model" }),

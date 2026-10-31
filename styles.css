@@ -1329,7 +1329,7 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
 
 .card-badge {
     display: inline-block;
-    margin-bottom: 6px;
+    margin: 0 0 0 8px;
     padding: 2px 8px;
     border-radius: 999px;
     background: #0f172a;
@@ -1337,7 +1337,31 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
     font-size: 11px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    vertical-align: 1px;
 }
+
+.choice-card.is-limited,
+.btn.is-limited {
+    opacity: 0.48;
+    filter: grayscale(0.55);
+}
+
+.choice-card.is-limited:hover {
+    transform: none;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.chrome-gate {
+    width: min(680px, 100%);
+    padding: 14px 16px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.chrome-gate p { margin: 0 0 12px; }
+
+#drawer .chrome-gate { width: auto; }
 
 .copy-modes { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
 .copy-modes .choice-card { padding: 12px 14px; }

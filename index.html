@@ -87,7 +87,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body data-pane="page">
     <main id="view-setup" class="setup">
@@ -151,15 +151,19 @@
                         <span class="card-copy" data-i18n="setup.blankHint">An empty template of this document. You write the text.</span>
                     </span>
                 </button>
-                <button type="button" class="choice-card" data-source="paste">
+                <button type="button" class="choice-card" data-source="paste" data-chrome-only="1">
                     <span class="choice-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
                     </span>
                     <span>
-                        <span class="card-kicker" data-i18n="setup.paste">Paste text</span>
-                        <span class="card-copy" data-i18n="setup.pasteHint">Paste a block of text. The browser turns it into blocks, on this computer.</span>
+                        <span class="card-kicker"><span data-i18n="setup.paste">Paste text</span> <span class="card-badge" data-i18n="setup.chromeOnly">Chrome</span></span>
+                        <span class="card-copy" data-i18n="setup.pasteHint">Chrome only. Paste a block of text. The browser turns it into blocks, on this computer.</span>
                     </span>
                 </button>
+                <div id="chrome-gate" class="chrome-gate" hidden>
+                    <p data-i18n="setup.chromeWarn">This needs Chrome. Firefox and other browsers do not have this on-device model. If you are sure you are using Chrome, you can continue.</p>
+                    <button type="button" class="btn" data-chrome-go="1" data-i18n="setup.chromeProceed">I'm using Chrome</button>
+                </div>
                 <button type="button" class="choice-card" data-source="demo">
                     <span class="choice-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -210,7 +214,11 @@
                 <p class="note" data-i18n="setup.modelBox">The template is here. Copy it to an AI, then paste the answer over this text.</p>
                 <textarea id="setup-model-text" rows="16" spellcheck="false"></textarea>
                 <div class="guide-actions">
-                    <button type="button" class="btn" id="setup-model-run" data-i18n="guide.formatModel">Model in Chrome</button>
+                    <button type="button" class="btn" id="setup-model-run" data-chrome-only="1" data-i18n="guide.formatModel">Model in Chrome</button>
+                </div>
+                <div id="setup-chrome-note" class="chrome-gate" hidden>
+                    <p data-i18n="setup.chromeWarn">This needs Chrome. Firefox and other browsers do not have this on-device model. If you are sure you are using Chrome, you can continue.</p>
+                    <button type="button" class="btn" data-chrome-go="1" data-i18n="setup.chromeProceed">I'm using Chrome</button>
                 </div>
                 <p id="setup-message" class="note" hidden></p>
             </div>
@@ -365,6 +373,6 @@
         </div>
     </div>
     <input id="photo-file" type="file" accept="image/*" hidden>
-    <script src="editor.js?v=6" defer></script>
+    <script src="editor.js?v=7" defer></script>
 </body>
 </html>
