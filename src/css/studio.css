@@ -451,3 +451,66 @@ body.is-dragging .library-card { cursor: grabbing; }
 
 .stage-tools input[type="range"] { width: 120px; }
 .stage-tools #zoom-value { font-size: 12px; min-width: 40px; color: var(--muted); }
+
+.saves-open { display: inline-flex; align-items: center; gap: 6px; }
+
+.saves-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 11px;
+    line-height: 1;
+}
+
+.saves-count:empty { display: none; }
+
+.save-manager {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    justify-items: end;
+    align-items: start;
+    padding: 72px 16px 16px;
+    background: rgba(15, 23, 42, 0.28);
+}
+
+.save-manager-card {
+    width: min(440px, 100%);
+    max-height: min(72vh, 680px);
+    overflow: auto;
+    padding: 16px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--shadow);
+}
+
+.save-manager-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.save-manager-head h2 { margin: 0; font-size: 18px; }
+
+.save-manager-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.save-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+
+.save-row { padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 12px; }
+
+.save-row.is-current { border-color: var(--ink); }
+
+.save-row strong { display: block; }
+
+.save-row .note { margin: 2px 0 0; }
+
+.save-row-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+body.pdf-offstage #studio {
+    position: fixed;
+    left: -12000px;
+    top: 0;
+    display: block;
+}

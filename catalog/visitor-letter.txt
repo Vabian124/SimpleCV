@@ -1,0 +1,26 @@
+@@@LETTER
+NAME: Sam<br>Ibarra
+ROLE: Visitor services
+TITLE: Motivation letter
+DATE: Harbour City, 31 October 2026
+TO: Museum of everyday design<br>Hiring desk
+SUBJECT: the visitor-services role
+SUMMARY: Sam Ibarra is invented. This letter shows the order of a motivation letter. The museum is invented.
+@@@PARAGRAPH
+The person at the desk should be able to explain an exhibition without turning it into a lecture. I have done that work in a small gallery, and I want to do it for you.
+@@@PARAGRAPH
+I can keep a busy Saturday calm, and I can write the short signs that people actually read.
+@@@CLOSING
+Yours sincerely,
+SIGN: Sam Ibarra
+@@@THEME
+SIDEBAR: #f4f4f5
+SIDEBARTEXT: #18181b
+ACCENT: #18181b
+ACCENTLIGHT: #18181b
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: lora
+@@@END

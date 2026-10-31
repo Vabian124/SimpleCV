@@ -10,7 +10,7 @@ function requestedTemplate() {
 }
 
 function templateLang(id) {
-    if (id.indexOf("softwareontwikkelaar") === 0 || id.indexOf("verpleegkundige") === 0) return "nl";
+    if (id.indexOf("softwareontwikkelaar") === 0 || id.indexOf("verpleegkundige") === 0 || id.indexOf("publieksdienst") === 0) return "nl";
     return "en";
 }
 
@@ -23,6 +23,7 @@ function openRequestedTemplate() {
     doc.theme = cvTheme();
     normalize(doc);
     applyMarked(CATALOG[id]);
+    currentSaveId = "";
     filenameCustom = false;
     documentLive = true;
     const name = document.getElementById("pdf-name");

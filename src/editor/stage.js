@@ -239,6 +239,7 @@ function applyStageScale(scale) {
 
 function useTemplate(kind) {
     snapshot();
+    currentSaveId = "";
     doc = kind === "letter" ? emptyLetter() : emptyCv();
     selectedId = null;
     filenameCustom = false;

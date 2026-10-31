@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const asset = "21";
+const asset = "22";
 const pdfCli = require("./pdf.js");
 
 function readCatalog(id) {
@@ -437,7 +437,10 @@ function render(page) {
         "                <div class=\"pdf-sheet\">\n" +
         "                    <iframe src=\"" + esc(pdfPath) + "#toolbar=0&navpanes=0&view=Fit\" title=\"" + esc(page.h1) + "\"></iframe>\n" +
         "                </div>\n" +
-        "                <figcaption><a href=\"" + esc(pdfPath) + "\">" + esc(pdfLink) + "</a></figcaption>\n" +
+        "                <figcaption class=\"pdf-actions\">\n" +
+        "                    <a class=\"btn-primary\" href=\"/?template=" + esc(page.id) + "&amp;lang=" + page.lang + "\">" + esc(page.open) + "</a>\n" +
+        "                    <a class=\"btn\" href=\"" + esc(pdfPath) + "\">" + esc(pdfLink) + "</a>\n" +
+        "                </figcaption>\n" +
         "            </figure>\n" +
         "            <h2>" + esc(page.tipsTitle) + "</h2>\n" +
         "            <ul>\n" + tips + "\n            </ul>\n" +

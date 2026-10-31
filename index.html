@@ -89,7 +89,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="/styles.css?v=21">
+    <link rel="stylesheet" href="/styles.css?v=22">
 </head>
 <body data-pane="page">
     <main id="view-setup" class="setup">
@@ -100,9 +100,15 @@
         <div class="setup-top">
             <p class="kicker" id="setup-kicker">LibreCV. No account.</p>
             <div class="setup-dots" id="setup-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="setup-tools">
+            <button type="button" class="btn saves-open" id="saves-open-setup">
+                <span data-i18n="ui.saves">Saves</span>
+                <span class="saves-count"></span>
+            </button>
             <div class="lang-switch" role="group" data-i18n-label="ui.language" aria-label="Language">
                 <button type="button" data-lang="nl">NL</button>
                 <button type="button" data-lang="en">EN</button>
+            </div>
             </div>
         </div>
 
@@ -380,7 +386,7 @@
         </div>
     </div>
     <input id="photo-file" type="file" accept="image/*" hidden>
-    <script src="/editor.js?v=22" defer></script>
+    <script src="/editor.js?v=23" defer></script>
     <script src="/feedback/open.js?v=2" defer></script>
 </body>
 </html>

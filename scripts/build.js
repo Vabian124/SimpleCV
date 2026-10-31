@@ -23,6 +23,7 @@ const order = [
     "pdf.js",
     "theme.js",
     "library.js",
+    "saves.js",
     "language.js",
     "chrome.js",
     "tools.js",

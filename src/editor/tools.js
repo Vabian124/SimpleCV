@@ -258,6 +258,10 @@ function mountTools() {
         h("div", { class: "spacer" }),
         undoBtn,
         redoBtn,
+        h("button", { type: "button", class: "btn saves-open", id: "saves-open" }, [
+            h("span", { i18n: "ui.saves" }),
+            h("span", { class: "saves-count" })
+        ]),
         name,
         ai,
         download,
@@ -405,6 +409,7 @@ function mountTools() {
         usePhotoUrl();
     });
     photoUrl.addEventListener("change", usePhotoUrl);
+    mountSaves();
 
     const blockSize = document.getElementById("block-size");
     blockSize.addEventListener("pointerdown", function () { photoWidthSnapped = false; });

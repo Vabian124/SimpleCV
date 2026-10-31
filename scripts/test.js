@@ -248,6 +248,45 @@ const guide = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
 if (guide.indexOf("/feedback/desk") !== -1) fail("llms.txt points at the inbox");
 if (guide.indexOf("https://librecv.org/feedback.txt") === -1) fail("llms.txt does not point at the feedback instructions");
 if (guide.indexOf("/cli/") === -1) fail("llms.txt does not mention the PDF command");
+if (guide.indexOf("Reset clears them") === -1) fail("llms.txt does not mention saved copies");
+if (fs.readFileSync(path.join(root, "motivation-letter", "index.html"), "utf8").indexOf("/?template=visitor-letter&amp;lang=en") < 0) {
+    fail("the English letter example does not open in the editor");
+}
+if (fs.readFileSync(path.join(root, "nl", "motivatiebrief", "index.html"), "utf8").indexOf("/?template=publieksdienst-letter&amp;lang=nl") < 0) {
+    fail("the Dutch letter example does not open in the editor");
+}
+["visitor-letter", "publieksdienst-letter"].forEach(function (id) {
+    const text = fs.readFileSync(path.join(root, "catalog", id + ".txt"), "utf8");
+    if (editor.indexOf(JSON.stringify(text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\s+$/, ""))) < 0) {
+        fail("the editor is missing " + id);
+    }
+});
+
+const saves = {
+    localStorage: { data: {}, getItem: function (key) { return Object.prototype.hasOwnProperty.call(this.data, key) ? this.data[key] : null; }, setItem: function (key, value) { this.data[key] = String(value); }, removeItem: function (key) { delete this.data[key]; } },
+    document: { getElementById: function () { return null; }, querySelectorAll: function () { return []; } },
+    doc: { version: 1, kind: "letter", lang: "en", theme: {}, sidebar: [], main: [] },
+    currentSaveId: "",
+    saveSwap: false,
+    filenameCustom: false,
+    t: function (key) { return key; },
+    plainName: function () { return "Sam"; },
+    showStatus: function () {},
+    showToast: function () {},
+    h: function () { return { addEventListener: function () {}, classList: { add: function () {} }, appendChild: function () {} }; }
+};
+vm.createContext(saves);
+vm.runInContext(
+    "let currentSaveId = '';\nlet saveSwap = false;\nlet filenameCustom = false;\n" +
+    fs.readFileSync(path.join(root, "src", "editor", "saves.js"), "utf8") +
+    "\nthis.readSaves = readSaves;\nthis.rememberSave = rememberSave;\nthis.clearSaves = clearSaves;\nthis.STORAGE_SAVES = STORAGE_SAVES;\n",
+    saves
+);
+saves.rememberSave(false);
+const stored = JSON.parse(saves.localStorage.data["cv-tool-saves"]);
+if (!stored.length || stored[0].kind !== "letter" || stored[0].doc.version !== 1) fail("a save was not stored");
+saves.clearSaves();
+if (saves.localStorage.data["cv-tool-saves"] !== "[]") fail("reset did not clear the saved copies");
 
 const templatePages = require("./template-pages.js");
 const sitemap = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8");

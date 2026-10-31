@@ -1,0 +1,26 @@
+@@@LETTER
+NAME: Noa<br>de Vries
+ROLE: Medewerker publieksdienst
+TITLE: Motivatiebrief
+DATE: Utrecht, 31 oktober 2026
+TO: Bibliotheek aan de Werf<br>Ter attentie van de balie
+SUBJECT: medewerker publieksdienst
+SUMMARY: Noa de Vries is verzonnen. Deze brief laat de volgorde van een motivatiebrief zien. De bibliotheek is verzonnen.
+@@@PARAGRAPH
+Mensen vragen zelden om de catalogus. Ze vragen of een boek er is, of de zaal nog vrij is, en of hun kaart het doet. Dat werk doe ik graag, en ik schrijf de korte briefjes op de balie die iemand in één oogopslag snapt.
+@@@PARAGRAPH
+Ik werk nu in een kleine uitleenbalie. Ik wil datzelfde doen in een grotere zaal.
+@@@CLOSING
+Met vriendelijke groet,
+SIGN: Noa de Vries
+@@@THEME
+SIDEBAR: #f4f4f5
+SIDEBARTEXT: #18181b
+ACCENT: #18181b
+ACCENTLIGHT: #18181b
+PAGE: #ffffff
+TEXT: #334155
+SIZE: 9.5
+COLUMN: 33
+FONT: lora
+@@@END

@@ -290,6 +290,7 @@ async function importPdfBytes(bytes) {
         return;
     }
     snapshot();
+    currentSaveId = "";
     doc = data;
     normalize(doc);
     lang = doc.lang;

@@ -96,6 +96,7 @@ function save() {
     try {
         localStorage.setItem(STORAGE_DOC, JSON.stringify(doc));
         documentLive = true;
+        updateLinkedSave();
         if (!saveOk || document.getElementById("save-state")) markSaved(true);
     } catch (error) {
         if (saveOk) markSaved(false);

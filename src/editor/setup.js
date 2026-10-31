@@ -94,6 +94,7 @@ function resetAll(button) {
         localStorage.removeItem(STORAGE_DOC);
         localStorage.removeItem(STORAGE_NAME);
     } catch (error) { /* private mode */ }
+    clearSaves();
     past = [];
     future = [];
     selectedId = null;
@@ -157,6 +158,7 @@ function openFromText(text) {
         doc = previous;
         throw error;
     }
+    currentSaveId = "";
     setupReturn = false;
     setPhase("studio");
     if (built) installDocument(built, false);

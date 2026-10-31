@@ -75,6 +75,7 @@ function applyLanguage() {
     paintContrastWarning();
     syncFaqSchema();
     refreshAiBox(false);
+    if (typeof paintSaves === "function") paintSaves();
     const morePages = document.getElementById("more-pages");
     if (morePages) morePages.setAttribute("aria-label", t("site.morePages"));
 }

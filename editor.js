@@ -39,6 +39,8 @@ let saveTimer = 0;
 let toastTimer = 0;
 let photoReturnFocus = null;
 let documentLive = false;
+let currentSaveId = "";
+let saveSwap = false;
 let routeLock = false;
 let chromeProceed = false;
 let chromeAction = null;
@@ -116,7 +118,7 @@ const I18N_NL = {
         libError: "De PDF-bibliotheek is niet geladen.",
         fontError: "Het lettertype lukte niet.",
         reset: "Reset",
-        resetArmed: "Wis alles?",
+        resetArmed: "Document en alle kopieën wissen?",
         toolName: "LibreCV",
         pageOne: "1 pagina",
         pageMany: "{n} pagina's",
@@ -133,6 +135,23 @@ const I18N_NL = {
         replaceNote: "Doorgaan vervangt het open document. Terug naar document laat het staan.",
         replaceArmed: "Vervangen?",
         saved: "Opgeslagen",
+        saves: "Opgeslagen",
+        savesTitle: "Opgeslagen documenten",
+        savesLead: "Kopieën blijven in deze browser. Er wordt niets geüpload. Reset wist het open document en elke opgeslagen kopie.",
+        savesStore: "Dit document opslaan",
+        savesCopy: "Kopie opslaan",
+        savesEmpty: "Er is nog niets opgeslagen.",
+        savesEdit: "Bewerken",
+        savesPdf: "PDF",
+        savesDownload: "Download deze PDF",
+        savesDuplicate: "Dupliceren",
+        savesDelete: "Wissen",
+        savesDeleteArmed: "Dit wissen?",
+        savesOpen: "Het opgeslagen document is geopend.",
+        savesStored: "Opgeslagen in deze browser.",
+        savesCopied: "Een kopie is opgeslagen. Verdere wijzigingen gaan naar de kopie.",
+        savesKindCv: "CV",
+        savesKindLetter: "Brief",
         saveFail: "Opslaan lukte niet. Dit apparaat zit vol, of de browser bewaart deze pagina niet. Download de PDF, dat bestand blijft wel.",
         downloadAnyway: "Toch downloaden",
         cancel: "Annuleer",
@@ -482,7 +501,7 @@ const I18N_EN = {
         libError: "The PDF library did not load.",
         fontError: "The font failed to load.",
         reset: "Reset",
-        resetArmed: "Clear everything?",
+        resetArmed: "Clear the document and every saved copy?",
         toolName: "LibreCV",
         pageOne: "1 page",
         pageMany: "{n} pages",
@@ -499,6 +518,23 @@ const I18N_EN = {
         replaceNote: "Continuing replaces the open document. Back to document leaves it as it is.",
         replaceArmed: "Replace?",
         saved: "Saved",
+        saves: "Saves",
+        savesTitle: "Saved documents",
+        savesLead: "Copies stay in this browser. Nothing is uploaded. Reset clears the open document and every saved copy.",
+        savesStore: "Save this document",
+        savesCopy: "Save a copy",
+        savesEmpty: "Nothing is saved yet.",
+        savesEdit: "Edit",
+        savesPdf: "PDF",
+        savesDownload: "Download this PDF",
+        savesDuplicate: "Duplicate",
+        savesDelete: "Delete",
+        savesDeleteArmed: "Delete this?",
+        savesOpen: "The saved document is open.",
+        savesStored: "Saved in this browser.",
+        savesCopied: "A copy is saved. Further edits go to the copy.",
+        savesKindCv: "CV",
+        savesKindLetter: "Letter",
         saveFail: "Saving failed. This device is full, or the browser is not keeping this page. Download the PDF. That file stays.",
         downloadAnyway: "Download anyway",
         cancel: "Cancel",
@@ -1239,6 +1275,7 @@ function save() {
     try {
         localStorage.setItem(STORAGE_DOC, JSON.stringify(doc));
         documentLive = true;
+        updateLinkedSave();
         if (!saveOk || document.getElementById("save-state")) markSaved(true);
     } catch (error) {
         if (saveOk) markSaved(false);
@@ -3054,6 +3091,7 @@ function applyStageScale(scale) {
 
 function useTemplate(kind) {
     snapshot();
+    currentSaveId = "";
     doc = kind === "letter" ? emptyLetter() : emptyCv();
     selectedId = null;
     filenameCustom = false;
@@ -4001,6 +4039,7 @@ async function importPdfBytes(bytes) {
         return;
     }
     snapshot();
+    currentSaveId = "";
     doc = data;
     normalize(doc);
     lang = doc.lang;
@@ -4293,6 +4332,285 @@ function setAddTarget(next) {
     if (changed) fillBlockGrid();
 }
 /* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
+/* Named copies of the open document, kept in this browser. */
+
+const STORAGE_SAVES = "cv-tool-saves";
+const SAVE_LIMIT = 24;
+
+function readSaves() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(STORAGE_SAVES) || "[]");
+        if (!Array.isArray(raw)) return [];
+        return raw.filter(function (item) {
+            return item && typeof item.id === "string" && item.doc && item.doc.version === 1 && Array.isArray(item.doc.sidebar) && Array.isArray(item.doc.main);
+        });
+    } catch (error) {
+        return [];
+    }
+}
+
+function writeSaves(list) {
+    try {
+        localStorage.setItem(STORAGE_SAVES, JSON.stringify(list));
+    } catch (error) {
+        showToast(t("ui.saveFail"), "error");
+    }
+    const count = String(list.length || "");
+    document.querySelectorAll(".saves-count").forEach(function (node) {
+        node.textContent = count;
+    });
+}
+
+function saveTitle() {
+    const input = document.getElementById("pdf-name");
+    const named = input && input.value.trim();
+    if (named) return named;
+    const person = typeof plainName === "function" ? plainName().replace(/\s+/g, " ").trim() : "";
+    if (person && person !== t("ph.name")) return person;
+    return doc && doc.kind === "letter" ? t("ui.savesKindLetter") : t("ui.savesKindCv");
+}
+
+function newSaveId() {
+    return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function updateLinkedSave() {
+    if (saveSwap || !currentSaveId || !doc) return;
+    const list = readSaves();
+    const index = list.findIndex(function (item) { return item.id === currentSaveId; });
+    if (index < 0) {
+        currentSaveId = "";
+        return;
+    }
+    list[index].doc = JSON.parse(JSON.stringify(doc));
+    list[index].name = saveTitle();
+    list[index].kind = doc.kind === "letter" ? "letter" : "cv";
+    list[index].lang = doc.lang === "en" ? "en" : "nl";
+    list[index].updated = Date.now();
+    try { localStorage.setItem(STORAGE_SAVES, JSON.stringify(list)); } catch (error) { /* the live copy still saved */ }
+}
+
+function rememberSave(asCopy) {
+    if (!doc) return;
+    const list = readSaves();
+    const fresh = asCopy || !currentSaveId || !list.some(function (item) { return item.id === currentSaveId; });
+    const id = fresh ? newSaveId() : currentSaveId;
+    const next = {
+        id: id,
+        name: saveTitle(),
+        kind: doc.kind === "letter" ? "letter" : "cv",
+        lang: doc.lang === "en" ? "en" : "nl",
+        updated: Date.now(),
+        doc: JSON.parse(JSON.stringify(doc))
+    };
+    const index = list.findIndex(function (item) { return item.id === id; });
+    if (index >= 0) list[index] = next;
+    else list.unshift(next);
+    if (list.length > SAVE_LIMIT) list.length = SAVE_LIMIT;
+    writeSaves(list);
+    currentSaveId = id;
+    paintSaves();
+    showStatus(t(asCopy ? "ui.savesCopied" : "ui.savesStored"));
+}
+
+function clearSaves() {
+    currentSaveId = "";
+    try { localStorage.removeItem(STORAGE_SAVES); } catch (error) { /* private mode */ }
+    writeSaves([]);
+    paintSaves();
+}
+
+function forgetSave(id) {
+    const list = readSaves().filter(function (item) { return item.id !== id; });
+    if (currentSaveId === id) currentSaveId = "";
+    writeSaves(list);
+    paintSaves();
+}
+
+function openSave(id) {
+    const item = readSaves().find(function (entry) { return entry.id === id; });
+    if (!item) return;
+    snapshot();
+    doc = JSON.parse(JSON.stringify(item.doc));
+    normalize(doc);
+    lang = doc.lang === "en" ? "en" : "nl";
+    currentSaveId = item.id;
+    filenameCustom = true;
+    selectedId = null;
+    documentLive = true;
+    setupReturn = false;
+    const name = document.getElementById("pdf-name");
+    if (name) name.value = item.name || saveTitle();
+    try { localStorage.setItem(STORAGE_NAME, name ? name.value : item.name); } catch (error) { /* ignore */ }
+    try { localStorage.setItem(STORAGE_LANG, lang); } catch (error) { /* ignore */ }
+    applyLanguage();
+    render();
+    setPhase("studio");
+    save();
+    syncRoute("push");
+    toggleSaves(false);
+    showStatus(t("ui.savesOpen"));
+}
+
+function saveWhen(stamp) {
+    try {
+        return new Date(stamp).toLocaleDateString(lang === "en" ? "en-GB" : "nl-NL", { day: "numeric", month: "short", year: "numeric" });
+    } catch (error) {
+        return "";
+    }
+}
+
+function paintSaves() {
+    const listNode = document.getElementById("save-manager-list");
+    const empty = document.getElementById("save-manager-empty");
+    if (!listNode) return;
+    const list = readSaves();
+    listNode.textContent = "";
+    if (empty) empty.hidden = list.length > 0;
+    list.forEach(function (item) {
+        const kind = item.kind === "letter" ? t("ui.savesKindLetter") : t("ui.savesKindCv");
+        const edit = h("button", { type: "button", class: "btn", i18n: "ui.savesEdit", text: t("ui.savesEdit") });
+        const pdf = h("button", { type: "button", class: "btn", i18n: "ui.savesPdf", i18nTitle: "ui.savesDownload", text: t("ui.savesPdf"), title: t("ui.savesDownload") });
+        const copy = h("button", { type: "button", class: "btn", i18n: "ui.savesDuplicate", text: t("ui.savesDuplicate") });
+        const remove = h("button", { type: "button", class: "btn", i18n: "ui.savesDelete", text: t("ui.savesDelete") });
+        edit.addEventListener("click", function () { openSave(item.id); });
+        pdf.addEventListener("click", function () { downloadSaved(item.id, pdf); });
+        copy.addEventListener("click", function () { duplicateSave(item.id); });
+        remove.addEventListener("click", function () {
+            if (remove.dataset.armed !== "1") {
+                listNode.querySelectorAll("button[data-armed]").forEach(function (button) {
+                    button.dataset.armed = "";
+                    button.textContent = t(button.dataset.i18n || "ui.savesDelete");
+                });
+                remove.dataset.armed = "1";
+                remove.textContent = t("ui.savesDeleteArmed");
+                return;
+            }
+            forgetSave(item.id);
+        });
+        const row = h("li", { class: "save-row" }, [
+            h("strong", { text: item.name || kind }),
+            h("p", { class: "note", text: kind + " · " + saveWhen(item.updated) }),
+            h("div", { class: "save-row-actions" }, [edit, pdf, copy, remove])
+        ]);
+        if (item.id === currentSaveId) row.classList.add("is-current");
+        listNode.appendChild(row);
+    });
+    document.querySelectorAll(".saves-count").forEach(function (node) {
+        node.textContent = list.length ? String(list.length) : "";
+    });
+}
+
+function duplicateSave(id) {
+    const item = readSaves().find(function (entry) { return entry.id === id; });
+    if (!item) return;
+    const copy = JSON.parse(JSON.stringify(item));
+    copy.id = newSaveId();
+    copy.updated = Date.now();
+    const list = readSaves();
+    list.unshift(copy);
+    if (list.length > SAVE_LIMIT) list.length = SAVE_LIMIT;
+    writeSaves(list);
+    paintSaves();
+    showStatus(t("ui.savesStored"));
+}
+
+function toggleSaves(force) {
+    const panel = document.getElementById("save-manager");
+    if (!panel) return;
+    const open = typeof force === "boolean" ? force : panel.hidden;
+    panel.hidden = !open;
+    if (open) {
+        paintSaves();
+        const store = document.getElementById("save-manager-store");
+        if (store) store.focus();
+    }
+}
+
+async function downloadSaved(id, button) {
+    const item = readSaves().find(function (entry) { return entry.id === id; });
+    if (!item || saveSwap) return;
+    const nameInput = document.getElementById("pdf-name");
+    const studio = document.getElementById("studio");
+    const backup = {
+        doc: JSON.parse(JSON.stringify(doc)),
+        lang: lang,
+        name: nameInput ? nameInput.value : "",
+        custom: filenameCustom,
+        id: currentSaveId,
+        hidden: !!(studio && studio.hidden)
+    };
+    saveSwap = true;
+    if (button) {
+        button.disabled = true;
+        button.textContent = t("ui.working");
+    }
+    try {
+        doc = JSON.parse(JSON.stringify(item.doc));
+        normalize(doc);
+        lang = doc.lang === "en" ? "en" : "nl";
+        if (nameInput) nameInput.value = item.name || "";
+        render();
+        if (studio && studio.hidden) {
+            studio.hidden = false;
+            document.body.classList.add("pdf-offstage");
+        }
+        await ensurePdfLibs();
+        downloadBlob(await buildPdfBytes(), pdfFilename());
+        showStatus(t("ui.downloaded").replace("{name}", pdfFilename()));
+    } catch (error) {
+        showError(t("ui.pdfError") + " " + (error && error.message ? error.message : ""));
+    } finally {
+        document.body.classList.remove("pdf-offstage");
+        doc = backup.doc;
+        normalize(doc);
+        lang = backup.lang;
+        currentSaveId = backup.id;
+        filenameCustom = backup.custom;
+        if (nameInput) nameInput.value = backup.name;
+        if (studio && backup.hidden) studio.hidden = true;
+        render();
+        saveSwap = false;
+        if (button) {
+            button.disabled = false;
+            button.textContent = t("ui.savesPdf");
+        }
+    }
+}
+
+function mountSaves() {
+    if (document.getElementById("save-manager")) return;
+    const close = h("button", { id: "save-manager-close", class: "btn", type: "button", i18n: "ui.cancel" });
+    const store = h("button", { id: "save-manager-store", class: "btn-primary", type: "button", i18n: "ui.savesStore" });
+    const copy = h("button", { id: "save-manager-copy", class: "btn", type: "button", i18n: "ui.savesCopy" });
+    const panel = h("div", { id: "save-manager", class: "save-manager", hidden: "hidden" });
+    const card = h("div", { class: "save-manager-card", role: "dialog", "aria-labelledby": "save-manager-title" }, [
+        h("div", { class: "save-manager-head" }, [
+            h("h2", { id: "save-manager-title", i18n: "ui.savesTitle" }),
+            close
+        ]),
+        h("p", { class: "note", i18n: "ui.savesLead" }),
+        h("div", { class: "save-manager-actions" }, [store, copy]),
+        h("p", { id: "save-manager-empty", class: "note", i18n: "ui.savesEmpty" }),
+        h("ul", { id: "save-manager-list", class: "save-list" })
+    ]);
+    panel.appendChild(card);
+    document.body.appendChild(panel);
+    close.addEventListener("click", function () { toggleSaves(false); });
+    store.addEventListener("click", function () { rememberSave(false); });
+    copy.addEventListener("click", function () { rememberSave(true); });
+    panel.addEventListener("click", function (event) {
+        if (event.target === panel) toggleSaves(false);
+    });
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && panel.hidden === false) toggleSaves(false);
+    });
+    document.querySelectorAll(".saves-open").forEach(function (button) {
+        button.addEventListener("click", function () { toggleSaves(); });
+    });
+    paintSaves();
+}
+/* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
 /* Stored language, ?lang=, buttons, fixed headings, and the FAQ schema text. */
 
 function spellLocale() {
@@ -4369,6 +4687,7 @@ function applyLanguage() {
     paintContrastWarning();
     syncFaqSchema();
     refreshAiBox(false);
+    if (typeof paintSaves === "function") paintSaves();
     const morePages = document.getElementById("more-pages");
     if (morePages) morePages.setAttribute("aria-label", t("site.morePages"));
 }
@@ -4752,6 +5071,10 @@ function mountTools() {
         h("div", { class: "spacer" }),
         undoBtn,
         redoBtn,
+        h("button", { type: "button", class: "btn saves-open", id: "saves-open" }, [
+            h("span", { i18n: "ui.saves" }),
+            h("span", { class: "saves-count" })
+        ]),
         name,
         ai,
         download,
@@ -4899,6 +5222,7 @@ function mountTools() {
         usePhotoUrl();
     });
     photoUrl.addEventListener("change", usePhotoUrl);
+    mountSaves();
 
     const blockSize = document.getElementById("block-size");
     blockSize.addEventListener("pointerdown", function () { photoWidthSnapped = false; });
@@ -5310,6 +5634,7 @@ function resetAll(button) {
         localStorage.removeItem(STORAGE_DOC);
         localStorage.removeItem(STORAGE_NAME);
     } catch (error) { /* private mode */ }
+    clearSaves();
     past = [];
     future = [];
     selectedId = null;
@@ -5373,6 +5698,7 @@ function openFromText(text) {
         doc = previous;
         throw error;
     }
+    currentSaveId = "";
     setupReturn = false;
     setPhase("studio");
     if (built) installDocument(built, false);
@@ -5660,12 +5986,14 @@ function applyRouteState(state) {
 const CATALOG = {
     "nursing-cv": "@@@CV\nNAME: Noor<br>El Amrani\nROLE: Registered nurse\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0001\nEMAIL: noor@example.com\nBORN: 01-01-1992 (34)\nLABEL: Registration\nVALUE: Example Nursing Board, number EX-0000\n@@@SKILLS\nPOINT: Handover\nPOINT: Shift notes\nPOINT: Student supervision\n@@@STRENGTHS\nPOINT: Night handover: Leaves a note the next shift can read in two minutes.\nPOINT: Steady lists: Keeps wards and shifts in two short lists, not a slogan.\n@@@PROJECTS\nPOINT: Medical admissions: 28 beds, including the night handover.\nPOINT: Day clinic: Wound reviews, twice a week.\n@@@PROFILE\nNoor El Amrani is a made-up registered nurse from Example City. This CV belongs to nobody. The registration sits in the sidebar. Wards and shifts sit on the page. The number EX-0000 is not a real registration, and this page does not give clinical advice.\n@@@LETTERHEAD\nTITLE:\nDATE: Example City, 31 October 2026\nTO: Example Ward<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a registered nurse, a made-up vacancy\n@@@JOB\nTITLE: Registered nurse\nDATE: 2022 – 2024\nORGANIZATION: Example Medical Ward\nPOINT: Kept the ward list to admissions, beds and the night handover.\nPOINT: Left the day clinic on the list as two sessions a week.\n@@@JOB\nTITLE: Charge nurse\nDATE: 2020 – 2022\nORGANIZATION: Example Day Clinic\nPOINT: Charge nurse on a Sunday, when the team was short.\nPOINT: Student supervision on the early shift.\n@@@STUDY\nTITLE: Nursing\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A classroom placement on a ward that exists only in this CV.\n@@@STUDY\nTITLE: Foundation year\nDATE: 2015 – 2016\nORGANIZATION: Example College\nPOINT: Lists, handover notes and a first practice ward.\n@@@PARAGRAPH\nThe organisations named here exist only in this example.\n@@@LIST\nPOINT: Medical admissions, 28 beds, including the night handover.\nPOINT: A day clinic for wound reviews, twice a week.\nPOINT: Student supervision on the early shift.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nThis example is not a real application.\nSIGN: Noor El Amrani\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
     "nursing-letter": "@@@LETTER\nNAME: Noor<br>El Amrani\nROLE: Registered nurse\nTITLE: Motivation letter\nDATE: Example City, 31 October 2026\nTO: Example Ward<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a registered nurse, a made-up vacancy\nSUMMARY: Noor El Amrani is a made-up registered nurse. This letter belongs to nobody, the vacancy is invented, and it does not give clinical advice.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0001\nEMAIL: noor@example.com\nBORN:\nLABEL: Registration\nVALUE: Example Nursing Board, number EX-0000\n@@@SKILLS\nPOINT: Handover\nPOINT: Shift notes\nPOINT: Student supervision\n@@@STRENGTHS\nPOINT: Night handover: Leaves a note the next shift can read in two minutes.\nPOINT: Steady lists: Keeps wards and shifts in two short lists, not a slogan.\n@@@PROJECTS\nPOINT: Medical admissions: 28 beds, including the night handover.\nPOINT: Day clinic: Wound reviews, twice a week.\n@@@PARAGRAPH\nDear hiring team,\n@@@SECTION\nHEADING: The ward, then the shift\nBODY: I put the registration on the first lines and the work under it. At Example Medical Ward, which exists only in this letter, the list was admissions, a night handover, and a day clinic twice a week.\n@@@SECTION\nHEADING: When the team is short\nBODY: On a made-up Sunday I was the charge nurse. The example is only here to show a shift line. It is not clinical advice.\n@@@LIST\nPOINT: Admissions, beds and a night handover on one list.\nPOINT: A day clinic twice a week.\nPOINT: A Sunday charge when the team was short.\n@@@JOB\nTITLE: Registered nurse\nDATE: 2022 – 2024\nORGANIZATION: Example Medical Ward\nPOINT: Kept the ward list to admissions, beds and the night handover.\n@@@JOB\nTITLE: Charge nurse\nDATE: 2020 – 2022\nORGANIZATION: Example Day Clinic\nPOINT: Charge nurse on a Sunday, when the team was short.\n@@@STUDY\nTITLE: Nursing\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A classroom placement on a ward that exists only in this letter.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nI will gladly explain this made-up application in a meeting that also does not exist.\nSIGN: Noor El Amrani\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "publieksdienst-letter": "@@@LETTER\nNAME: Noa<br>de Vries\nROLE: Medewerker publieksdienst\nTITLE: Motivatiebrief\nDATE: Utrecht, 31 oktober 2026\nTO: Bibliotheek aan de Werf<br>Ter attentie van de balie\nSUBJECT: medewerker publieksdienst\nSUMMARY: Noa de Vries is verzonnen. Deze brief laat de volgorde van een motivatiebrief zien. De bibliotheek is verzonnen.\n@@@PARAGRAPH\nMensen vragen zelden om de catalogus. Ze vragen of een boek er is, of de zaal nog vrij is, en of hun kaart het doet. Dat werk doe ik graag, en ik schrijf de korte briefjes op de balie die iemand in één oogopslag snapt.\n@@@PARAGRAPH\nIk werk nu in een kleine uitleenbalie. Ik wil datzelfde doen in een grotere zaal.\n@@@CLOSING\nMet vriendelijke groet,\nSIGN: Noa de Vries\n@@@THEME\nSIDEBAR: #f4f4f5\nSIDEBARTEXT: #18181b\nACCENT: #18181b\nACCENTLIGHT: #18181b\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: lora\n@@@END",
     "software-engineer-cv": "@@@CV\nNAME: Rae<br>Okonkwo\nROLE: Software engineer\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0000\nEMAIL: rae@example.com\nBORN: 01-01-1994 (32)\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests and reviews\n@@@STRENGTHS\nPOINT: Clear reviews: Writes the comment once so the next review is shorter.\nPOINT: Structure: Puts a slow query into one sentence a teammate can test.\n@@@PROJECTS\nPOINT: Catalogue search: Stayed under a second after the collection passed a million rows.\nPOINT: Review checklist: Cut the repeat comments on pull requests.\n@@@PROFILE\nRae Okonkwo is a made-up software engineer from Example City. This CV belongs to nobody. Tools sit in the sidebar. Projects, with a result, sit on the page.\n@@@LETTERHEAD\nTITLE:\nDATE: Example City, 31 October 2026\nTO: Example Organisation<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a software engineer, a made-up vacancy\n@@@JOB\nTITLE: Software engineer\nDATE: 2022 – 2024\nORGANIZATION: Example Catalogue Ltd\nPOINT: Shipped a search path that stayed under a second after a million made-up rows.\nPOINT: Tested the slow queries before they reached the night job.\n@@@JOB\nTITLE: Software engineer\nDATE: 2020 – 2022\nORGANIZATION: Example Bureau\nPOINT: Wrote a review checklist that cut the repeat comments on pull requests.\nPOINT: Kept the notes when a made-up team changed the plan the same afternoon.\n@@@STUDY\nTITLE: Computer science\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A graduation project about a search index that never left the classroom.\n@@@STUDY\nTITLE: Foundation year\nDATE: 2015 – 2016\nORGANIZATION: Example College\nPOINT: Type, tests and a first practice site.\n@@@PARAGRAPH\nThe organisations named here exist only in this example.\n@@@LIST\nPOINT: The search result is one sentence a stranger can check.\nPOINT: The review checklist is one page.\nPOINT: The practice site belonged to a team that was never real.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nThis example is not a real application.\nSIGN: Rae Okonkwo\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
     "software-engineer-letter": "@@@LETTER\nNAME: Rae<br>Okonkwo\nROLE: Software engineer\nTITLE: Motivation letter\nDATE: Example City, 31 October 2026\nTO: Example Organisation<br>For the hiring team<br>Example Street 1<br>Example City\nSUBJECT: Application as a software engineer, a made-up vacancy\nSUMMARY: Rae Okonkwo is a made-up software engineer. This letter belongs to nobody and the vacancy is invented.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Example City\nPHONE: +31 6 0000 0000\nEMAIL: rae@example.com\nBORN:\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests and reviews\n@@@STRENGTHS\nPOINT: Clear reviews: Writes the comment once so the next review is shorter.\nPOINT: Structure: Puts a slow query into one sentence a teammate can test.\n@@@PROJECTS\nPOINT: Catalogue search: Stayed under a second after the collection passed a million rows.\nPOINT: Review checklist: Cut the repeat comments on pull requests.\n@@@PARAGRAPH\nDear hiring team,\n@@@SECTION\nHEADING: A question, then the page\nBODY: I start with what was slow or unclear. At Example Catalogue Ltd, a company that exists only in this letter, I shipped a search path that stayed under a second after a million made-up rows.\n@@@SECTION\nHEADING: Reviews a teammate can follow\nBODY: At Example Bureau the checklist was for a team that was never real. Write the comment once, then the repeats get shorter.\n@@@LIST\nPOINT: A search result a stranger can check in one sentence.\nPOINT: A review checklist of one page.\nPOINT: Notes that still match after the page is saved.\n@@@JOB\nTITLE: Software engineer\nDATE: 2022 – 2024\nORGANIZATION: Example Catalogue Ltd\nPOINT: Shipped a search path that stayed under a second after a million made-up rows.\n@@@JOB\nTITLE: Software engineer\nDATE: 2020 – 2022\nORGANIZATION: Example Bureau\nPOINT: Wrote a review checklist that cut the repeat comments on pull requests.\n@@@STUDY\nTITLE: Computer science\nDATE: 2016 – 2020\nORGANIZATION: Example University\nPOINT: A graduation project about a search index that never left the classroom.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nI will gladly explain this made-up application in a meeting that also does not exist.\nSIGN: Rae Okonkwo\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
     "softwareontwikkelaar-cv": "@@@CV\nNAME: Pim<br>Vogel\nROLE: Softwareontwikkelaar\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0002\nEMAIL: pim@example.com\nBORN: 01-01-1995 (31)\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests en reviews\n@@@STRENGTHS\nPOINT: Heldere reviews: Schrijft de opmerking één keer, zodat de volgende review korter is.\nPOINT: Structuur: Zet een trage query in één zin die een teamgenoot kan testen.\n@@@PROJECTS\nPOINT: Cataloguszoeken: Bleef onder een seconde nadat de verzameling een miljoen rijen telde.\nPOINT: Reviewlijst: Bracht de herhaalde opmerkingen op pull requests terug.\n@@@PROFILE\nPim Vogel is een verzonnen softwareontwikkelaar uit Voorbeeldstad. Dit cv hoort bij niemand. Het gereedschap staat in de zijbalk. De projecten, met een resultaat, staan op de pagina.\n@@@LETTERHEAD\nTITLE:\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeld Organisatie<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als softwareontwikkelaar, een verzonnen vacature\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldcatalogus BV\nPOINT: Leverde een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.\nPOINT: Testte de trage queries voordat ze in de nachtelijke taak kwamen.\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2020 – 2022\nORGANIZATION: Voorbeeldbureau\nPOINT: Schreef een reviewlijst die de herhaalde opmerkingen op pull requests terugbracht.\nPOINT: Hield de notities bij toen een verzonnen team dezelfde middag het plan wijzigde.\n@@@STUDY\nTITLE: Informatica\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een afstudeerproject over een zoekindex die het lokaal nooit verliet.\n@@@STUDY\nTITLE: Basisjaar\nDATE: 2015 – 2016\nORGANIZATION: Voorbeeld College\nPOINT: Typografie, tests en een eerste oefensite.\n@@@PARAGRAPH\nDe organisaties in dit voorbeeld bestaan alleen hier.\n@@@LIST\nPOINT: Het zoekresultaat is één zin die een buitenstaander kan nagaan.\nPOINT: De reviewlijst is één bladzijde.\nPOINT: De oefensite hoorde bij een team dat nooit heeft bestaan.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nDit voorbeeld is geen echte sollicitatie.\nSIGN: Pim Vogel\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
     "softwareontwikkelaar-letter": "@@@LETTER\nNAME: Pim<br>Vogel\nROLE: Softwareontwikkelaar\nTITLE: Motivatiebrief\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeld Organisatie<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als softwareontwikkelaar, een verzonnen vacature\nSUMMARY: Pim Vogel is een verzonnen softwareontwikkelaar. Deze brief hoort bij niemand en de vacature is verzonnen.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0002\nEMAIL: pim@example.com\nBORN:\n@@@SKILLS\nPOINT: TypeScript\nPOINT: Python\nPOINT: Tests en reviews\n@@@STRENGTHS\nPOINT: Heldere reviews: Schrijft de opmerking één keer, zodat de volgende review korter is.\nPOINT: Structuur: Zet een trage query in één zin die een teamgenoot kan testen.\n@@@PROJECTS\nPOINT: Cataloguszoeken: Bleef onder een seconde nadat de verzameling een miljoen rijen telde.\nPOINT: Reviewlijst: Bracht de herhaalde opmerkingen op pull requests terug.\n@@@PARAGRAPH\nBeste team,\n@@@SECTION\nHEADING: Eerst de vraag, dan de pagina\nBODY: Ik begin bij wat traag of onduidelijk was. Bij Voorbeeldcatalogus BV, een bedrijf dat alleen in deze brief bestaat, leverde ik een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.\n@@@SECTION\nHEADING: Reviews die een teamgenoot volgt\nBODY: Bij Voorbeeldbureau was de lijst voor een team dat nooit heeft bestaan. Eén opmerking, daarna minder herhaling.\n@@@LIST\nPOINT: Een zoekresultaat dat een buitenstaander in één zin nagaat.\nPOINT: Een reviewlijst van één bladzijde.\nPOINT: Notities die na het opslaan nog kloppen.\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldcatalogus BV\nPOINT: Leverde een zoekpad dat onder een seconde bleef na een miljoen verzonnen rijen.\n@@@JOB\nTITLE: Softwareontwikkelaar\nDATE: 2020 – 2022\nORGANIZATION: Voorbeeldbureau\nPOINT: Schreef een reviewlijst die de herhaalde opmerkingen op pull requests terugbracht.\n@@@STUDY\nTITLE: Informatica\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een afstudeerproject over een zoekindex die het lokaal nooit verliet.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nIk licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.\nSIGN: Pim Vogel\n@@@THEME\nSIDEBAR: #1e293b\nSIDEBARTEXT: #f8fafc\nACCENT: #0284c7\nACCENTLIGHT: #38bdf8\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
     "verpleegkundige-cv": "@@@CV\nNAME: Esmee<br>Hof\nROLE: Verpleegkundige\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 92\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0003\nEMAIL: esmee@example.com\nBORN: 01-01-1993 (33)\nLABEL: Registratie\nVALUE: Voorbeeldregister, nummer EX-0000\n@@@SKILLS\nPOINT: Overdracht\nPOINT: Dienstnotities\nPOINT: Begeleiding\n@@@STRENGTHS\nPOINT: Nachtelijke overdracht: Laat een notitie achter die de volgende dienst in twee minuten leest.\nPOINT: Korte lijsten: Houdt afdelingen en diensten in twee korte lijsten, niet in een slogan.\n@@@PROJECTS\nPOINT: Opnameafdeling: 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Dagkliniek: Wondcontroles, twee keer per week.\n@@@PROFILE\nEsmee Hof is een verzonnen verpleegkundige uit Voorbeeldstad. Dit cv hoort bij niemand. De registratie staat in de zijbalk. Afdelingen en diensten staan op de pagina. Het nummer EX-0000 is geen echte registratie, en dit cv geeft geen zorgadvies.\n@@@LETTERHEAD\nTITLE:\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeldafdeling<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als verpleegkundige, een verzonnen vacature\n@@@JOB\nTITLE: Verpleegkundige\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldafdeling\nPOINT: Hield de afdelingslijst bij opnames, bedden en de nachtelijke overdracht.\nPOINT: Liet de dagkliniek op de lijst staan als twee sessies per week.\n@@@JOB\nTITLE: Eerste verpleegkundige\nDATE: 2020 – 2022\nORGANIZATION: Voorbeelddagkliniek\nPOINT: Eerste verpleegkundige op een zondag, toen het team krap was.\nPOINT: Begeleiding van een student in de vroege dienst.\n@@@STUDY\nTITLE: Verpleegkunde\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een stage in de klas op een afdeling die alleen in dit cv bestaat.\n@@@STUDY\nTITLE: Basisjaar\nDATE: 2015 – 2016\nORGANIZATION: Voorbeeld College\nPOINT: Lijsten, overdracht en een eerste oefenafdeling.\n@@@PARAGRAPH\nDe organisaties in dit voorbeeld bestaan alleen hier.\n@@@LIST\nPOINT: Opnameafdeling, 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Een dagkliniek voor wondcontroles, twee keer per week.\nPOINT: Begeleiding van een student in de vroege dienst.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nDit voorbeeld is geen echte sollicitatie.\nSIGN: Esmee Hof\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
-    "verpleegkundige-letter": "@@@LETTER\nNAME: Esmee<br>Hof\nROLE: Verpleegkundige\nTITLE: Motivatiebrief\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeldafdeling<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als verpleegkundige, een verzonnen vacature\nSUMMARY: Esmee Hof is een verzonnen verpleegkundige. Deze brief hoort bij niemand, de vacature is verzonnen, en zij geeft geen zorgadvies.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0003\nEMAIL: esmee@example.com\nBORN:\nLABEL: Registratie\nVALUE: Voorbeeldregister, nummer EX-0000\n@@@SKILLS\nPOINT: Overdracht\nPOINT: Dienstnotities\nPOINT: Begeleiding\n@@@STRENGTHS\nPOINT: Nachtelijke overdracht: Laat een notitie achter die de volgende dienst in twee minuten leest.\nPOINT: Korte lijsten: Houdt afdelingen en diensten in twee korte lijsten, niet in een slogan.\n@@@PROJECTS\nPOINT: Opnameafdeling: 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Dagkliniek: Wondcontroles, twee keer per week.\n@@@PARAGRAPH\nBeste team,\n@@@SECTION\nHEADING: Eerst de afdeling, dan de dienst\nBODY: Ik zet de registratie op de eerste regels en het werk daaronder. Op Voorbeeldafdeling, die alleen in deze brief bestaat, stonden de opnames, een nachtelijke overdracht en een dagkliniek twee keer per week.\n@@@SECTION\nHEADING: Als het team krap is\nBODY: Op een verzonnen zondag was ik de eerste verpleegkundige. Het voorbeeld staat hier alleen om een dienstregel te tonen. Het is geen zorgadvies.\n@@@LIST\nPOINT: Opnames, bedden en een nachtelijke overdracht op één lijst.\nPOINT: Een dagkliniek twee keer per week.\nPOINT: Een zondagdienst toen het team krap was.\n@@@JOB\nTITLE: Verpleegkundige\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldafdeling\nPOINT: Hield de afdelingslijst bij opnames, bedden en de nachtelijke overdracht.\n@@@JOB\nTITLE: Eerste verpleegkundige\nDATE: 2020 – 2022\nORGANIZATION: Voorbeelddagkliniek\nPOINT: Eerste verpleegkundige op een zondag, toen het team krap was.\n@@@STUDY\nTITLE: Verpleegkunde\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een stage in de klas op een afdeling die alleen in deze brief bestaat.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nIk licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.\nSIGN: Esmee Hof\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END"
+    "verpleegkundige-letter": "@@@LETTER\nNAME: Esmee<br>Hof\nROLE: Verpleegkundige\nTITLE: Motivatiebrief\nDATE: Voorbeeldstad, 31 oktober 2026\nTO: Voorbeeldafdeling<br>Aan het team<br>Voorbeeldstraat 1<br>Voorbeeldstad\nSUBJECT: Sollicitatie als verpleegkundige, een verzonnen vacature\nSUMMARY: Esmee Hof is een verzonnen verpleegkundige. Deze brief hoort bij niemand, de vacature is verzonnen, en zij geeft geen zorgadvies.\n@@@PHOTO\nCAPTION:\nASPECT: 3 / 4\nWIDTH: 64\nFILLED: yes\nURL:\n@@@CONTACT\nCITY: Voorbeeldstad\nPHONE: +31 6 0000 0003\nEMAIL: esmee@example.com\nBORN:\nLABEL: Registratie\nVALUE: Voorbeeldregister, nummer EX-0000\n@@@SKILLS\nPOINT: Overdracht\nPOINT: Dienstnotities\nPOINT: Begeleiding\n@@@STRENGTHS\nPOINT: Nachtelijke overdracht: Laat een notitie achter die de volgende dienst in twee minuten leest.\nPOINT: Korte lijsten: Houdt afdelingen en diensten in twee korte lijsten, niet in een slogan.\n@@@PROJECTS\nPOINT: Opnameafdeling: 28 bedden, inclusief de nachtelijke overdracht.\nPOINT: Dagkliniek: Wondcontroles, twee keer per week.\n@@@PARAGRAPH\nBeste team,\n@@@SECTION\nHEADING: Eerst de afdeling, dan de dienst\nBODY: Ik zet de registratie op de eerste regels en het werk daaronder. Op Voorbeeldafdeling, die alleen in deze brief bestaat, stonden de opnames, een nachtelijke overdracht en een dagkliniek twee keer per week.\n@@@SECTION\nHEADING: Als het team krap is\nBODY: Op een verzonnen zondag was ik de eerste verpleegkundige. Het voorbeeld staat hier alleen om een dienstregel te tonen. Het is geen zorgadvies.\n@@@LIST\nPOINT: Opnames, bedden en een nachtelijke overdracht op één lijst.\nPOINT: Een dagkliniek twee keer per week.\nPOINT: Een zondagdienst toen het team krap was.\n@@@JOB\nTITLE: Verpleegkundige\nDATE: 2022 – 2024\nORGANIZATION: Voorbeeldafdeling\nPOINT: Hield de afdelingslijst bij opnames, bedden en de nachtelijke overdracht.\n@@@JOB\nTITLE: Eerste verpleegkundige\nDATE: 2020 – 2022\nORGANIZATION: Voorbeelddagkliniek\nPOINT: Eerste verpleegkundige op een zondag, toen het team krap was.\n@@@STUDY\nTITLE: Verpleegkunde\nDATE: 2016 – 2020\nORGANIZATION: Voorbeeld Hogeschool\nPOINT: Een stage in de klas op een afdeling die alleen in deze brief bestaat.\n@@@SPACER\nSIZE: 12\n@@@CLOSING\nIk licht deze verzonnen sollicitatie graag toe in een gesprek dat eveneens niet bestaat.\nSIGN: Esmee Hof\n@@@THEME\nSIDEBAR: #14532d\nSIDEBARTEXT: #f0fdf4\nACCENT: #047857\nACCENTLIGHT: #6ee7b7\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: roboto\n@@@END",
+    "visitor-letter": "@@@LETTER\nNAME: Sam<br>Ibarra\nROLE: Visitor services\nTITLE: Motivation letter\nDATE: Harbour City, 31 October 2026\nTO: Museum of everyday design<br>Hiring desk\nSUBJECT: the visitor-services role\nSUMMARY: Sam Ibarra is invented. This letter shows the order of a motivation letter. The museum is invented.\n@@@PARAGRAPH\nThe person at the desk should be able to explain an exhibition without turning it into a lecture. I have done that work in a small gallery, and I want to do it for you.\n@@@PARAGRAPH\nI can keep a busy Saturday calm, and I can write the short signs that people actually read.\n@@@CLOSING\nYours sincerely,\nSIGN: Sam Ibarra\n@@@THEME\nSIDEBAR: #f4f4f5\nSIDEBARTEXT: #18181b\nACCENT: #18181b\nACCENTLIGHT: #18181b\nPAGE: #ffffff\nTEXT: #334155\nSIZE: 9.5\nCOLUMN: 33\nFONT: lora\n@@@END"
 };
 /* CC0-1.0 — https://creativecommons.org/publicdomain/zero/1.0/ */
 /* Named documents. CATALOG is filled from catalog/*.txt when the editor is built. */
@@ -5679,7 +6007,7 @@ function requestedTemplate() {
 }
 
 function templateLang(id) {
-    if (id.indexOf("softwareontwikkelaar") === 0 || id.indexOf("verpleegkundige") === 0) return "nl";
+    if (id.indexOf("softwareontwikkelaar") === 0 || id.indexOf("verpleegkundige") === 0 || id.indexOf("publieksdienst") === 0) return "nl";
     return "en";
 }
 
@@ -5692,6 +6020,7 @@ function openRequestedTemplate() {
     doc.theme = cvTheme();
     normalize(doc);
     applyMarked(CATALOG[id]);
+    currentSaveId = "";
     filenameCustom = false;
     documentLive = true;
     const name = document.getElementById("pdf-name");
