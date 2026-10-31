@@ -87,7 +87,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="styles.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body data-pane="page">
     <main id="view-setup" class="setup">
@@ -283,27 +283,27 @@
         </footer>
         <footer class="site-foot" id="site-foot">
             <p data-i18n="site.lead">LibreCV is a free CV and motivation-letter builder. No account. The document stays on this computer. The project's own code is public domain (CC0).</p>
-            <p data-i18n="site.how">A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.</p>
-            <p><a href="https://github.com/Vabian124/SimpleCV" data-i18n="site.github">Source code on GitHub</a></p>
-        </footer>
-        <section class="site-about" id="faq" aria-labelledby="faq-title">
-            <h2 id="faq-title" data-i18n="site.faqTitle">Questions</h2>
-            <h3 data-i18n="site.qPrice">Does LibreCV cost anything?</h3>
-            <p data-i18n="site.aPrice">No. There is no account and no charge when you download the PDF. The price is zero.</p>
-            <h3 data-i18n="site.qUpload">Is the document uploaded?</h3>
-            <p data-i18n="site.aUpload">No. The CV or letter stays in this browser. LibreCV has no account and does not receive the file.</p>
-            <h3 data-i18n="site.qDutch">Can I write a Dutch motivation letter?</h3>
-            <p data-i18n="site.aDutch">Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.</p>
-            <h3 data-i18n="site.qPdf">Can the PDF text be selected?</h3>
-            <p data-i18n="site.aPdf">Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing.</p>
-            <h3 data-i18n="site.qCode">What license is the code under?</h3>
-            <p data-i18n="site.aCode">The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.</p>
-            <nav class="guide-links" id="more-pages">
+            <p><span data-i18n="site.how">A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.</span> <a href="https://github.com/Vabian124/SimpleCV" data-i18n="site.github">Source code on GitHub</a></p>
+            <details class="site-faq" id="faq">
+                <summary data-i18n="site.faqTitle">Questions</summary>
+                <h3 data-i18n="site.qPrice">Does LibreCV cost anything?</h3>
+                <p data-i18n="site.aPrice">No. There is no account and no charge when you download the PDF. The price is zero.</p>
+                <h3 data-i18n="site.qUpload">Is the document uploaded?</h3>
+                <p data-i18n="site.aUpload">No. The CV or letter stays in this browser. LibreCV has no account and does not receive the file.</p>
+                <h3 data-i18n="site.qDutch">Can I write a Dutch motivation letter?</h3>
+                <p data-i18n="site.aDutch">Yes. The letter and the CV are two documents. Open the Dutch page, or switch this site to NL. NL changes the buttons and the fixed headings. Text you already typed stays as it is.</p>
+                <h3 data-i18n="site.qPdf">Can the PDF text be selected?</h3>
+                <p data-i18n="site.aPdf">Yes. The download is a PDF with real text, not a picture of the page. You can import that PDF and keep editing.</p>
+                <h3 data-i18n="site.qCode">What license is the code under?</h3>
+                <p data-i18n="site.aCode">The project's own code is CC0, as close to the public domain as the law allows. The bundled libraries keep their own licenses.</p>
+            </details>
+            <p class="seo-links" id="more-pages">
+                <span data-i18n="site.seoNote">Only here for search engines.</span>
                 <a href="/templates/" data-i18n="site.examples">Examples</a>
                 <a href="/motivation-letter/" data-i18n="site.letterPage">Motivation letter</a>
                 <a href="/nl/" data-i18n="site.dutchPage">Nederlands</a>
-            </nav>
-        </section>
+            </p>
+        </footer>
     </main>
 
     <div id="studio" class="studio" hidden>
@@ -373,6 +373,6 @@
         </div>
     </div>
     <input id="photo-file" type="file" accept="image/*" hidden>
-    <script src="editor.js?v=7" defer></script>
+    <script src="editor.js?v=9" defer></script>
 </body>
 </html>

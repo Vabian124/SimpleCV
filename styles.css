@@ -1587,8 +1587,10 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
 }
 
 .site-foot {
+    flex: none;
     width: min(1040px, 100%);
     margin: 18px auto 0;
+    padding-bottom: 28px;
     color: #334155;
     font-size: 14px;
     line-height: 1.55;
@@ -1596,7 +1598,19 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
 
 .site-foot p { margin: 0 0 8px; max-width: 42rem; }
 
-.site-foot a { color: #0f172a; }
+.site-foot a { color: inherit; font-weight: inherit; }
+
+.site-faq { max-width: 42rem; margin-top: 12px; }
+
+.site-faq summary { cursor: pointer; }
+
+.site-faq h3 { margin: 14px 0 4px; font-size: 15px; }
+
+.site-faq p { margin: 0 0 8px; }
+
+.seo-links { max-width: 42rem; margin: 14px 0 0; color: #64748b; font-size: 12px; }
+
+.seo-links a { margin-left: 10px; }
 
 .skip {
     position: absolute;
@@ -1649,18 +1663,10 @@ body[data-phase="studio"] .site-foot p {
 
 body[data-phase="studio"] .site-foot p + p::before { content: " "; }
 
+body[data-phase="studio"] .site-foot .site-faq,
+body[data-phase="studio"] .site-foot .seo-links { display: none; }
+
 body.pdf-exporting .site-foot { display: none; }
-
-.site-about {
-    width: min(760px, 100%);
-    margin: 8px auto 28px;
-}
-
-.site-about h2 { margin: 0 0 12px; font-size: 22px; }
-
-.site-about h3 { margin: 16px 0 4px; font-size: 16px; }
-
-.site-about p { margin: 0 0 8px; max-width: 42rem; color: #334155; line-height: 1.55; }
 
 .guide-links { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 18px; }
 
