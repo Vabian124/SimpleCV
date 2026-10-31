@@ -10,14 +10,24 @@ function fb_redirect(string $path): void {
     exit;
 }
 
-function fb_flash(string $text): void {
+function fb_flash(string $text, bool $ok = false): void {
     $_SESSION['flash'] = $text;
+    $_SESSION['flash_tone'] = $ok ? 'ok' : 'bad';
 }
 
-function fb_take_flash(): string {
+function fb_take_flash(): array {
     $text = (string)($_SESSION['flash'] ?? '');
-    unset($_SESSION['flash']);
-    return $text;
+    $tone = (string)($_SESSION['flash_tone'] ?? 'bad');
+    unset($_SESSION['flash'], $_SESSION['flash_tone']);
+    return [$text, $tone];
+}
+
+function fb_status(string $text, string $tone): string {
+    if ($text === '') {
+        return '';
+    }
+    $class = $tone === 'ok' ? 'note' : 'feedback-status is-bad';
+    return '<p class="' . $class . '">' . fb_h($text) . '</p>';
 }
 
 function fb_layout(string $title, string $body): void {
@@ -126,11 +136,17 @@ try {
             $db->prepare('UPDATE notes SET status = ? WHERE id = ?')->execute([$status, $id]);
             fb_redirect('/feedback/desk/?id=' . $id);
         }
+        if ($action === 'delete' && $id > 0) {
+            $db->prepare('DELETE FROM notes WHERE id = ?')->execute([$id]);
+            fb_flash('That note was deleted.', true);
+            fb_redirect('/feedback/desk/');
+        }
         fb_redirect('/feedback/desk/');
     }
 
     if (!fb_logged_in()) {
-        fb_login(fb_take_flash());
+        [$loginError] = fb_take_flash();
+        fb_login($loginError);
     }
 
     if (isset($_GET['download'])) {
@@ -161,7 +177,7 @@ try {
         fb_redirect('/feedback/desk/');
     }
 
-    $flash = fb_take_flash();
+    [$flash, $flashTone] = fb_take_flash();
     $noteId = (int)($_GET['id'] ?? 0);
     if ($noteId > 0) {
         $stmt = $db->prepare('SELECT * FROM notes WHERE id = ?');
@@ -177,9 +193,7 @@ try {
             $body .= ' · ' . fb_h((string)$note['email']);
         }
         $body .= '</p>';
-        if ($flash !== '') {
-            $body .= '<p class="feedback-status is-bad">' . fb_h($flash) . '</p>';
-        }
+        $body .= fb_status($flash, $flashTone);
         $body .= '<article class="desk-card"><pre>' . fb_h((string)$note['message']) . '</pre></article>';
         $details = [];
         foreach (['page' => 'Page', 'lang' => 'Language', 'ua' => 'Browser'] as $key => $label) {
@@ -204,12 +218,24 @@ try {
         }
         $next = (string)$note['status'] === 'open' ? 'close' : 'reopen';
         $nextLabel = $next === 'close' ? 'Close' : 'Open again';
-        $body .= '<form method="post" action="/feedback/desk/" class="desk-bar">';
-        $body .= '<input type="hidden" name="csrf" value="' . fb_h((string)$_SESSION['csrf']) . '">';
-        $body .= '<input type="hidden" name="action" value="' . $next . '">';
-        $body .= '<input type="hidden" name="id" value="' . (int)$note['id'] . '">';
-        $body .= '<button class="btn" type="submit">' . $nextLabel . '</button>';
-        $body .= '</form>';
+        if (isset($_GET['erase'])) {
+            $body .= '<div class="desk-card"><p>This deletes the note, the email address, and any document text. It cannot be undone.</p>';
+            $body .= '<form method="post" action="/feedback/desk/">';
+            $body .= '<input type="hidden" name="csrf" value="' . fb_h((string)$_SESSION['csrf']) . '">';
+            $body .= '<input type="hidden" name="action" value="delete">';
+            $body .= '<input type="hidden" name="id" value="' . (int)$note['id'] . '">';
+            $body .= '<button class="btn" type="submit">Delete permanently</button>';
+            $body .= '</form>';
+            $body .= '<p><a href="/feedback/desk/?id=' . (int)$note['id'] . '">Keep it</a></p></div>';
+        } else {
+            $body .= '<form method="post" action="/feedback/desk/" class="desk-bar">';
+            $body .= '<input type="hidden" name="csrf" value="' . fb_h((string)$_SESSION['csrf']) . '">';
+            $body .= '<input type="hidden" name="action" value="' . $next . '">';
+            $body .= '<input type="hidden" name="id" value="' . (int)$note['id'] . '">';
+            $body .= '<button class="btn" type="submit">' . $nextLabel . '</button>';
+            $body .= '</form>';
+            $body .= '<p class="note">Closing keeps the note. <a href="/feedback/desk/?id=' . (int)$note['id'] . '&amp;erase=1">Delete</a> removes it from this inbox.</p>';
+        }
         fb_layout('Note ' . (int)$note['id'], $body);
     }
 
@@ -241,10 +267,8 @@ try {
     $body .= '<button class="btn" type="submit">Sign out</button>';
     $body .= '</form></div>';
     $body .= '<h1>Feedback inbox</h1>';
-    $body .= '<p class="note">' . $open . ' open.</p>';
-    if ($flash !== '') {
-        $body .= '<p class="feedback-status is-bad">' . fb_h($flash) . '</p>';
-    }
+    $body .= '<p class="note">' . $open . ' open. Delete a note to remove its text from this inbox.</p>';
+    $body .= fb_status($flash, $flashTone);
     if (!$rows) {
         $body .= '<p>No notes here.</p>';
     } else {

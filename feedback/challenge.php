@@ -13,22 +13,19 @@ try {
     if (fb_hits($bucket, 3600) >= 30) {
         fb_fail(429, 'limit');
     }
-    $max = 5000;
-    $number = random_int(0, $max);
-    $salt = bin2hex(random_bytes(16));
-    $challenge = hash('sha256', $salt . $number);
-    $id = bin2hex(random_bytes(16));
+    $made = fb_altcha_new();
     $now = time();
     $db = fb_db();
     $db->prepare('DELETE FROM challenges WHERE expires < ? OR (used = 1 AND created < ?)')->execute([$now, $now - 86400]);
     $db->prepare('INSERT INTO challenges (id, salt, challenge, ip, created, expires, used) VALUES (?, ?, ?, ?, ?, ?, 0)')
-        ->execute([$id, $salt, $challenge, fb_ip(), $now, $now + 1200]);
+        ->execute([$made['signature'], $made['salt'], $made['challenge'], fb_ip(), $now, $made['expires']]);
     fb_hit($bucket);
     fb_ok([
-        'id' => $id,
-        'salt' => $salt,
-        'challenge' => $challenge,
-        'max' => $max,
+        'algorithm' => $made['algorithm'],
+        'challenge' => $made['challenge'],
+        'maxnumber' => $made['maxnumber'],
+        'salt' => $made['salt'],
+        'signature' => $made['signature'],
     ]);
 } catch (Throwable $e) {
     error_log('librecv feedback challenge failed');

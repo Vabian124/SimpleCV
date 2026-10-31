@@ -39,7 +39,7 @@ pages.forEach(function (page) {
     if (!style) fail(page[0] + " does not load /styles.css?v=");
     styleQueries.push(style[1]);
     if (html.indexOf("data-feedback") === -1) fail(page[0] + " has no feedback control");
-    if (html.indexOf('src="/feedback/open.js?v=1"') === -1) fail(page[0] + " does not load the feedback opener");
+    if (html.indexOf('src="/feedback/open.js?v=2"') === -1) fail(page[0] + " does not load the feedback opener");
     if (html.indexOf("form.js") !== -1) fail(page[0] + " loads the feedback form up front");
     if (html.indexOf("/feedback/desk") !== -1) fail(page[0] + " links the inbox");
     if (page[0] === "404.html") {
@@ -82,6 +82,20 @@ vm.runInContext(
     "\nthis.I18N_NL = I18N_NL;\nthis.I18N_EN = I18N_EN;\n",
     strings
 );
+function stringShape(node) {
+    if (Array.isArray(node)) return node.map(stringShape);
+    if (node && typeof node === "object") {
+        const out = {};
+        Object.keys(node).sort().forEach(function (key) {
+            out[key] = stringShape(node[key]);
+        });
+        return out;
+    }
+    return typeof node;
+}
+if (JSON.stringify(stringShape(strings.I18N_NL)) !== JSON.stringify(stringShape(strings.I18N_EN))) {
+    fail("Dutch and English interface strings do not match");
+}
 ["I18N_NL", "I18N_EN"].forEach(function (name) {
     const preamble = strings[name].mark.preamble;
     if (/@@@CV(?![A-Za-z])/.test(preamble) || /@@@LETTER(?![A-Za-z])/.test(preamble)) {
@@ -145,10 +159,20 @@ if (marked.blankEntry({ title: "Prime Minister", date: "", org: "", items: [] })
 if (editor.indexOf("data-feedback") === -1) fail("the editor has no feedback control");
 
 const opener = fs.readFileSync(path.join(root, "feedback", "open.js"), "utf8");
-if (opener.indexOf('"/feedback/form.js?v=1"') === -1) fail("the feedback form is not loaded on click");
+if (opener.indexOf('"/feedback/form.js?v=2"') === -1) fail("the feedback form is not loaded on click");
 const form = fs.readFileSync(path.join(root, "feedback", "form.js"), "utf8");
 if (form.indexOf("https://github.com/Vabian124/SimpleCV/issues/new?") === -1) fail("the GitHub issue link is missing");
+if (form.indexOf("maxnumber") === -1 || form.indexOf("signature") === -1) fail("the feedback form does not solve an ALTCHA challenge");
 if (/ghp_|github_pat_|SPACESHIP_API/.test(form)) fail("the feedback form contains a token");
+const copySource = form.slice(form.indexOf("var COPY = "), form.indexOf("var KIND_KEYS"));
+const copy = vm.runInNewContext(copySource + "\nCOPY;\n");
+if (JSON.stringify(stringShape(copy.en)) !== JSON.stringify(stringShape(copy.nl))) {
+    fail("the feedback form English and Dutch do not match");
+}
+const altcha = fs.readFileSync(path.join(root, "feedback", "lib.php"), "utf8");
+if (altcha.indexOf("function fb_altcha_matches") === -1 || altcha.indexOf("hash_hmac") === -1 || altcha.indexOf("return 100000") === -1) {
+    fail("the private form is not checked with ALTCHA");
+}
 ["feedback/lib.php", "feedback/submit.php", "feedback/challenge.php", "feedback/desk/index.php"].forEach(function (file) {
     const source = fs.readFileSync(path.join(root, file), "utf8");
     if (/\$2y\$|\$2a\$|\$argon2/.test(source)) fail(file + " contains a password hash");
@@ -156,8 +180,13 @@ if (/ghp_|github_pat_|SPACESHIP_API/.test(form)) fail("the feedback form contain
 const desk = fs.readFileSync(path.join(root, "feedback", "desk", "index.php"), "utf8");
 if (desk.indexOf(styleQueries[0]) === -1) fail("the inbox stylesheet cache query does not match");
 if (desk.indexOf("noindex") === -1) fail("the inbox must be noindex");
+if (desk.indexOf('name="action" value="delete"') === -1 || desk.indexOf("Delete permanently") === -1) {
+    fail("a feedback note cannot be deleted");
+}
 const feedbackPage = fs.readFileSync(path.join(root, "feedback", "index.html"), "utf8");
 if (feedbackPage.indexOf("noindex") === -1) fail("the feedback page must be noindex");
+if (feedbackPage.indexOf("data-nl=") === -1) fail("the feedback page has no Dutch text");
+if (opener.indexOf("documentElement.lang") === -1) fail("the feedback page does not follow the language query");
 const robots = fs.readFileSync(path.join(root, "robots.txt"), "utf8");
 robots.split("User-agent:").slice(1).forEach(function (block) {
     if (block.indexOf("Disallow: /feedback/") === -1) fail("a robots group does not hide /feedback/");
@@ -169,6 +198,7 @@ if (template.indexOf("https://librecv.org/feedback/") === -1 || template.indexOf
 }
 const steering = fs.readFileSync(path.join(root, "feedback.txt"), "utf8");
 if (steering.indexOf("Do not invent a CV") === -1) fail("feedback.txt does not tell an assistant to leave the document out");
+if (steering.indexOf("ALTCHA") === -1) fail("feedback.txt does not name the ALTCHA check");
 const guide = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
 if (guide.indexOf("/feedback/desk") !== -1) fail("llms.txt points at the inbox");
 if (guide.indexOf("https://librecv.org/feedback.txt") === -1) fail("llms.txt does not point at the feedback instructions");

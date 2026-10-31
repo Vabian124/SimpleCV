@@ -20,7 +20,7 @@ These pages are separate from the editor, and they are listed in `sitemap.xml`:
 
 `/step-1`, `/step-2`, `/step-3` and `/editor` are the editor itself. They stay out of the sitemap. The canonical URL of the editor is `https://librecv.org/`.
 
-Feedback is in the editor's More menu and in the page footers. The form loads when you open it. Send privately, or open a GitHub issue. The issue template tells an assistant not to paste a CV. Private notes are read at `/feedback/desk/`. That address is not linked from the public pages and is not indexed. Its password is not in this repository. Instructions for an assistant are in `feedback.txt`.
+Feedback is in the editor's More menu and in the page footers. The form loads when you open it. Send privately, or open a GitHub issue. The issue template tells an assistant not to paste a CV. Private notes are read at `/feedback/desk/`. That address is not linked from the public pages and is not indexed. Its password is not in this repository. A note can be deleted there, which removes the message and any document text. The private form uses a self-hosted ALTCHA check. Instructions for an assistant are in `feedback.txt`.
 
 You design a page. It is not a markdown document.
 

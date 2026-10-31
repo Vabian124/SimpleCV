@@ -155,6 +155,59 @@ function fb_ok(array $extra = []): void {
     exit;
 }
 
+function fb_altcha_max(): int {
+    return 100000;
+}
+
+/* Self-hosted ALTCHA SHA-256 proof of work. The browser solves it.
+   Nothing is sent to a captcha service.
+   https://altcha.org/docs/integration/quick-start/ */
+function fb_altcha_new(): array {
+    $expires = time() + 600;
+    $salt = bin2hex(random_bytes(12)) . '?expires=' . $expires;
+    $number = random_int(0, fb_altcha_max());
+    $challenge = hash('sha256', $salt . $number);
+    $signature = hash_hmac('sha256', $challenge, (string)fb_config()['secret']);
+    return [
+        'algorithm' => 'SHA-256',
+        'challenge' => $challenge,
+        'maxnumber' => fb_altcha_max(),
+        'salt' => $salt,
+        'signature' => $signature,
+        'expires' => $expires,
+    ];
+}
+
+function fb_altcha_matches(string $algorithm, string $challenge, string $salt, string $signature, string $number): bool {
+    if ($algorithm !== 'SHA-256') {
+        return false;
+    }
+    if (preg_match('/^[a-f0-9]{64}$/', $challenge) !== 1 || preg_match('/^[a-f0-9]{64}$/', $signature) !== 1) {
+        return false;
+    }
+    if (preg_match('/^[a-f0-9]{24}\?expires=(\d{10})$/', $salt, $match) !== 1) {
+        return false;
+    }
+    if ((int)$match[1] < time()) {
+        return false;
+    }
+    if (preg_match('/^(0|[1-9][0-9]{0,5})$/', $number) !== 1) {
+        return false;
+    }
+    $value = (int)$number;
+    if ($value > fb_altcha_max()) {
+        return false;
+    }
+    $secret = (string)fb_config()['secret'];
+    if ($secret === '') {
+        return false;
+    }
+    if (!hash_equals(hash_hmac('sha256', $challenge, $secret), $signature)) {
+        return false;
+    }
+    return hash_equals(hash('sha256', $salt . $value), $challenge);
+}
+
 function fb_page(string $value): string {
     $value = trim($value);
     if ($value === '' || fb_len($value) > 500) {

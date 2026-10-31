@@ -102,9 +102,13 @@ try {
         }
     }
 
-    $id = fb_field($data, 'id');
-    $number = fb_field($data, 'number');
-    if (preg_match('/^[a-f0-9]{32}$/', $id) !== 1 || preg_match('/^\d{1,7}$/', $number) !== 1) {
+    $rawNumber = $data['number'] ?? null;
+    $number = is_int($rawNumber) ? (string)$rawNumber : fb_field($data, 'number');
+    $algorithm = fb_field($data, 'algorithm');
+    $challenge = fb_field($data, 'challenge');
+    $salt = fb_field($data, 'salt');
+    $signature = fb_field($data, 'signature');
+    if (!fb_altcha_matches($algorithm, $challenge, $salt, $signature, $number)) {
         fb_hit($bucket);
         fb_fail(400, 'work');
     }
@@ -112,16 +116,16 @@ try {
     $db = fb_db();
     $db->beginTransaction();
     $stmt = $db->prepare('SELECT salt, challenge, ip, created, expires, used FROM challenges WHERE id = ?');
-    $stmt->execute([$id]);
+    $stmt->execute([$signature]);
     $row = $stmt->fetch();
     $now = time();
-    $numberOk = $row
+    $stored = $row
         && (int)$row['used'] === 0
         && (int)$row['expires'] >= $now
         && hash_equals((string)$row['ip'], fb_ip())
-        && ((int)$number <= 5000)
-        && hash_equals((string)$row['challenge'], hash('sha256', (string)$row['salt'] . $number));
-    if (!$numberOk) {
+        && hash_equals((string)$row['salt'], $salt)
+        && hash_equals((string)$row['challenge'], $challenge);
+    if (!$stored) {
         $db->rollBack();
         fb_hit($bucket);
         fb_fail(400, 'work');
@@ -159,7 +163,13 @@ try {
     }
     $db->prepare('INSERT INTO notes (created, status, kind, message, email, page, lang, ua, context) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
         ->execute([$now, 'open', $kind, $message, $email, $page, $lang, $ua, $encoded]);
-    $db->prepare('UPDATE challenges SET used = 1 WHERE id = ?')->execute([$id]);
+    $used = $db->prepare('UPDATE challenges SET used = 1 WHERE id = ? AND used = 0');
+    $used->execute([$signature]);
+    if ($used->rowCount() !== 1) {
+        $db->rollBack();
+        fb_hit($bucket);
+        fb_fail(400, 'work');
+    }
     $db->commit();
     fb_hit($bucket);
     fb_ok();

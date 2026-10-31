@@ -87,6 +87,8 @@
     };
 
     var dialog = null;
+    var work = null;
+    var workId = 0;
     var status = null;
     var kindInput = null;
     var messageInput = null;
@@ -162,35 +164,54 @@
         return out;
     }
 
-    function solve(task) {
-        var max = Number(task.max);
+    function solve(task, alive) {
+        var max = Number(task.maxnumber);
         var salt = String(task.salt || "");
         var target = String(task.challenge || "");
         var encoder = new TextEncoder();
-        var n = 0;
         return new Promise(function (resolve, reject) {
-            if (!window.crypto || !window.crypto.subtle || !max) {
+            if (!window.crypto || !window.crypto.subtle || !max || !alive()) {
                 reject(new Error("work"));
                 return;
             }
-            function batch() {
-                var stop = Math.min(max, n + 200);
-                function one() {
-                    if (n > stop) {
-                        if (n > max) reject(new Error("work"));
-                        else window.setTimeout(batch, 0);
-                        return;
-                    }
-                    var current = n;
-                    n += 1;
-                    window.crypto.subtle.digest("SHA-256", encoder.encode(salt + String(current))).then(function (buffer) {
-                        if (hex(buffer) === target) resolve(String(current));
-                        else one();
-                    }).catch(reject);
-                }
-                one();
+            var n = 0;
+            var inflight = 0;
+            var settled = false;
+            var lastYield = Date.now();
+            function finish(value) {
+                if (settled) return;
+                settled = true;
+                if (value === null) reject(new Error("work"));
+                else resolve(value);
             }
-            batch();
+            function pump() {
+                if (settled) return;
+                if (!alive()) {
+                    if (inflight === 0) finish(null);
+                    return;
+                }
+                while (inflight < 4 && n <= max) {
+                    let current = n;
+                    n += 1;
+                    inflight += 1;
+                    window.crypto.subtle.digest("SHA-256", encoder.encode(salt + String(current))).then(function (buffer) {
+                        inflight -= 1;
+                        if (!settled && hex(buffer) === target) finish(String(current));
+                        if (settled) return;
+                        if (Date.now() - lastYield > 200) {
+                            lastYield = Date.now();
+                            window.setTimeout(pump, 0);
+                        } else {
+                            pump();
+                        }
+                    }).catch(function () {
+                        inflight -= 1;
+                        finish(null);
+                    });
+                }
+                if (!settled && inflight === 0 && n > max) finish(null);
+            }
+            pump();
         });
     }
 
@@ -379,11 +400,24 @@
         dialog.hidden = false;
         setStatus("", false);
         kindInput.focus();
-        fetchChallenge().then(function (next) {
-            if (gen === generation) challenge = next;
+        startWork(gen);
+    }
+
+    function startWork(gen) {
+        workId += 1;
+        var id = workId;
+        work = fetchChallenge().then(function (task) {
+            if (gen !== generation || id !== workId) return null;
+            return solve(task, function () {
+                return gen === generation && id === workId;
+            }).then(function (number) {
+                if (gen !== generation || id !== workId) return null;
+                return { task: task, number: number };
+            });
         }).catch(function () {
-            if (gen === generation) challenge = null;
+            return null;
         });
+        return work;
     }
 
     function errorText(code) {
@@ -401,7 +435,10 @@
     function payload(number, marked) {
         var attach = checkedAttach();
         var body = {
-            id: challenge.id,
+            algorithm: challenge.algorithm,
+            challenge: challenge.challenge,
+            salt: challenge.salt,
+            signature: challenge.signature,
             number: number,
             kind: kindInput.value,
             message: messageInput.value.trim(),
@@ -471,24 +508,30 @@
         }
 
         function run() {
-            var pending = challenge ? Promise.resolve(challenge) : fetchChallenge();
-            return pending.then(function (task) {
+            var pending = work || startWork(gen);
+            return pending.then(function (solved) {
                 if (gen !== generation) return null;
-                challenge = task;
-                var age = Date.now() - Number(task.received || 0);
+                if (!solved) return null;
+                var age = Date.now() - Number(solved.task.received || 0);
                 var delay = age >= 2000 ? 0 : 2000 - age;
                 return wait(delay).then(function () {
                     if (gen !== generation) return null;
-                    return solve(task);
+                    challenge = solved.task;
+                    setStatus(text.sending, false);
+                    return post(solved.number);
                 });
-            }).then(function (number) {
-                if (gen !== generation || !number) return null;
-                setStatus(text.sending, false);
-                return post(number);
             }).then(function (result) {
-                if (gen !== generation || !result) return;
+                if (gen !== generation) return;
+                if (!result) {
+                    if (attempt < 1) {
+                        attempt += 1;
+                        return startWork(gen).then(run);
+                    }
+                    finish(text.work, true);
+                    return;
+                }
                 if (result.data && result.data.ok) {
-                    challenge = null;
+                    work = null;
                     messageInput.value = "";
                     finish(shortened ? text.thanksCut : text.thanks, false);
                     return;
@@ -496,11 +539,7 @@
                 var code = result.data && result.data.error ? result.data.error : "fail";
                 if ((code === "work" || code === "soon") && attempt < 1) {
                     attempt += 1;
-                    challenge = null;
-                    return fetchChallenge().then(function (next) {
-                        challenge = next;
-                        return run();
-                    });
+                    return startWork(gen).then(run);
                 }
                 finish(errorText(code), true);
             });

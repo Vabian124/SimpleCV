@@ -16,7 +16,7 @@
         if (pending) return;
         pending = true;
         var script = document.createElement("script");
-        script.src = "/feedback/form.js?v=1";
+        script.src = "/feedback/form.js?v=2";
         script.onload = function () {
             pending = false;
             show();
@@ -25,6 +25,16 @@
             pending = false;
         };
         document.head.appendChild(script);
+    }
+
+    if (document.body && document.body.hasAttribute("data-feedback-open")) {
+        var query = new URLSearchParams(window.location.search).get("lang");
+        var lang = query === "nl" || query === "en" ? query : "en";
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-en][data-nl]").forEach(function (node) {
+            var text = node.getAttribute("data-" + lang);
+            if (text) node.textContent = text;
+        });
     }
 
     document.addEventListener("click", function (event) {
