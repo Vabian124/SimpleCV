@@ -161,7 +161,11 @@ if (editor.indexOf("data-feedback") === -1) fail("the editor has no feedback con
 const opener = fs.readFileSync(path.join(root, "feedback", "open.js"), "utf8");
 if (opener.indexOf('"/feedback/form.js?v=2"') === -1) fail("the feedback form is not loaded on click");
 const form = fs.readFileSync(path.join(root, "feedback", "form.js"), "utf8");
-if (form.indexOf("https://github.com/Vabian124/SimpleCV/issues/new?") === -1) fail("the GitHub issue link is missing");
+if (form.indexOf("https://github.com/Vabian124/LibreCV/issues/new?") === -1) fail("the GitHub issue link is missing");
+if (home.indexOf("site.distinct") === -1 || home.indexOf("SimpleCV Python library") === -1) fail("the homepage does not say this is the CV editor");
+const llms = fs.readFileSync(path.join(root, "llms.txt"), "utf8");
+if (llms.indexOf("SimpleCV Python library") === -1 || llms.indexOf("computer-vision association") === -1) fail("llms.txt does not separate this project from the vision names");
+if (fs.readFileSync(path.join(root, "README.md"), "utf8").indexOf("github.com/Vabian124/SimpleCV") >= 0) fail("the README still points at SimpleCV");
 if (form.indexOf("maxnumber") === -1 || form.indexOf("signature") === -1) fail("the feedback form does not solve an ALTCHA challenge");
 if (/ghp_|github_pat_|SPACESHIP_API/.test(form)) fail("the feedback form contains a token");
 const copySource = form.slice(form.indexOf("var COPY = "), form.indexOf("var KIND_KEYS"));

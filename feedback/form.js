@@ -558,7 +558,7 @@
         params.set("message", body);
         if (page) params.set("page", page);
         if (email) params.set("contact", email);
-        return "https://github.com/Vabian124/SimpleCV/issues/new?" + params.toString();
+        return "https://github.com/Vabian124/LibreCV/issues/new?" + params.toString();
     }
 
     function openGithub() {

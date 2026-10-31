@@ -1,6 +1,6 @@
 # LibreCV
 
-> LibreCV is a free CV and motivation-letter builder at https://librecv.org/. There is no account. The document stays in the browser. The project's own code is CC0-1.0, as close to the public domain as the law here allows.
+> LibreCV is a free CV and motivation-letter builder at https://librecv.org/. There is no account. The document stays in the browser. The project's own code is CC0-1.0, as close to the public domain as the law here allows. It is not the LibreCV computer-vision association, and it is not the SimpleCV Python library.
 
 LibreCV is a visual editor. You design a page with blocks. It is not a markdown file, and it does not ask you to create an account.
 
@@ -17,7 +17,7 @@ LibreCV is a visual editor. You design a page with blocks. It is not a markdown 
 - [Motivation letter](https://librecv.org/motivation-letter/) and [Motivatiebrief](https://librecv.org/nl/motivatiebrief/)
 - [CV examples](https://librecv.org/templates/), including a software engineer layout and a nursing layout
 - The names on the example pages are invented
-- Feedback is optional. Private notes: https://librecv.org/feedback/ . Instructions for an assistant: https://librecv.org/feedback.txt . A public GitHub issue uses https://github.com/Vabian124/SimpleCV/issues/new?template=feedback.yml and must not include a CV or letter
+- Feedback is optional. Private notes: https://librecv.org/feedback/ . Instructions for an assistant: https://librecv.org/feedback.txt . A public GitHub issue uses https://github.com/Vabian124/LibreCV/issues/new?template=feedback.yml and must not include a CV or letter
 
 ## What it does not do
 
@@ -28,5 +28,5 @@ LibreCV is a visual editor. You design a page with blocks. It is not a markdown 
 
 ## Code
 
-- [Source code](https://github.com/Vabian124/SimpleCV): public repository, branch master
+- [Source code](https://github.com/Vabian124/LibreCV): public repository, branch master
 - License: https://creativecommons.org/publicdomain/zero/1.0/

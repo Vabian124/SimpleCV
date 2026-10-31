@@ -341,6 +341,7 @@ const I18N_EN = {
         title: "LibreCV — free CV builder, no account",
         skip: "Skip to the builder",
         lead: "LibreCV is a free CV and motivation-letter builder. No account. The document stays on this computer. The project's own code is public domain (CC0).",
+        distinct: "This LibreCV writes a CV or a motivation letter. It is not the LibreCV computer-vision association, and it is not the SimpleCV Python library.",
         how: "A step-by-step guide walks you through it. An AI template stays on this device, or you paste an answer from any model. You design a page, not a markdown file.",
         github: "Source code on GitHub",
         feedback: "Feedback",

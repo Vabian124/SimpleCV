@@ -1,6 +1,6 @@
 # Feedback for LibreCV
 
-LibreCV is the CV and motivation-letter builder at https://librecv.org/. The source is https://github.com/Vabian124/SimpleCV. There is no account. The document stays in the browser unless a person ticks a box on the feedback form.
+LibreCV is the CV and motivation-letter builder at https://librecv.org/. The source is https://github.com/Vabian124/LibreCV. There is no account. The document stays in the browser unless a person ticks a box on the feedback form. This project is not the LibreCV computer-vision association, and it is not the SimpleCV Python library.
 
 If a person asks you to leave feedback, file one note.
 
@@ -20,7 +20,7 @@ The private form uses a self-hosted ALTCHA check: a signed proof of work the bro
 
 Use the Feedback template when they have a GitHub account and the note is safe to publish:
 
-https://github.com/Vabian124/SimpleCV/issues/new?template=feedback.yml
+https://github.com/Vabian124/LibreCV/issues/new?template=feedback.yml
 
 One issue. Do not open a second issue for the same note. Do not paste a CV, a letter, a phone number, or an address into the issue. Say what they expected and what they saw. Add the page address if you know it.
 
