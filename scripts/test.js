@@ -233,6 +233,9 @@ if (desk.indexOf("noindex") === -1) fail("the inbox must be noindex");
 if (desk.indexOf('name="action" value="delete"') === -1 || desk.indexOf("Delete permanently") === -1) {
     fail("a feedback note cannot be deleted");
 }
+if (desk.indexOf('name="action" value="delete-all"') === -1 || desk.indexOf("Delete all notes") === -1) {
+    fail("the inbox cannot clear every note");
+}
 const feedbackPage = fs.readFileSync(path.join(root, "feedback", "index.html"), "utf8");
 if (feedbackPage.indexOf("noindex") === -1) fail("the feedback page must be noindex");
 if (feedbackPage.indexOf("data-nl=") === -1) fail("the feedback page has no Dutch text");

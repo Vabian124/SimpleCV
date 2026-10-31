@@ -143,6 +143,11 @@ try {
             fb_flash('That note was deleted.', true);
             fb_redirect('/feedback/desk/');
         }
+        if ($action === 'delete-all') {
+            $db->exec('DELETE FROM notes');
+            fb_flash('Every note was deleted.', true);
+            fb_redirect('/feedback/desk/');
+        }
         fb_redirect('/feedback/desk/');
     }
 
@@ -257,12 +262,16 @@ try {
         $rows = $rowsStmt->fetchAll();
     }
     $open = (int)$db->query("SELECT COUNT(*) FROM notes WHERE status = 'open'")->fetchColumn();
+    $total = (int)$db->query('SELECT COUNT(*) FROM notes')->fetchColumn();
     $body = '<div class="desk-bar">';
     $body .= '<a href="/feedback/desk/">Open</a>';
     $body .= '<a href="/feedback/desk/?show=closed">Closed</a>';
     $body .= '<a href="/feedback/desk/?show=all">All</a>';
     $body .= '<a class="btn" href="/feedback/desk/?download=json">Download JSON</a>';
     $body .= '<a class="btn" href="/feedback/desk/?download=csv">Download CSV</a>';
+    if ($total > 0) {
+        $body .= '<a href="/feedback/desk/?erase=all">Delete all</a>';
+    }
     $body .= '<form method="post" action="/feedback/desk/">';
     $body .= '<input type="hidden" name="csrf" value="' . fb_h((string)$_SESSION['csrf']) . '">';
     $body .= '<input type="hidden" name="action" value="logout">';
@@ -271,6 +280,15 @@ try {
     $body .= '<h1>Feedback inbox</h1>';
     $body .= '<p class="note">' . $open . ' open. Delete a note to remove its text from this inbox.</p>';
     $body .= fb_status($flash, $flashTone);
+    if ((string)($_GET['erase'] ?? '') === 'all' && $total > 0) {
+        $body .= '<div class="desk-card"><p>This deletes every note, every email address, and any document text. It cannot be undone.</p>';
+        $body .= '<form method="post" action="/feedback/desk/">';
+        $body .= '<input type="hidden" name="csrf" value="' . fb_h((string)$_SESSION['csrf']) . '">';
+        $body .= '<input type="hidden" name="action" value="delete-all">';
+        $body .= '<button class="btn" type="submit">Delete all notes</button>';
+        $body .= '</form>';
+        $body .= '<p><a href="/feedback/desk/">Keep them</a></p></div>';
+    }
     if (!$rows) {
         $body .= '<p>No notes here.</p>';
     } else {
