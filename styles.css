@@ -293,6 +293,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 .topbar h1 {
     margin: 0;
+    flex: 1 1 auto;
     min-width: 0;
     max-width: 28vw;
     overflow: hidden;
@@ -330,15 +331,59 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     max-height: min(70vh, 560px);
     overflow: auto;
     padding: 14px;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
     background: #fff;
     box-shadow: var(--shadow);
 }
-.ai-panel textarea { width: 100%; min-height: 160px; resize: vertical; }
-.ai-title { margin: 0; font-weight: 700; }
+.ai-panel textarea,
+.ai-panel select {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    color: var(--ink);
+}
+.ai-panel textarea {
+    min-height: 180px;
+    resize: vertical;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.ai-panel select { min-height: 42px; cursor: pointer; }
+.ai-panel textarea:focus,
+.ai-panel select:focus {
+    outline: none;
+    border-color: var(--accent-ui);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+.ai-panel .menu-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.ai-panel .menu-actions .btn,
+.ai-panel .menu-actions .btn-primary {
+    width: auto;
+    flex: 1 1 8rem;
+    min-height: 42px;
+    text-align: center;
+}
+.ai-panel .menu-actions select { flex: 1 1 100%; }
+.ai-title { margin: 0; font-size: 15px; font-weight: 700; }
 .ai-menu summary,
-.more-menu summary { list-style: none; }
+.more-menu summary {
+    display: inline-flex;
+    align-items: center;
+    list-style: none;
+    white-space: nowrap;
+}
 .ai-menu summary { font-weight: 700; border-color: #0f172a; }
+.ai-menu summary::marker,
+.more-menu summary::marker { content: none; }
 .ai-menu summary::-webkit-details-marker,
 .more-menu summary::-webkit-details-marker { display: none; }
 .more-panel {
@@ -1572,6 +1617,7 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
     .mini-doc { height: 112px; }
     .custom-palette { padding-left: 0; grid-template-columns: 1fr; }
     .topbar {
+        position: relative;
         height: auto;
         flex-wrap: wrap;
         row-gap: 8px;
@@ -1579,6 +1625,14 @@ body.pdf-exporting .editable.is-blank::before { content: none !important; }
     }
     .topbar .spacer { display: none; }
     .topbar h1 { max-width: none; flex: 1 1 140px; }
+    .ai-menu { position: static; }
+    .ai-panel {
+        left: 12px;
+        right: 12px;
+        top: calc(100% + 8px);
+        width: auto;
+        max-height: min(60vh, 520px);
+    }
     .topbar-name { width: auto; flex: 1 1 9rem; min-width: 0; }
     #setup-continue, #setup-generate { min-width: 0; }
 }
